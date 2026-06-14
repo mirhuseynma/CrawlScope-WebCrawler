@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/CrawlScope.Application/CrawlScope.Application.csproj" Id="90b6262e-9ad8-424f-98b4-afd7ee4dd7fb" />
+    <Project Path="src/Core/CrawlScope.Domain/CrawlScope.Domain.csproj" Id="d7f04cf7-6890-4af6-b9e3-9d28dcebc306" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="src/Infrastructure/CrawlScope.Infrastructure/CrawlScope.Infrastructure.csproj" Id="88738b8d-b1af-4ec6-80c1-a0e881bb4120" />
+    <Project Path="src/Infrastructure/CrawlScope.Persistence/CrawlScope.Persistence.csproj" Id="6c5a0133-af5a-4d15-a04c-21ad661db849" />
+  </Folder>
+  <Folder Name="/src/Presentation/">
+    <Project Path="src/Presentation/CrawlScope.Api/CrawlScope.Api.csproj" Id="5f06fb61-1a01-4dbf-849e-34a1dac7b644" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
