@@ -10,4 +10,13 @@
     <ProjectReference Include="..\..\Core\CrawlScope.Application\CrawlScope.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Configurations\Auth\" />
+    <Folder Include="Configurations\Crawling\" />
+    <Folder Include="Configurations\Export\" />
+    <Folder Include="Context\" />
+    <Folder Include="Identity\" />
+    <Folder Include="Seed\" />
+  </ItemGroup>
+
 </Project>

@@ -10,4 +10,11 @@
     <ProjectReference Include="..\CrawlScope.Domain\CrawlScope.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Abstractions\" />
+    <Folder Include="Modules\Auth\" />
+    <Folder Include="Modules\Crawling\" />
+    <Folder Include="Modules\Export\" />
+  </ItemGroup>
+
 </Project>
