@@ -13,6 +13,7 @@ namespace CrawlScope.Domain.Modules.Crawling.Models
     {
         public string TargetUrl { get; set; } = null!;
         public int MaxDepth { get; set; }
+        public int MaxPages { get; set; }
         public bool StayWithinDomain { get; set; }
         public CrawlJobStatus Status { get; set; } = CrawlJobStatus.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
