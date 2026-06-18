@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace CrawlScope.Application.Modules.Crawling.Validators
 {
-    public class CreateCrawlJobRequestValidator : AbstractValidator<CreateCrawlJobRequest>
+    public class CreateCrawlJobRequestValidator : AbstractValidator<CreateCrawlJobRequestDto>
     {
         public CreateCrawlJobRequestValidator()
         {
