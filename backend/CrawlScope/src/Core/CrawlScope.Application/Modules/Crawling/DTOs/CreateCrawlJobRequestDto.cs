@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CrawlScope.Application.Modules.Crawling.DTOs
 {
-    public class CreateCrawlJobRequest
+    public class CreateCrawlJobRequestDto
     {
         public string TargetUrl { get; set; } = null!;
         public int MaxDepth { get; set; }
