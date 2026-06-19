@@ -1,5 +1,6 @@
 using CrawlScope.Application;
 using CrawlScope.Persistence;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,14 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CrawlScope.Api",
+        Version = "v1"
+    });
+});
 
 var app = builder.Build();
 
@@ -18,7 +26,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("v1/swagger.json", "CrawlScope.Api v1");
+    });
 }
 
 app.UseHttpsRedirection();
