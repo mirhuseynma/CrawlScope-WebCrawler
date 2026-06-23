@@ -18,7 +18,7 @@ namespace CrawlScope.Application.Modules.Crawling.Validators
                 .GreaterThanOrEqualTo(0)
                 .WithMessage("Max Depth must be greater than or equal to 0.");
 
-            RuleFor(x => x.Maxpages)
+            RuleFor(x => x.MaxPages)
                 .InclusiveBetween(1, 500)
                 .WithMessage("Max pages must be between 1 and 500.");
         }

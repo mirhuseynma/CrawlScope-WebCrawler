@@ -15,7 +15,7 @@ namespace CrawlScope.Application.Modules.Crawling.DTOs
         public int PagesFailed { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? StartedAt { get; set; }
-        public DateTime? CompletedAt { get; set; }
+        public DateTime? FinishedAt { get; set; }
         public string? ErrorMessage { get; set; }
 
     }
