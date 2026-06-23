@@ -1,4 +1,5 @@
 ﻿using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
+using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
 using MediatR;
@@ -30,6 +31,14 @@ namespace CrawlScope.Api.Controllers
                 return NotFound();
             }
             return Ok(crawlJob);
+        }
+
+        [HttpPost("{id:guid}/start")]
+        public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new StartCrawlJobCommand(id);
+            await mediator.Send(command, cancellationToken);
+            return NoContent();
         }
     }
 }
