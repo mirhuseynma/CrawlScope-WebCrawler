@@ -2,8 +2,8 @@
 using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
+using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrawlScope.Api.Controllers
@@ -16,9 +16,17 @@ namespace CrawlScope.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCrawlJobRequestDto request, CancellationToken cancellationToken)
         {
-            var command = new CreateCrawlJobCommand(request,"System");
+            var command = new CreateCrawlJobCommand(request, "System");
             var id = await mediator.Send(command, cancellationToken);
             return Ok(id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        {
+            var query = new GetCrawlJobsQuery();
+            var crawlJobs = await mediator.Send(query, cancellationToken);
+            return Ok(crawlJobs);
         }
 
         [HttpGet("{id:guid}")]
