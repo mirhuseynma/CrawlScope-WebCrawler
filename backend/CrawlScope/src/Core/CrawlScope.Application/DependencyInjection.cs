@@ -1,10 +1,7 @@
-﻿using FluentValidation;
+using CrawlScope.Application.Abstractions.Crawling.Services;
+using CrawlScope.Application.Modules.Crawling.Services;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrawlScope.Application
 {
@@ -15,6 +12,7 @@ namespace CrawlScope.Application
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(DependencyInjection).Assembly));
             services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+            services.AddScoped<ICrawlQueueProcessor, CrawlQueueProcessor>();
             return services;
         }
     }
