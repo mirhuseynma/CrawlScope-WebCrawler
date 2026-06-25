@@ -1,8 +1,10 @@
 ﻿using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
 using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
 using CrawlScope.Application.Modules.Crawling.DTOs;
+using CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
+using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,6 +49,30 @@ namespace CrawlScope.Api.Controllers
             var command = new StartCrawlJobCommand(id);
             await mediator.Send(command, cancellationToken);
             return NoContent();
+        }
+
+        [HttpGet("{id:guid}/pages")]
+        public async Task<IActionResult> GetPages(
+            Guid id,
+            [FromQuery] string? search,
+            [FromQuery] int? statusCode,
+            [FromQuery] int? depthLevel,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetCrawledPagesQuery(id, search, statusCode, depthLevel);
+            var pages = await mediator.Send(query, cancellationToken);
+            return Ok(pages);
+        }
+
+        [HttpGet("{id:guid}/logs")]
+        public async Task<IActionResult> GetLogs(
+            Guid id,
+            [FromQuery] string? level,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetCrawlLogsQuery(id, level);
+            var logs = await mediator.Send(query, cancellationToken);
+            return Ok(logs);
         }
     }
 }
