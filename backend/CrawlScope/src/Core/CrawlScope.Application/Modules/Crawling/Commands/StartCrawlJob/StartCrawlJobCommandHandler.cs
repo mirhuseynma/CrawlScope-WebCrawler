@@ -1,5 +1,6 @@
 using CrawlScope.Application.Abstractions.Crawling.Services;
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Exceptions;
 using CrawlScope.Domain.Modules.Crawling.Enums;
 using CrawlScope.Domain.Modules.Crawling.Models;
 using MediatR;
@@ -13,12 +14,7 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob
     {
         public async Task Handle(StartCrawlJobCommand request, CancellationToken cancellationToken)
         {
-            var crawlJob = await context.CrawlJobs.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-            if (crawlJob is null)
-            {
-                throw new InvalidOperationException($"Crawl job with ID {request.Id} not found.");
-            }
+            var crawlJob = await context.CrawlJobs.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken) ?? throw new NotFoundException($"Crawl job with ID {request.Id} not found.");
 
             if (crawlJob.Status != CrawlJobStatus.Pending)
             {

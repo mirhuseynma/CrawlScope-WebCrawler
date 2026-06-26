@@ -1,3 +1,5 @@
+using CrawlScope.Api.Common.Middleware;
+using CrawlScope.Api.Common.Http;
 using CrawlScope.Application;
 using CrawlScope.Infrastructure;
 using CrawlScope.Persistence;
@@ -25,6 +27,23 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseStatusCodePages(async statusCodeContext =>
+{
+    var httpContext = statusCodeContext.HttpContext;
+
+    if (httpContext.Response.HasStarted || httpContext.Response.StatusCode < StatusCodes.Status400BadRequest)
+    {
+        return;
+    }
+
+    var problemDetails = ProblemDetailsFactory.Create(
+        httpContext,
+        httpContext.Response.StatusCode);
+
+    await httpContext.Response.WriteAsJsonAsync(problemDetails);
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
