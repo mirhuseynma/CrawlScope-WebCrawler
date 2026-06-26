@@ -1,6 +1,7 @@
 using CrawlScope.Application.Abstractions.Crawling.Models;
 using CrawlScope.Application.Abstractions.Crawling.Services;
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Exceptions;
 using CrawlScope.Domain.Modules.Crawling.Enums;
 using CrawlScope.Domain.Modules.Crawling.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ namespace CrawlScope.Application.Modules.Crawling.Services
 
             if (crawlJob is null)
             {
-                throw new InvalidOperationException($"Crawl job with ID {crawlJobId} not found.");
+                throw new NotFoundException($"Crawl job with ID {crawlJobId} not found.");
             }
 
             try
