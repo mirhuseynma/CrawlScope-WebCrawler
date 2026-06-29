@@ -19,6 +19,8 @@ namespace CrawlScope.Persistence.Context
 
         public DbSet<ExportFile> ExportFiles => Set<ExportFile>();
 
+        public DbSet<CrawlSchedule> CrawlSchedules => Set<CrawlSchedule>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

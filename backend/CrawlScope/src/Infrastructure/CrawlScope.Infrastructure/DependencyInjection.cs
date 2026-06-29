@@ -22,6 +22,7 @@ namespace CrawlScope.Infrastructure
 
             services.AddScoped<IHtmlParser, HtmlParser>();
             services.AddScoped<IExportFileStorage, LocalExportFileStorage>();
+            services.AddHostedService<CrawlScheduleWorker>();
 
             return services;
         }
