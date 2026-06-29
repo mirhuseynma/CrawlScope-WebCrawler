@@ -12,6 +12,7 @@ namespace CrawlScope.Application.Abstractions.Persistence
         DbSet<CrawledLink> CrawledLinks { get; }
         DbSet<CrawlLog> CrawlLogs { get; }
         DbSet<ExportFile> ExportFiles { get; }
+        DbSet<CrawlSchedule> CrawlSchedules { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
