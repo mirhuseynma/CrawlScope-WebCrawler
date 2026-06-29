@@ -5,6 +5,8 @@ using CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs;
+using CrawlScope.Application.Modules.Export.Commands.ExportCrawledData;
+using CrawlScope.Domain.Modules.Crawling.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -73,6 +75,18 @@ namespace CrawlScope.Api.Controllers
             var query = new GetCrawlLogsQuery(id, level);
             var logs = await mediator.Send(query, cancellationToken);
             return Ok(logs);
+        }
+
+        [HttpPost("{id:guid}/export")]
+        public async Task<IActionResult> Export(
+            Guid id,
+            [FromQuery] ExportFormat format,
+            CancellationToken cancellationToken)
+        {
+            var command = new ExportCrawledDataCommand(id, format, "System");
+            var export = await mediator.Send(command, cancellationToken);
+
+            return File(export.Content, export.ContentType, export.FileName);
         }
     }
 }
