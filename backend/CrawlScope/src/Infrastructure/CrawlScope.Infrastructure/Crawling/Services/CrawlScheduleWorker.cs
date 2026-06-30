@@ -9,17 +9,17 @@ namespace CrawlScope.Infrastructure.Crawling.Services
         IServiceScopeFactory scopeFactory,
         ILogger<CrawlScheduleWorker> logger) : BackgroundService
     {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
                     using var scope = scopeFactory.CreateScope();
                     var runner = scope.ServiceProvider.GetRequiredService<ICrawlScheduleRunner>();
-                    await runner.RunDueSchedulesAsync(stoppingToken);
+                    await runner.RunDueSchedulesAsync(cancellationToken);
                 }
-                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     return;
                 }
@@ -28,7 +28,7 @@ namespace CrawlScope.Infrastructure.Crawling.Services
                     logger.LogError(ex, "Failed to run due crawl schedules.");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
             }
         }
     }
