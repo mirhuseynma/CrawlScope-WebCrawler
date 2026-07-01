@@ -7,6 +7,7 @@ using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+const string dashboardCorsPolicy = "DashboardCorsPolicy";
 
 // Add services to the container.
 
@@ -18,6 +19,16 @@ builder.Services.AddControllers()
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(dashboardCorsPolicy, policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -60,6 +71,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(dashboardCorsPolicy);
 
 app.UseAuthorization();
 

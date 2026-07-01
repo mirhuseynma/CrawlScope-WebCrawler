@@ -89,6 +89,8 @@ secrets.json
 
 .env
 .env.*
+!.env.example
+!frontend/.env.example
 
 ######################################
 # App Settings
@@ -103,6 +105,11 @@ appsettings.Development.json
 frontend/node_modules/
 frontend/dist/
 frontend/build/
+frontend/*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
+frontend/pnpm-workspace.yaml
+.pnpm-store/
 
 ######################################
 # OS Files
