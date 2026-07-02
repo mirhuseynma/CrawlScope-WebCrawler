@@ -1,4 +1,5 @@
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
 {
     public class GetCrawledPagesQueryHandler(IAppDbContext context)
-        : IRequestHandler<GetCrawledPagesQuery, IEnumerable<CrawledPageListItemDto>>
+        : IRequestHandler<GetCrawledPagesQuery, PagedResult<CrawledPageListItemDto>>
     {
-        public async Task<IEnumerable<CrawledPageListItemDto>> Handle(GetCrawledPagesQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<CrawledPageListItemDto>> Handle(GetCrawledPagesQuery request, CancellationToken cancellationToken)
         {
             var query = context.CrawledPages
                 .AsNoTracking()
@@ -33,7 +34,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
                 query = query.Where(x => x.DepthLevel == request.DepthLevel.Value);
             }
 
-            return await query
+            var projectedQuery = query
                 .OrderBy(x => x.DepthLevel)
                 .ThenBy(x => x.CrawledAt)
                 .Select(x => new CrawledPageListItemDto
@@ -52,8 +53,13 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
                     ResponseTimeMs = x.ResponseTimeMs,
                     InternalLinksCount = x.Links.Count(link => !link.IsExternal),
                     ExternalLinksCount = x.Links.Count(link => link.IsExternal)
-                })
-                .ToListAsync(cancellationToken);
+                });
+
+            return await PagedResult<CrawledPageListItemDto>.CreateAsync(
+                projectedQuery,
+                request.PageNumber,
+                request.PageSize,
+                cancellationToken);
         }
     }
 }

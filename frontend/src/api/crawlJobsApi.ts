@@ -1,8 +1,42 @@
 import { request } from "./httpClient";
-import type { CrawlJob, CreateCrawlJobRequest } from "../types/crawlJob";
+import type {
+  CrawledPage,
+  CrawledPagesQuery,
+  CrawlJob,
+  CrawlJobDetails,
+  CrawlJobsQuery,
+  CrawlLog,
+  CrawlLogsQuery,
+  CreateCrawlJobRequest,
+  PagedResult,
+} from "../types/crawlJob";
 
-export function getCrawlJobs() {
-  return request<CrawlJob[]>("/api/CrawlJob");
+function toQueryString(params: Record<string, string | number | undefined>) {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      searchParams.set(key, String(value));
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `?${queryString}` : "";
+}
+
+export function getCrawlJobs(query: CrawlJobsQuery) {
+  return request<PagedResult<CrawlJob>>(
+    `/api/CrawlJob${toQueryString({
+      search: query.search,
+      status: query.status,
+      pageNumber: query.pageNumber,
+      pageSize: query.pageSize,
+    })}`,
+  );
+}
+
+export function getCrawlJob(id: string) {
+  return request<CrawlJobDetails>(`/api/CrawlJob/${id}`);
 }
 
 export function createCrawlJob(payload: CreateCrawlJobRequest) {
@@ -16,4 +50,40 @@ export function startCrawlJob(id: string) {
   return request<void>(`/api/CrawlJob/${id}/start`, {
     method: "POST",
   });
+}
+
+export function getCrawledPages(id: string, query: CrawledPagesQuery) {
+  return request<PagedResult<CrawledPage>>(
+    `/api/CrawlJob/${id}/pages${toQueryString({
+      search: query.search,
+      statusCode: query.statusCode,
+      depthLevel: query.depthLevel,
+      pageNumber: query.pageNumber,
+      pageSize: query.pageSize,
+    })}`,
+  );
+}
+
+export function getCrawlLogs(id: string, query: CrawlLogsQuery) {
+  return request<PagedResult<CrawlLog>>(
+    `/api/CrawlJob/${id}/logs${toQueryString({
+      level: query.level,
+      pageNumber: query.pageNumber,
+      pageSize: query.pageSize,
+    })}`,
+  );
+}
+
+export async function exportCrawlJob(id: string, format: "Csv" | "Json") {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5058";
+  const response = await fetch(`${apiBaseUrl}/api/CrawlJob/${id}/export?format=${format}`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Export failed with status ${response.status}`);
+  }
+
+  return response.blob();
 }

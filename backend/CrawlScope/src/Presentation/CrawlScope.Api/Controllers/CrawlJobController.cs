@@ -26,9 +26,14 @@ namespace CrawlScope.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? search,
+            [FromQuery] string? status,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5,
+            CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawlJobsQuery();
+            var query = new GetCrawlJobsQuery(search, status, pageNumber, pageSize);
             var crawlJobs = await mediator.Send(query, cancellationToken);
             return Ok(crawlJobs);
         }
@@ -59,9 +64,11 @@ namespace CrawlScope.Api.Controllers
             [FromQuery] string? search,
             [FromQuery] int? statusCode,
             [FromQuery] int? depthLevel,
-            CancellationToken cancellationToken)
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5,
+            CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawledPagesQuery(id, search, statusCode, depthLevel);
+            var query = new GetCrawledPagesQuery(id, search, statusCode, depthLevel, pageNumber, pageSize);
             var pages = await mediator.Send(query, cancellationToken);
             return Ok(pages);
         }
@@ -70,9 +77,11 @@ namespace CrawlScope.Api.Controllers
         public async Task<IActionResult> GetLogs(
             Guid id,
             [FromQuery] string? level,
-            CancellationToken cancellationToken)
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawlLogsQuery(id, level);
+            var query = new GetCrawlLogsQuery(id, level, pageNumber, pageSize);
             var logs = await mediator.Send(query, cancellationToken);
             return Ok(logs);
         }

@@ -1,3 +1,4 @@
+using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using MediatR;
 
@@ -7,5 +8,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
         Guid CrawlJobId,
         string? Search,
         int? StatusCode,
-        int? DepthLevel) : IRequest<IEnumerable<CrawledPageListItemDto>>;
+        int? DepthLevel,
+        int PageNumber,
+        int PageSize) : IRequest<PagedResult<CrawledPageListItemDto>>;
 }

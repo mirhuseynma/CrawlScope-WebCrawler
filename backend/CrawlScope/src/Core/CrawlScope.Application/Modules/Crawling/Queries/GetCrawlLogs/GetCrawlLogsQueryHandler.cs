@@ -1,4 +1,5 @@
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Domain.Modules.Crawling.Enums;
 using MediatR;
@@ -7,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
 {
     public class GetCrawlLogsQueryHandler(IAppDbContext context)
-        : IRequestHandler<GetCrawlLogsQuery, IEnumerable<CrawlLogDto>>
+        : IRequestHandler<GetCrawlLogsQuery, PagedResult<CrawlLogDto>>
     {
-        public async Task<IEnumerable<CrawlLogDto>> Handle(GetCrawlLogsQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<CrawlLogDto>> Handle(GetCrawlLogsQuery request, CancellationToken cancellationToken)
         {
             var query = context.CrawlLogs
                 .AsNoTracking()
@@ -21,7 +22,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
                 query = query.Where(x => x.Level == level);
             }
 
-            return await query
+            var projectedQuery = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(x => new CrawlLogDto
                 {
@@ -29,8 +30,13 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
                     Level = x.Level.ToString(),
                     Message = x.Message,
                     CreatedAt = x.CreatedAt
-                })
-                .ToListAsync(cancellationToken);
+                });
+
+            return await PagedResult<CrawlLogDto>.CreateAsync(
+                projectedQuery,
+                request.PageNumber,
+                request.PageSize,
+                cancellationToken);
         }
     }
 }
