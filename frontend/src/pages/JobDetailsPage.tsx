@@ -217,16 +217,16 @@ export function JobDetailsPage() {
                 <tbody>
                   {pagesPage.items.map((page) => (
                     <tr key={page.id}>
-                      <td>
+                      <td data-label="URL">
                         <div className="page-title">{page.title || "Untitled page"}</div>
                         <div className="url-cell">{page.url}</div>
                       </td>
-                      <td>{page.statusCode ?? "-"}</td>
-                      <td>{page.depthLevel}</td>
-                      <td>
+                      <td data-label="Status">{page.statusCode ?? "-"}</td>
+                      <td data-label="Depth">{page.depthLevel}</td>
+                      <td data-label="Links">
                         {page.internalLinksCount} internal / {page.externalLinksCount} external
                       </td>
-                      <td>{page.responseTimeMs === null ? "-" : `${page.responseTimeMs} ms`}</td>
+                      <td data-label="Response">{page.responseTimeMs === null ? "-" : `${page.responseTimeMs} ms`}</td>
                     </tr>
                   ))}
                 </tbody>
