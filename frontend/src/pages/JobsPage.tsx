@@ -246,20 +246,20 @@ export function JobsPage() {
                   <tbody>
                     {jobsPage.items.map((job) => (
                       <tr key={job.id}>
-                        <td>
+                        <td data-label="Target">
                           <div className="url-cell">{job.targetUrl}</div>
                         </td>
-                        <td>
+                        <td data-label="Status">
                           <StatusBadge status={job.status} />
                         </td>
-                        <td>{job.maxDepth}</td>
-                        <td>
+                        <td data-label="Depth">{job.maxDepth}</td>
+                        <td data-label="Pages">
                           {job.pagesCrawled}/{job.maxPages}
                         </td>
-                        <td>
+                        <td data-label="Created">
                           <span className="date-cell">{new Date(job.createdAt).toLocaleString()}</span>
                         </td>
-                        <td>
+                        <td data-label="Actions">
                           <div className="button-group">
                             <Link className="secondary-link-button" to={`/jobs/${job.id}`}>
                               View
