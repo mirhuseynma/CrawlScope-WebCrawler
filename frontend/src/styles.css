@@ -345,6 +345,23 @@ th {
   white-space: nowrap;
 }
 
+.content-preview {
+  display: -webkit-box;
+  max-width: min(640px, 48vw);
+  overflow: hidden;
+  margin: 8px 0 0;
+  color: #536174;
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.content-preview.is-empty {
+  color: #8a97a8;
+  font-style: italic;
+}
+
 .status-badge {
   display: inline-flex;
   min-width: 86px;
@@ -585,12 +602,17 @@ th {
   }
 
   .url-cell,
-  .page-title {
+  .page-title,
+  .content-preview {
     max-width: 100%;
     overflow: visible;
     text-overflow: clip;
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  .content-preview {
+    display: block;
   }
 
   .date-cell {

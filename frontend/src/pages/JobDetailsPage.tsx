@@ -220,6 +220,9 @@ export function JobDetailsPage() {
                       <td data-label="URL">
                         <div className="page-title">{page.title || "Untitled page"}</div>
                         <div className="url-cell">{page.url}</div>
+                        <p className={`content-preview${page.contentPreview ? "" : " is-empty"}`}>
+                          {page.contentPreview || "No content snapshot captured."}
+                        </p>
                       </td>
                       <td data-label="Status">{page.statusCode ?? "-"}</td>
                       <td data-label="Depth">{page.depthLevel}</td>

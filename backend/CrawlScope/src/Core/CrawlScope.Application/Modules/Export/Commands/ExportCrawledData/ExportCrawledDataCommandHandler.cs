@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using CrawlScope.Application.Abstractions.Export.Services;
 using CrawlScope.Application.Abstractions.Persistence;
@@ -58,7 +59,9 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
 
             var createdAt = DateTime.UtcNow;
             var extension = request.Format == ExportFormat.Csv ? "csv" : "json";
-            var contentType = request.Format == ExportFormat.Csv ? "text/csv" : "application/json";
+            var contentType = request.Format == ExportFormat.Csv
+                ? "text/csv; charset=utf-8"
+                : "application/json; charset=utf-8";
             var fileName = $"crawl-{request.CrawlJobId:N}-{createdAt:yyyyMMddHHmmss}.{extension}";
             var content = request.Format switch
             {
@@ -104,6 +107,7 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
 
             return JsonSerializer.SerializeToUtf8Bytes(payload, new JsonSerializerOptions
             {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 WriteIndented = true
             });
         }
@@ -131,7 +135,9 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
                     .AppendLine();
             }
 
-            return Encoding.UTF8.GetBytes(builder.ToString());
+            return Encoding.UTF8.GetPreamble()
+                .Concat(Encoding.UTF8.GetBytes(builder.ToString()))
+                .ToArray();
         }
 
         private static string EscapeCsv(string? value)
