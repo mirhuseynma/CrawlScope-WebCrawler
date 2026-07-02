@@ -1,7 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { createCrawlJob, getCrawlJobs, startCrawlJob } from "../api/crawlJobsApi";
+import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
-import type { CrawlJob, CreateCrawlJobRequest } from "../types/crawlJob";
+import type { CrawlJob, CreateCrawlJobRequest, PagedResult } from "../types/crawlJob";
 
 const initialFormState: CreateCrawlJobRequest = {
   targetUrl: "https://example.com",
@@ -10,9 +12,23 @@ const initialFormState: CreateCrawlJobRequest = {
   stayWithinDomain: true,
 };
 
+const emptyJobsPage: PagedResult<CrawlJob> = {
+  items: [],
+  pageNumber: 1,
+  pageSize: 5,
+  totalCount: 0,
+  totalPages: 0,
+  hasPreviousPage: false,
+  hasNextPage: false,
+};
+
 export function JobsPage() {
-  const [jobs, setJobs] = useState<CrawlJob[]>([]);
+  const [jobsPage, setJobsPage] = useState<PagedResult<CrawlJob>>(emptyJobsPage);
   const [form, setForm] = useState<CreateCrawlJobRequest>(initialFormState);
+  const [jobsSearch, setJobsSearch] = useState("");
+  const [jobsStatus, setJobsStatus] = useState("");
+  const [jobsPageNumber, setJobsPageNumber] = useState(1);
+  const [jobsPageSize, setJobsPageSize] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
@@ -20,20 +36,26 @@ export function JobsPage() {
 
   const totals = useMemo(
     () => ({
-      jobs: jobs.length,
-      crawled: jobs.reduce((sum, job) => sum + job.pagesCrawled, 0),
-      failed: jobs.reduce((sum, job) => sum + job.pagesFailed, 0),
+      jobs: jobsPage.totalCount,
+      crawled: jobsPage.items.reduce((sum, job) => sum + job.pagesCrawled, 0),
+      failed: jobsPage.items.reduce((sum, job) => sum + job.pagesFailed, 0),
     }),
-    [jobs],
+    [jobsPage],
   );
 
-  async function loadJobs() {
+  async function loadJobs(pageNumber = jobsPageNumber) {
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await getCrawlJobs();
-      setJobs(data);
+      const data = await getCrawlJobs({
+        search: jobsSearch,
+        status: jobsStatus,
+        pageNumber,
+        pageSize: jobsPageSize,
+      });
+      setJobsPage(data);
+      setJobsPageNumber(data.pageNumber);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to load crawl jobs.");
     } finally {
@@ -42,7 +64,7 @@ export function JobsPage() {
   }
 
   useEffect(() => {
-    void loadJobs();
+    void loadJobs(1);
   }, []);
 
   async function handleCreateJob(event: FormEvent<HTMLFormElement>) {
@@ -53,7 +75,7 @@ export function JobsPage() {
     try {
       await createCrawlJob(form);
       setForm(initialFormState);
-      await loadJobs();
+      await loadJobs(1);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to create crawl job.");
     } finally {
@@ -67,12 +89,17 @@ export function JobsPage() {
 
     try {
       await startCrawlJob(id);
-      await loadJobs();
+      await loadJobs(jobsPageNumber);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to start crawl job.");
     } finally {
       setActiveJobId(null);
     }
+  }
+
+  function applyJobFilters(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void loadJobs(1);
   }
 
   return (
@@ -82,7 +109,7 @@ export function JobsPage() {
           <p className="eyebrow">Crawl operations</p>
           <h2>Crawl Jobs</h2>
         </div>
-        <button className="icon-button" type="button" onClick={() => void loadJobs()} title="Refresh jobs">
+        <button className="icon-button" type="button" onClick={() => void loadJobs(jobsPageNumber)} title="Refresh jobs">
           Refresh
         </button>
       </div>
@@ -93,11 +120,11 @@ export function JobsPage() {
           <strong>{totals.jobs}</strong>
         </div>
         <div className="metric-card">
-          <span>Pages crawled</span>
+          <span>Pages crawled on page</span>
           <strong>{totals.crawled}</strong>
         </div>
         <div className="metric-card">
-          <span>Failed pages</span>
+          <span>Failed pages on page</span>
           <strong>{totals.failed}</strong>
         </div>
       </div>
@@ -166,54 +193,98 @@ export function JobsPage() {
             </div>
           </div>
 
+          <form className="filter-bar" onSubmit={applyJobFilters}>
+            <input
+              aria-label="Search jobs"
+              placeholder="Search URL"
+              value={jobsSearch}
+              onChange={(event) => setJobsSearch(event.target.value)}
+            />
+            <select aria-label="Filter by status" value={jobsStatus} onChange={(event) => setJobsStatus(event.target.value)}>
+              <option value="">All statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="InProgress">In progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Failed">Failed</option>
+              <option value="Canceled">Canceled</option>
+            </select>
+            <select
+              aria-label="Jobs page size"
+              value={jobsPageSize}
+              onChange={(event) => setJobsPageSize(Number(event.target.value))}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+            <button className="secondary-button" type="submit">
+              Apply
+            </button>
+          </form>
+
           {error && <div className="alert">{error}</div>}
 
           {isLoading ? (
             <div className="empty-state">Loading jobs...</div>
-          ) : jobs.length === 0 ? (
-            <div className="empty-state">No crawl jobs yet.</div>
+          ) : jobsPage.items.length === 0 ? (
+            <div className="empty-state">No crawl jobs match the current filters.</div>
           ) : (
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Target</th>
-                    <th>Status</th>
-                    <th>Depth</th>
-                    <th>Pages</th>
-                    <th>Created</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {jobs.map((job) => (
-                    <tr key={job.id}>
-                      <td>
-                        <div className="url-cell">{job.targetUrl}</div>
-                      </td>
-                      <td>
-                        <StatusBadge status={job.status} />
-                      </td>
-                      <td>{job.maxDepth}</td>
-                      <td>
-                        {job.pagesCrawled}/{job.maxPages}
-                      </td>
-                      <td>{new Date(job.createdAt).toLocaleString()}</td>
-                      <td>
-                        <button
-                          className="secondary-button"
-                          type="button"
-                          onClick={() => void handleStartJob(job.id)}
-                          disabled={job.status !== "Pending" || activeJobId === job.id}
-                        >
-                          {activeJobId === job.id ? "Starting..." : "Start"}
-                        </button>
-                      </td>
+            <>
+              <div className="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Target</th>
+                      <th>Status</th>
+                      <th>Depth</th>
+                      <th>Pages</th>
+                      <th>Created</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {jobsPage.items.map((job) => (
+                      <tr key={job.id}>
+                        <td>
+                          <div className="url-cell">{job.targetUrl}</div>
+                        </td>
+                        <td>
+                          <StatusBadge status={job.status} />
+                        </td>
+                        <td>{job.maxDepth}</td>
+                        <td>
+                          {job.pagesCrawled}/{job.maxPages}
+                        </td>
+                        <td>
+                          <span className="date-cell">{new Date(job.createdAt).toLocaleString()}</span>
+                        </td>
+                        <td>
+                          <div className="button-group">
+                            <Link className="secondary-link-button" to={`/jobs/${job.id}`}>
+                              View
+                            </Link>
+                            <button
+                              className="secondary-button"
+                              type="button"
+                              onClick={() => void handleStartJob(job.id)}
+                              disabled={job.status !== "Pending" || activeJobId === job.id}
+                            >
+                              {activeJobId === job.id ? "Starting..." : "Start"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <PaginationControls
+                label="Jobs"
+                page={jobsPage}
+                onPageChange={(pageNumber) => void loadJobs(pageNumber)}
+              />
+            </>
           )}
         </div>
       </div>

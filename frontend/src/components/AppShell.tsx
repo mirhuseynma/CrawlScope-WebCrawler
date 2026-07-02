@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { NavLink } from "react-router-dom";
 
 type AppShellProps = {
   children: ReactNode;
@@ -13,9 +14,9 @@ export function AppShell({ children }: AppShellProps) {
           <h1>Dashboard</h1>
         </div>
         <nav className="nav-list" aria-label="Primary navigation">
-          <a className="nav-item active" href="#jobs">
+          <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/jobs">
             Jobs
-          </a>
+          </NavLink>
           <a className="nav-item" href="#schedules">
             Schedules
           </a>
