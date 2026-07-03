@@ -42,11 +42,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
                     Id = x.Id,
                     Url = x.Url,
                     Title = x.Title,
-                    ContentPreview = x.Content == null
-                        ? null
-                        : x.Content.Length <= 300
-                            ? x.Content
-                            : x.Content.Substring(0, 300),
+                    ContentPreview = x.Content,
                     StatusCode = x.StatusCode,
                     DepthLevel = x.DepthLevel,
                     CrawledAt = x.CrawledAt,

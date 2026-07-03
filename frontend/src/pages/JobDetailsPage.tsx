@@ -38,6 +38,7 @@ export function JobDetailsPage() {
   const [logsPageNumber, setLogsPageNumber] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [exportingFormat, setExportingFormat] = useState<"Csv" | "Json" | null>(null);
+  const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
   async function loadDetails(pageNumber = pagesPageNumber, logPageNumber = logsPageNumber) {
@@ -70,6 +71,7 @@ export function JobDetailsPage() {
       setLogsPage(loadedLogs);
       setPagesPageNumber(loadedPages.pageNumber);
       setLogsPageNumber(loadedLogs.pageNumber);
+      setExpandedPageIds(new Set());
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to load crawl job details.");
     } finally {
@@ -84,6 +86,20 @@ export function JobDetailsPage() {
   function applyDetailFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void loadDetails(1, 1);
+  }
+
+  function toggleContentPreview(pageId: string) {
+    setExpandedPageIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(pageId)) {
+        next.delete(pageId);
+      } else {
+        next.add(pageId);
+      }
+
+      return next;
+    });
   }
 
   async function handleExport(format: "Csv" | "Json") {
@@ -215,23 +231,42 @@ export function JobDetailsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pagesPage.items.map((page) => (
-                    <tr key={page.id}>
-                      <td data-label="URL">
-                        <div className="page-title">{page.title || "Untitled page"}</div>
-                        <div className="url-cell">{page.url}</div>
-                        <p className={`content-preview${page.contentPreview ? "" : " is-empty"}`}>
-                          {page.contentPreview || "No content snapshot captured."}
-                        </p>
-                      </td>
-                      <td data-label="Status">{page.statusCode ?? "-"}</td>
-                      <td data-label="Depth">{page.depthLevel}</td>
-                      <td data-label="Links">
-                        {page.internalLinksCount} internal / {page.externalLinksCount} external
-                      </td>
-                      <td data-label="Response">{page.responseTimeMs === null ? "-" : `${page.responseTimeMs} ms`}</td>
-                    </tr>
-                  ))}
+                  {pagesPage.items.map((page) => {
+                    const isExpanded = expandedPageIds.has(page.id);
+                    const hasExpandableContent = Boolean(page.contentPreview && page.contentPreview.length > 160);
+
+                    return (
+                      <tr key={page.id}>
+                        <td data-label="URL">
+                          <div className="page-title">{page.title || "Untitled page"}</div>
+                          <div className="url-cell">{page.url}</div>
+                          <p
+                            className={`content-preview${page.contentPreview ? "" : " is-empty"}${
+                              isExpanded ? " is-expanded" : ""
+                            }`}
+                          >
+                            {page.contentPreview || "No content snapshot captured."}
+                          </p>
+                          {hasExpandableContent && (
+                            <button
+                              className="text-button"
+                              type="button"
+                              onClick={() => toggleContentPreview(page.id)}
+                              aria-expanded={isExpanded}
+                            >
+                              {isExpanded ? "Less" : "More"}
+                            </button>
+                          )}
+                        </td>
+                        <td data-label="Status">{page.statusCode ?? "-"}</td>
+                        <td data-label="Depth">{page.depthLevel}</td>
+                        <td data-label="Links">
+                          {page.internalLinksCount} internal / {page.externalLinksCount} external
+                        </td>
+                        <td data-label="Response">{page.responseTimeMs === null ? "-" : `${page.responseTimeMs} ms`}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

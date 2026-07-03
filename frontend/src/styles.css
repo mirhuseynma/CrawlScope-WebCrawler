@@ -369,6 +369,30 @@ th {
   font-style: italic;
 }
 
+.content-preview.is-expanded {
+  display: block;
+  border-left: 3px solid #d8ecff;
+  padding-left: 10px;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
+
+.text-button {
+  width: fit-content;
+  min-height: 0;
+  border: 0;
+  padding: 6px 0 0;
+  color: #17406d;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.text-button:hover {
+  color: #0f5c9d;
+  text-decoration: underline;
+}
+
 .status-badge {
   display: inline-flex;
   min-width: 86px;
