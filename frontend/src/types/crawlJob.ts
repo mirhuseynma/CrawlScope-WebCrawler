@@ -63,6 +63,28 @@ export type CreateCrawlJobRequest = {
   stayWithinDomain: boolean;
 };
 
+export type CrawlSchedule = {
+  id: string;
+  targetUrl: string;
+  maxDepth: number;
+  maxPages: number;
+  stayWithinDomain: boolean;
+  intervalMinutes: number;
+  isEnabled: boolean;
+  createdAt: string;
+  nextRunAt: string;
+  lastRunAt: string | null;
+  lastCrawlJobId: string | null;
+};
+
+export type CreateCrawlScheduleRequest = {
+  targetUrl: string;
+  maxDepth: number;
+  maxPages: number;
+  stayWithinDomain: boolean;
+  intervalMinutes: number;
+};
+
 export type CrawlJobsQuery = {
   search?: string;
   status?: string;
