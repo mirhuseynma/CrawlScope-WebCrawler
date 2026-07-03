@@ -1,7 +1,6 @@
 using CrawlScope.Api.Common.Http;
 using CrawlScope.Application.Common.Exceptions;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CrawlScope.Api.Common.Middleware
 {
@@ -55,15 +54,14 @@ namespace CrawlScope.Api.Common.Middleware
                     group => group.Key,
                     group => group.Select(error => error.ErrorMessage).ToArray());
 
-            var problemDetails = new ValidationProblemDetails(errors)
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "Validation failed",
-                Detail = "One or more validation errors occurred."
-            };
+            var response = ProblemDetailsFactory.Create(
+                context,
+                StatusCodes.Status400BadRequest,
+                "Validation failed.",
+                errors);
 
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsJsonAsync(problemDetails);
+            await context.Response.WriteAsJsonAsync(response);
         }
 
         private async Task WriteProblemAsync(
@@ -81,15 +79,16 @@ namespace CrawlScope.Api.Common.Middleware
                 logger.LogWarning(exception, "Request failed with status code {StatusCode}.", statusCode);
             }
 
-            var problemDetails = ProblemDetailsFactory.Create(
+            var response = ProblemDetailsFactory.Create(
                 context,
                 statusCode,
                 detail,
+                errors: null,
                 exception,
                 environment);
 
             context.Response.StatusCode = statusCode;
-            await context.Response.WriteAsJsonAsync(problemDetails);
+            await context.Response.WriteAsJsonAsync(response);
         }
     }
 }

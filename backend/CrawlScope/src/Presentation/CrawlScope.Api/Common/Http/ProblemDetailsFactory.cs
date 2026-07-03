@@ -1,59 +1,40 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace CrawlScope.Api.Common.Http
 {
     public static class ProblemDetailsFactory
     {
-        public static ProblemDetails Create(
+        public static ApiErrorResponse Create(
             HttpContext context,
             int statusCode,
-            string? detail = null,
+            string? message = null,
+            object? errors = null,
             Exception? exception = null,
             IHostEnvironment? environment = null)
         {
-            var problemDetails = new ProblemDetails
+            var response = new ApiErrorResponse
             {
-                Status = statusCode,
-                Title = GetTitle(statusCode),
-                Detail = detail ?? GetDefaultDetail(statusCode)
+                StatusCode = statusCode,
+                Message = message ?? GetDefaultMessage(statusCode),
+                Errors = errors,
+                TraceId = context.TraceIdentifier
             };
 
-            problemDetails.Extensions["traceId"] = context.TraceIdentifier;
-
-            if (exception is not null && environment?.IsDevelopment() == true)
+            if (exception is not null
+                && environment?.IsDevelopment() == true
+                && statusCode >= StatusCodes.Status500InternalServerError)
             {
-                problemDetails.Detail = exception.Message;
-                problemDetails.Extensions["exceptionType"] = exception.GetType().Name;
-                problemDetails.Extensions["stackTrace"] = exception.StackTrace;
+                response.Errors = new Dictionary<string, string[]>
+                {
+                    ["Exception"] = [exception.GetType().Name],
+                    ["Message"] = [exception.Message],
+                    ["Source"] = [exception.Source ?? string.Empty],
+                    ["Path"] = [context.Request.Path.ToString()]
+                };
             }
 
-            return problemDetails;
+            return response;
         }
 
-        private static string GetTitle(int statusCode)
-        {
-            return statusCode switch
-            {
-                StatusCodes.Status400BadRequest => "Bad request",
-                StatusCodes.Status401Unauthorized => "Unauthorized",
-                StatusCodes.Status403Forbidden => "Forbidden",
-                StatusCodes.Status404NotFound => "Not found",
-                StatusCodes.Status405MethodNotAllowed => "Method not allowed",
-                StatusCodes.Status409Conflict => "Conflict",
-                StatusCodes.Status415UnsupportedMediaType => "Unsupported media type",
-                StatusCodes.Status422UnprocessableEntity => "Unprocessable entity",
-                StatusCodes.Status429TooManyRequests => "Too many requests",
-                StatusCodes.Status500InternalServerError => "Unexpected server error",
-                StatusCodes.Status502BadGateway => "Bad gateway",
-                StatusCodes.Status503ServiceUnavailable => "Service unavailable",
-                StatusCodes.Status504GatewayTimeout => "Gateway timeout",
-                _ when statusCode >= 400 && statusCode < 500 => "Client error",
-                _ when statusCode >= 500 => "Server error",
-                _ => "Request status"
-            };
-        }
-
-        private static string GetDefaultDetail(int statusCode)
+        private static string GetDefaultMessage(int statusCode)
         {
             return statusCode switch
             {
