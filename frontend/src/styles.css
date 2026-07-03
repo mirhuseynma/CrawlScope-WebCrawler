@@ -335,6 +335,13 @@ th {
   white-space: nowrap;
 }
 
+.meta-line {
+  display: block;
+  margin-top: 5px;
+  color: #6b7a90;
+  font-size: 12px;
+}
+
 .page-title {
   max-width: min(520px, 44vw);
   overflow: hidden;

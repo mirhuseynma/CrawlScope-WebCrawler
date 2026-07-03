@@ -17,9 +17,9 @@ export function AppShell({ children }: AppShellProps) {
           <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/jobs">
             Jobs
           </NavLink>
-          <a className="nav-item" href="#schedules">
+          <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/schedules">
             Schedules
-          </a>
+          </NavLink>
           <a className="nav-item" href="#exports">
             Exports
           </a>
