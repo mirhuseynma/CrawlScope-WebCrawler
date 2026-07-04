@@ -17,7 +17,7 @@ namespace CrawlScope.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -152,6 +152,57 @@ namespace CrawlScope.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("CrawlQueueItems");
+                });
+
+            modelBuilder.Entity("CrawlScope.Domain.Modules.Crawling.Models.CrawlSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IntervalMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("LastCrawlJobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastRunAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MaxDepth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxPages")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NextRunAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("StayWithinDomain")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TargetUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsEnabled");
+
+                    b.HasIndex("NextRunAt");
+
+                    b.ToTable("CrawlSchedules");
                 });
 
             modelBuilder.Entity("CrawlScope.Domain.Modules.Crawling.Models.CrawledLink", b =>

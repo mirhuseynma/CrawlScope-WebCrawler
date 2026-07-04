@@ -15,8 +15,8 @@ namespace CrawlScope.Application.Modules.Crawling.Validators
                 .WithMessage("Target URL must be a valid absolute URL.");
 
             RuleFor(x => x.MaxDepth)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("Max Depth must be greater than or equal to 0.");
+                .InclusiveBetween(0, 10)
+                .WithMessage("Max Depth must be between 0 and 10.");
 
             RuleFor(x => x.MaxPages)
                 .InclusiveBetween(1, 500)

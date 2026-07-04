@@ -1,14 +1,12 @@
-﻿using CrawlScope.Application.Modules.Crawling.DTOs;
+using CrawlScope.Application.Common.Pagination;
+using CrawlScope.Application.Modules.Crawling.DTOs;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs
 {
-    public record GetCrawlJobsQuery : IRequest<IEnumerable<CrawlJobListItemDto>>
-    {
-    }
+    public record GetCrawlJobsQuery(
+        string? Search,
+        string? Status,
+        int PageNumber,
+        int PageSize) : IRequest<PagedResult<CrawlJobListItemDto>>;
 }
