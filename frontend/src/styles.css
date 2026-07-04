@@ -274,6 +274,10 @@ select:focus {
   grid-template-columns: minmax(150px, 1fr) auto;
 }
 
+.pages-filter {
+  grid-template-columns: minmax(240px, 1fr) minmax(120px, 150px) minmax(100px, 130px) minmax(90px, 120px) auto;
+}
+
 .pagination-row {
   display: flex;
   align-items: center;
@@ -327,6 +331,10 @@ th {
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.compact-url-cell {
+  max-width: min(280px, 28vw);
 }
 
 .date-cell {
@@ -559,7 +567,8 @@ th {
 
 @media (max-width: 1180px) {
   .create-form,
-  .filter-bar {
+  .filter-bar,
+  .pages-filter {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -634,6 +643,7 @@ th {
 
   .url-cell,
   .page-title,
+  .compact-url-cell,
   .content-preview {
     max-width: 100%;
     overflow: visible;
@@ -672,7 +682,8 @@ th {
   .panel-heading,
   .create-form,
   .form-row,
-  .filter-bar {
+  .filter-bar,
+  .pages-filter {
     grid-template-columns: 1fr;
   }
 

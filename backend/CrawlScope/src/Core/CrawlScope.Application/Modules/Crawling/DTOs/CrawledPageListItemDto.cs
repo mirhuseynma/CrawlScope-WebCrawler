@@ -3,6 +3,8 @@ namespace CrawlScope.Application.Modules.Crawling.DTOs
     public class CrawledPageListItemDto
     {
         public Guid Id { get; set; }
+        public Guid CrawlJobId { get; set; }
+        public string CrawlJobTargetUrl { get; set; } = null!;
         public string Url { get; set; } = null!;
         public string? Title { get; set; }
         public string? ContentPreview { get; set; }

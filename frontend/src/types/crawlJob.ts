@@ -38,6 +38,8 @@ export type CrawlJobDetails = {
 
 export type CrawledPage = {
   id: string;
+  crawlJobId: string;
+  crawlJobTargetUrl: string;
   url: string;
   title: string | null;
   contentPreview: string | null;

@@ -17,12 +17,12 @@ export function AppShell({ children }: AppShellProps) {
           <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/jobs">
             Jobs
           </NavLink>
+          <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/pages">
+            Pages
+          </NavLink>
           <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/schedules">
             Schedules
           </NavLink>
-          <a className="nav-item" href="#exports">
-            Exports
-          </a>
         </nav>
       </aside>
       <main className="content">{children}</main>
