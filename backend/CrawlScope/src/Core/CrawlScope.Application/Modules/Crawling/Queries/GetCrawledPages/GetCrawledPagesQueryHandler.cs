@@ -12,8 +12,12 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
         public async Task<PagedResult<CrawledPageListItemDto>> Handle(GetCrawledPagesQuery request, CancellationToken cancellationToken)
         {
             var query = context.CrawledPages
-                .AsNoTracking()
-                .Where(x => x.CrawlJobId == request.CrawlJobId);
+                .AsNoTracking();
+
+            if (request.CrawlJobId.HasValue)
+            {
+                query = query.Where(x => x.CrawlJobId == request.CrawlJobId.Value);
+            }
 
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
@@ -40,6 +44,8 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
                 .Select(x => new CrawledPageListItemDto
                 {
                     Id = x.Id,
+                    CrawlJobId = x.CrawlJobId,
+                    CrawlJobTargetUrl = x.CrawlJob.TargetUrl,
                     Url = x.Url,
                     Title = x.Title,
                     ContentPreview = x.Content,

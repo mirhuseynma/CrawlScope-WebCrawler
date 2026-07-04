@@ -1,5 +1,4 @@
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5058";
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5058";
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
@@ -78,8 +77,6 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   if (!response.ok) {
     throw await createRequestError(response);
-    const errorText = await response.text();
-    throw new Error(errorText || `Request failed with status ${response.status}`);
   }
 
   if (response.status === 204) {

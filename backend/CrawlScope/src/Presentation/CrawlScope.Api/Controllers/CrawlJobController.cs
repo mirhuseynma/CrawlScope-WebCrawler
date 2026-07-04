@@ -73,6 +73,20 @@ namespace CrawlScope.Api.Controllers
             return Ok(pages);
         }
 
+        [HttpGet("pages")]
+        public async Task<IActionResult> GetAllPages(
+            [FromQuery] string? search,
+            [FromQuery] int? statusCode,
+            [FromQuery] int? depthLevel,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetCrawledPagesQuery(null, search, statusCode, depthLevel, pageNumber, pageSize);
+            var pages = await mediator.Send(query, cancellationToken);
+            return Ok(pages);
+        }
+
         [HttpGet("{id:guid}/logs")]
         public async Task<IActionResult> GetLogs(
             Guid id,
