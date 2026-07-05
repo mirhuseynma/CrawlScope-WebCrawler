@@ -1,11 +1,15 @@
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import { permissions } from "../auth/permissions";
 
 type AppShellProps = {
   children: ReactNode;
 };
 
 export function AppShell({ children }: AppShellProps) {
+  const { hasPermission, logout, user } = useAuth();
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -20,19 +24,26 @@ export function AppShell({ children }: AppShellProps) {
           <Link className="nav-item" to="/">
             User view
           </Link>
-          <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/jobs">
-            Jobs
-          </NavLink>
-          <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/pages">
-            Pages
-          </NavLink>
-          <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/schedules">
-            Schedules
-          </NavLink>
+          {hasPermission(permissions.adminAccess) && (
+            <>
+              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/jobs">
+                Jobs
+              </NavLink>
+              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/pages">
+                Pages
+              </NavLink>
+              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/schedules">
+                Schedules
+              </NavLink>
+            </>
+          )}
         </nav>
         <div className="sidebar-footnote">
-          <span>Operations console</span>
-          <strong>Live crawler control</strong>
+          <span>{user?.fullName || user?.userName}</span>
+          <strong>{user?.roles.join(", ")}</strong>
+          <button className="logout-button" type="button" onClick={logout}>
+            Logout
+          </button>
         </div>
       </aside>
       <main className="content">{children}</main>

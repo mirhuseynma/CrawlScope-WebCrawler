@@ -1,6 +1,8 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { createCrawlJob, getAllCrawledPages, startCrawlJob } from "../api/crawlJobsApi";
+import { useAuth } from "../auth/AuthContext";
+import { permissions } from "../auth/permissions";
 import type { CrawledPage, CreateCrawlJobRequest, PagedResult } from "../types/crawlJob";
 
 const initialFormState: CreateCrawlJobRequest = {
@@ -21,6 +23,7 @@ const emptyPagesPage: PagedResult<CrawledPage> = {
 };
 
 export function UserCrawlerPage() {
+  const { hasPermission, logout, user } = useAuth();
   const [form, setForm] = useState<CreateCrawlJobRequest>(initialFormState);
   const [recentPages, setRecentPages] = useState<PagedResult<CrawledPage>>(emptyPagesPage);
   const [createdJobId, setCreatedJobId] = useState<string | null>(null);
@@ -78,9 +81,17 @@ export function UserCrawlerPage() {
         <Link className="brand-link" to="/">
           CrawlScope
         </Link>
-        <Link className="secondary-link-button" to="/jobs">
-          Admin panel
-        </Link>
+        <div className="user-account-menu">
+          <span>{user?.fullName || user?.userName}</span>
+          {hasPermission(permissions.adminAccess) && (
+            <Link className="secondary-link-button" to="/jobs">
+              Admin panel
+            </Link>
+          )}
+          <button className="secondary-button" type="button" onClick={logout}>
+            Logout
+          </button>
+        </div>
       </header>
 
       <section className="user-workspace">
@@ -218,9 +229,11 @@ export function UserCrawlerPage() {
             <p className="eyebrow">Recent results</p>
             <h2>Latest crawled pages</h2>
           </div>
-          <Link className="secondary-link-button" to="/pages">
-            View all
-          </Link>
+          {hasPermission(permissions.adminAccess) && (
+            <Link className="secondary-link-button" to="/pages">
+              View all
+            </Link>
+          )}
         </div>
 
         {isLoadingRecent ? (

@@ -1,8 +1,11 @@
+import { getAuthToken } from "./authStorage";
+
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5058";
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
+  skipAuth?: boolean;
 };
 
 type ApiErrorResponse = {
@@ -67,15 +70,21 @@ async function createRequestError(response: Response) {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const token = options.skipAuth ? null : getAuthToken();
   const response = await fetch(`${apiBaseUrl}${path}`, {
     method: options.method ?? "GET",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   });
 
   if (!response.ok) {
+    if (response.status === 401 && !options.skipAuth) {
+      window.dispatchEvent(new Event("crawlscope:unauthorized"));
+    }
+
     throw await createRequestError(response);
   }
 
@@ -87,15 +96,21 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 export async function requestBlob(path: string, options: RequestOptions = {}) {
+  const token = options.skipAuth ? null : getAuthToken();
   const response = await fetch(`${apiBaseUrl}${path}`, {
     method: options.method ?? "GET",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   });
 
   if (!response.ok) {
+    if (response.status === 401 && !options.skipAuth) {
+      window.dispatchEvent(new Event("crawlscope:unauthorized"));
+    }
+
     throw await createRequestError(response);
   }
 
