@@ -9,8 +9,9 @@ type PaginationControlsProps = {
 export function PaginationControls({ label, page, onPageChange }: PaginationControlsProps) {
   return (
     <div className="pagination-row" aria-label={`${label} pagination`}>
-      <span>
-        {page.totalCount} total / page {page.totalPages === 0 ? 0 : page.pageNumber} of {page.totalPages}
+      <span className="pagination-summary">{page.totalCount} total</span>
+      <span className="pagination-current">
+        Page {page.totalPages === 0 ? 0 : page.pageNumber} of {page.totalPages}
       </span>
       <div className="button-group">
         <button
