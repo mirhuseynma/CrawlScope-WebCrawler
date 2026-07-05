@@ -4,17 +4,45 @@ import { JobDetailsPage } from "./pages/JobDetailsPage";
 import { JobsPage } from "./pages/JobsPage";
 import { PagesPage } from "./pages/PagesPage";
 import { SchedulesPage } from "./pages/SchedulesPage";
+import { UserCrawlerPage } from "./pages/UserCrawlerPage";
 
 export default function App() {
   return (
-    <AppShell>
-      <Routes>
-        <Route path="/" element={<Navigate to="/jobs" replace />} />
-        <Route path="/jobs" element={<JobsPage />} />
-        <Route path="/jobs/:id" element={<JobDetailsPage />} />
-        <Route path="/pages" element={<PagesPage />} />
-        <Route path="/schedules" element={<SchedulesPage />} />
-      </Routes>
-    </AppShell>
+    <Routes>
+      <Route path="/" element={<UserCrawlerPage />} />
+      <Route path="/admin" element={<Navigate to="/jobs" replace />} />
+      <Route
+        path="/jobs"
+        element={
+          <AppShell>
+            <JobsPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/jobs/:id"
+        element={
+          <AppShell>
+            <JobDetailsPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/pages"
+        element={
+          <AppShell>
+            <PagesPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/schedules"
+        element={
+          <AppShell>
+            <SchedulesPage />
+          </AppShell>
+        }
+      />
+    </Routes>
   );
 }
