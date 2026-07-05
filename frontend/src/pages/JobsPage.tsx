@@ -261,7 +261,7 @@ export function JobsPage() {
                         </td>
                         <td data-label="Actions">
                           <div className="button-group">
-                            <Link className="secondary-link-button" to={`/jobs/${job.id}`}>
+                            <Link className="secondary-link-button" to={`/admin/jobs/${job.id}`}>
                               View
                             </Link>
                             <button

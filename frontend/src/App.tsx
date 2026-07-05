@@ -15,17 +15,20 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<AuthPage />} />
+        <Route path="/" element={<UserCrawlerPage />} />
         <Route
-          path="/"
+          path="/reports/:id"
           element={
             <ProtectedRoute>
-              <UserCrawlerPage />
+              <main className="user-shell">
+                <JobDetailsPage variant="user" />
+              </main>
             </ProtectedRoute>
           }
         />
-        <Route path="/admin" element={<Navigate to="/jobs" replace />} />
+        <Route path="/admin" element={<Navigate to="/admin/jobs" replace />} />
         <Route
-          path="/jobs"
+          path="/admin/jobs"
           element={
             <ProtectedRoute permission={permissions.adminAccess}>
               <AppShell>
@@ -35,17 +38,17 @@ export default function App() {
           }
         />
         <Route
-          path="/jobs/:id"
+          path="/admin/jobs/:id"
           element={
             <ProtectedRoute permission={permissions.adminAccess}>
               <AppShell>
-                <JobDetailsPage />
+                <JobDetailsPage variant="admin" />
               </AppShell>
             </ProtectedRoute>
           }
         />
         <Route
-          path="/pages"
+          path="/admin/pages"
           element={
             <ProtectedRoute permission={permissions.adminAccess}>
               <AppShell>
@@ -55,7 +58,7 @@ export default function App() {
           }
         />
         <Route
-          path="/schedules"
+          path="/admin/schedules"
           element={
             <ProtectedRoute permission={permissions.adminAccess}>
               <AppShell>

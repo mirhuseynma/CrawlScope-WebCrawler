@@ -209,7 +209,7 @@ export function PagesPage() {
                         </td>
                         <td data-label="Actions">
                           <div className="button-group">
-                            <Link className="secondary-link-button" to={`/jobs/${page.crawlJobId}`}>
+                            <Link className="secondary-link-button" to={`/admin/jobs/${page.crawlJobId}`}>
                               Open job
                             </Link>
                           </div>

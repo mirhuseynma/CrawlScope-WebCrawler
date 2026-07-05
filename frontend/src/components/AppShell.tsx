@@ -26,13 +26,13 @@ export function AppShell({ children }: AppShellProps) {
           </Link>
           {hasPermission(permissions.adminAccess) && (
             <>
-              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/jobs">
+              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/admin/jobs">
                 Jobs
               </NavLink>
-              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/pages">
+              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/admin/pages">
                 Pages
               </NavLink>
-              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/schedules">
+              <NavLink className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")} to="/admin/schedules">
                 Schedules
               </NavLink>
             </>

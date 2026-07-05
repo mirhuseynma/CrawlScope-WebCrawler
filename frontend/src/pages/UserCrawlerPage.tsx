@@ -1,9 +1,8 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { createCrawlJob, getAllCrawledPages, startCrawlJob } from "../api/crawlJobsApi";
+import { Link, useNavigate } from "react-router-dom";
+import { createCrawlJob, startCrawlJob } from "../api/crawlJobsApi";
 import { useAuth } from "../auth/AuthContext";
-import { permissions } from "../auth/permissions";
-import type { CrawledPage, CreateCrawlJobRequest, PagedResult } from "../types/crawlJob";
+import type { CreateCrawlJobRequest } from "../types/crawlJob";
 
 const initialFormState: CreateCrawlJobRequest = {
   targetUrl: "https://example.com",
@@ -12,53 +11,40 @@ const initialFormState: CreateCrawlJobRequest = {
   stayWithinDomain: true,
 };
 
-const emptyPagesPage: PagedResult<CrawledPage> = {
-  items: [],
-  pageNumber: 1,
-  pageSize: 5,
-  totalCount: 0,
-  totalPages: 0,
-  hasPreviousPage: false,
-  hasNextPage: false,
-};
-
 export function UserCrawlerPage() {
-  const { hasPermission, logout, user } = useAuth();
+  const { logout, status, user } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState<CreateCrawlJobRequest>(initialFormState);
-  const [recentPages, setRecentPages] = useState<PagedResult<CrawledPage>>(emptyPagesPage);
   const [createdJobId, setCreatedJobId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoadingRecent, setIsLoadingRecent] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const crawlScopeLabel = useMemo(() => (form.stayWithinDomain ? "Domain only" : "External links allowed"), [form.stayWithinDomain]);
-  const successfulRecentPages = useMemo(
-    () => recentPages.items.filter((page) => page.statusCode && page.statusCode >= 200 && page.statusCode < 300).length,
-    [recentPages.items],
-  );
-
-  async function loadRecentPages() {
-    setIsLoadingRecent(true);
-
-    try {
-      const data = await getAllCrawledPages({
-        pageNumber: 1,
-        pageSize: 5,
-      });
-      setRecentPages(data);
-    } catch {
-      setRecentPages(emptyPagesPage);
-    } finally {
-      setIsLoadingRecent(false);
-    }
-  }
+  const isAuthenticated = status === "authenticated";
+  const isCheckingSession = status === "checking";
+  const maxAllowedDepth = isAuthenticated ? 10 : 0;
+  const maxAllowedPages = isAuthenticated ? 500 : 1;
 
   useEffect(() => {
-    void loadRecentPages();
-  }, []);
+    if (isAuthenticated) {
+      return;
+    }
+
+    setForm((current) => ({
+      ...current,
+      maxDepth: 0,
+      maxPages: 1,
+    }));
+  }, [isAuthenticated]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: { pathname: "/" } } });
+      return;
+    }
+
     setIsSubmitting(true);
     setCreatedJobId(null);
     setError(null);
@@ -67,7 +53,6 @@ export function UserCrawlerPage() {
       const jobId = await createCrawlJob(form);
       await startCrawlJob(jobId);
       setCreatedJobId(jobId);
-      await loadRecentPages();
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to start crawl.");
     } finally {
@@ -82,15 +67,18 @@ export function UserCrawlerPage() {
           CrawlScope
         </Link>
         <div className="user-account-menu">
-          <span>{user?.fullName || user?.userName}</span>
-          {hasPermission(permissions.adminAccess) && (
-            <Link className="secondary-link-button" to="/jobs">
-              Admin panel
+          {isAuthenticated ? (
+            <>
+              <span>{user?.fullName || user?.userName}</span>
+              <button className="secondary-button" type="button" onClick={logout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link className="secondary-link-button" to="/login">
+              Login
             </Link>
           )}
-          <button className="secondary-button" type="button" onClick={logout}>
-            Logout
-          </button>
         </div>
       </header>
 
@@ -101,16 +89,16 @@ export function UserCrawlerPage() {
           <p className="user-summary">Collect page titles, links, status codes, and content snapshots from a single focused workspace.</p>
           <div className="user-stat-strip" aria-label="Crawler highlights">
             <div>
-              <strong>{recentPages.totalCount}</strong>
-              <span>indexed pages</span>
+              <strong>{isAuthenticated ? "Private" : "1 page"}</strong>
+              <span>{isAuthenticated ? "reports" : "guest preview"}</span>
             </div>
             <div>
-              <strong>{successfulRecentPages}</strong>
-              <span>healthy recent</span>
+              <strong>{isAuthenticated ? "Live" : "Depth 0"}</strong>
+              <span>{isAuthenticated ? "crawl run" : "limited scope"}</span>
             </div>
             <div>
               <strong>CSV/JSON</strong>
-              <span>export ready</span>
+              <span>{isAuthenticated ? "export ready" : "after login"}</span>
             </div>
           </div>
         </div>
@@ -140,9 +128,14 @@ export function UserCrawlerPage() {
                 <input
                   type="number"
                   min="0"
-                  max="10"
+                  max={maxAllowedDepth}
                   value={form.maxDepth}
-                  onChange={(event) => setForm((current) => ({ ...current, maxDepth: Number(event.target.value) }))}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      maxDepth: Math.min(Number(event.target.value), maxAllowedDepth),
+                    }))
+                  }
                   required
                 />
               </label>
@@ -151,9 +144,14 @@ export function UserCrawlerPage() {
                 <input
                   type="number"
                   min="1"
-                  max="500"
+                  max={maxAllowedPages}
                   value={form.maxPages}
-                  onChange={(event) => setForm((current) => ({ ...current, maxPages: Number(event.target.value) }))}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      maxPages: Math.min(Number(event.target.value), maxAllowedPages),
+                    }))
+                  }
                   required
                 />
               </label>
@@ -174,15 +172,21 @@ export function UserCrawlerPage() {
               <span>{form.maxPages} pages</span>
             </div>
 
-            <button className="primary-button user-submit-button" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Crawling..." : "Start crawl"}
+            <button className="primary-button user-submit-button" type="submit" disabled={isSubmitting || isCheckingSession}>
+              {isCheckingSession ? "Checking session..." : isSubmitting ? "Crawling..." : isAuthenticated ? "Start crawl" : "Login to start"}
             </button>
+
+            {!isAuthenticated && (
+              <div className="guest-limit-callout">
+                Guest mode is limited to a one-page preview. Login to run crawls, save reports, and export results.
+              </div>
+            )}
 
             {error && <div className="alert">{error}</div>}
             {createdJobId && (
               <div className="success-callout">
                 <strong>Crawl started</strong>
-                <Link to={`/jobs/${createdJobId}`}>Open result</Link>
+                <Link to={`/reports/${createdJobId}`}>Open report</Link>
               </div>
             )}
           </form>
@@ -198,8 +202,8 @@ export function UserCrawlerPage() {
               <h2>Structured output</h2>
             </div>
             <div className="preview-score">
-              <strong>{successfulRecentPages}</strong>
-              <span>healthy recent pages</span>
+              <strong>{form.maxPages}</strong>
+              <span>pages in this run</span>
             </div>
             <div className="preview-list">
               <div>
@@ -223,51 +227,31 @@ export function UserCrawlerPage() {
         </div>
       </section>
 
-      <section className="recent-results">
+      <section className="user-insights">
         <div className="section-header">
           <div>
-            <p className="eyebrow">Recent results</p>
-            <h2>Latest crawled pages</h2>
+            <p className="eyebrow">Report workspace</p>
+            <h2>What CrawlScope prepares for you</h2>
           </div>
-          {hasPermission(permissions.adminAccess) && (
-            <Link className="secondary-link-button" to="/pages">
-              View all
-            </Link>
-          )}
         </div>
 
-        {isLoadingRecent ? (
-          <div className="empty-state">Loading recent pages...</div>
-        ) : recentPages.items.length === 0 ? (
-          <div className="empty-state">No crawled pages yet.</div>
-        ) : (
-          <div className="result-grid">
-            {recentPages.items.map((page) => (
-              <article className="result-card" key={page.id}>
-                <div>
-                  <span
-                    className={`status-badge ${
-                      page.statusCode && page.statusCode >= 400 ? "status-failed" : "status-completed"
-                    }`}
-                  >
-                    {page.statusCode ?? "No status"}
-                  </span>
-                </div>
-                <h3>{page.title || "Untitled page"}</h3>
-                <p>{page.url}</p>
-                <div className="result-meta">
-                  <span>Depth {page.depthLevel}</span>
-                  <span>
-                    {page.internalLinksCount} internal / {page.externalLinksCount} external
-                  </span>
-                </div>
-                <Link className="text-button" to={`/jobs/${page.crawlJobId}`}>
-                  Open job
-                </Link>
-              </article>
-            ))}
-          </div>
-        )}
+        <div className="insight-grid">
+          <article className="insight-card">
+            <span>01</span>
+            <h3>Scope control</h3>
+            <p>Choose depth, page limit, and whether the crawler should stay inside the target domain.</p>
+          </article>
+          <article className="insight-card">
+            <span>02</span>
+            <h3>Readable report</h3>
+            <p>Review page titles, status codes, response times, link counts, and captured content previews.</p>
+          </article>
+          <article className="insight-card">
+            <span>03</span>
+            <h3>Portable output</h3>
+            <p>Export the result as CSV or JSON when you need to continue analysis outside the app.</p>
+          </article>
+        </div>
       </section>
     </main>
   );

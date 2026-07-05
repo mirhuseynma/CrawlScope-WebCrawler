@@ -238,7 +238,7 @@ export function SchedulesPage() {
                       <td data-label="Actions">
                         <div className="button-group">
                           {schedule.lastCrawlJobId && (
-                            <Link className="secondary-link-button" to={`/jobs/${schedule.lastCrawlJobId}`}>
+                            <Link className="secondary-link-button" to={`/admin/jobs/${schedule.lastCrawlJobId}`}>
                               Last job
                             </Link>
                           )}
