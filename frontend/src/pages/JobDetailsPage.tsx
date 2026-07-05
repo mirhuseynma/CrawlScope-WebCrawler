@@ -25,8 +25,13 @@ const emptyLogsPage: PagedResult<CrawlLog> = {
   hasNextPage: false,
 };
 
-export function JobDetailsPage() {
+type JobDetailsPageProps = {
+  variant?: "admin" | "user";
+};
+
+export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
   const { id } = useParams<{ id: string }>();
+  const isUserReport = variant === "user";
   const [job, setJob] = useState<CrawlJobDetails | null>(null);
   const [pagesPage, setPagesPage] = useState<PagedResult<CrawledPage>>(emptyPagesPage);
   const [logsPage, setLogsPage] = useState<PagedResult<CrawlLog>>(emptyLogsPage);
@@ -59,11 +64,13 @@ export function JobDetailsPage() {
           pageNumber,
           pageSize: 5,
         }),
-        getCrawlLogs(id, {
-          level: logsLevel,
-          pageNumber: logPageNumber,
-          pageSize: 20,
-        }),
+        isUserReport
+          ? Promise.resolve(emptyLogsPage)
+          : getCrawlLogs(id, {
+              level: logsLevel,
+              pageNumber: logPageNumber,
+              pageSize: 20,
+            }),
       ]);
 
       setJob(loadedJob);
@@ -134,8 +141,8 @@ export function JobDetailsPage() {
           <p className="eyebrow">Crawl job details</p>
           <h2>{job?.targetUrl ?? "Selected job"}</h2>
         </div>
-        <Link className="secondary-link-button" to="/jobs">
-          Back to jobs
+        <Link className="secondary-link-button" to={isUserReport ? "/" : "/admin/jobs"}>
+          {isUserReport ? "Back to crawler" : "Back to jobs"}
         </Link>
       </div>
 
@@ -279,47 +286,49 @@ export function JobDetailsPage() {
         )}
       </section>
 
-      <section className="panel logs-panel">
-        <div>
-          <p className="eyebrow">Execution logs</p>
-          <h3>Logs</h3>
-        </div>
+      {!isUserReport && (
+        <section className="panel logs-panel">
+          <div>
+            <p className="eyebrow">Execution logs</p>
+            <h3>Logs</h3>
+          </div>
 
-        <form className="filter-bar compact-filter" onSubmit={applyDetailFilters}>
-          <select aria-label="Filter logs by level" value={logsLevel} onChange={(event) => setLogsLevel(event.target.value)}>
-            <option value="">All levels</option>
-            <option value="Info">Info</option>
-            <option value="Warning">Warning</option>
-            <option value="Error">Error</option>
-          </select>
-          <button className="secondary-button" type="submit">
-            Apply
-          </button>
-        </form>
+          <form className="filter-bar compact-filter" onSubmit={applyDetailFilters}>
+            <select aria-label="Filter logs by level" value={logsLevel} onChange={(event) => setLogsLevel(event.target.value)}>
+              <option value="">All levels</option>
+              <option value="Info">Info</option>
+              <option value="Warning">Warning</option>
+              <option value="Error">Error</option>
+            </select>
+            <button className="secondary-button" type="submit">
+              Apply
+            </button>
+          </form>
 
-        {isLoading ? (
-          <div className="empty-state">Loading logs...</div>
-        ) : logsPage.items.length === 0 ? (
-          <div className="empty-state">No logs match the current filters.</div>
-        ) : (
-          <>
-            <div className="log-list">
-              {logsPage.items.map((log) => (
-                <article className="log-entry" key={log.id}>
-                  <span className={`log-level log-${log.level.toLowerCase()}`}>{log.level}</span>
-                  <p>{log.message}</p>
-                  <time>{new Date(log.createdAt).toLocaleString()}</time>
-                </article>
-              ))}
-            </div>
-            <PaginationControls
-              label="Logs"
-              page={logsPage}
-              onPageChange={(pageNumber) => void loadDetails(pagesPageNumber, pageNumber)}
-            />
-          </>
-        )}
-      </section>
+          {isLoading ? (
+            <div className="empty-state">Loading logs...</div>
+          ) : logsPage.items.length === 0 ? (
+            <div className="empty-state">No logs match the current filters.</div>
+          ) : (
+            <>
+              <div className="log-list">
+                {logsPage.items.map((log) => (
+                  <article className="log-entry" key={log.id}>
+                    <span className={`log-level log-${log.level.toLowerCase()}`}>{log.level}</span>
+                    <p>{log.message}</p>
+                    <time>{new Date(log.createdAt).toLocaleString()}</time>
+                  </article>
+                ))}
+              </div>
+              <PaginationControls
+                label="Logs"
+                page={logsPage}
+                onPageChange={(pageNumber) => void loadDetails(pagesPageNumber, pageNumber)}
+              />
+            </>
+          )}
+        </section>
+      )}
     </section>
   );
 }

@@ -11,6 +11,7 @@ export function AuthPage() {
   const [userName, setUserName] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("Admin123!");
+  const [confirmPassword, setConfirmPassword] = useState("Admin123!");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { loginUser, registerUser, status } = useAuth();
@@ -33,7 +34,12 @@ export function AuthPage() {
       if (mode === "login") {
         await loginUser({ emailOrUserName, password });
       } else {
-        await registerUser({ email, userName, fullName: fullName || undefined, password });
+        if (password !== confirmPassword) {
+          setError("Passwords do not match.");
+          return;
+        }
+
+        await registerUser({ email, userName, fullName: fullName || undefined, password, confirmPassword });
       }
 
       navigate(from, { replace: true });
@@ -82,15 +88,35 @@ export function AuthPage() {
             <>
               <label>
                 Full name
-                <input value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" />
+                <input
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
+                  autoComplete="name"
+                  maxLength={120}
+                  required
+                />
               </label>
               <label>
                 Username
-                <input value={userName} onChange={(event) => setUserName(event.target.value)} autoComplete="username" required />
+                <input
+                  value={userName}
+                  onChange={(event) => setUserName(event.target.value)}
+                  autoComplete="username"
+                  minLength={3}
+                  maxLength={60}
+                  required
+                />
               </label>
               <label>
                 Email
-                <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="email"
+                  maxLength={160}
+                  required
+                />
               </label>
             </>
           )}
@@ -102,9 +128,24 @@ export function AuthPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete={mode === "login" ? "current-password" : "new-password"}
+              minLength={mode === "register" ? 8 : undefined}
               required
             />
           </label>
+
+          {mode === "register" && (
+            <label>
+              Confirm password
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                autoComplete="new-password"
+                minLength={8}
+                required
+              />
+            </label>
+          )}
 
           <button className="primary-button auth-submit" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Please wait..." : mode === "login" ? "Login" : "Create account"}
