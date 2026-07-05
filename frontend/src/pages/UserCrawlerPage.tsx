@@ -29,6 +29,10 @@ export function UserCrawlerPage() {
   const [error, setError] = useState<string | null>(null);
 
   const crawlScopeLabel = useMemo(() => (form.stayWithinDomain ? "Domain only" : "External links allowed"), [form.stayWithinDomain]);
+  const successfulRecentPages = useMemo(
+    () => recentPages.items.filter((page) => page.statusCode && page.statusCode >= 200 && page.statusCode < 300).length,
+    [recentPages.items],
+  );
 
   async function loadRecentPages() {
     setIsLoadingRecent(true);
@@ -81,74 +85,131 @@ export function UserCrawlerPage() {
 
       <section className="user-workspace">
         <div className="user-intro">
-          <p className="eyebrow">Website crawler</p>
-          <h1>Analyze public web pages</h1>
-          <p className="user-summary">Structured crawl reports for research, monitoring, and content review.</p>
+          <p className="eyebrow">Crawler studio</p>
+          <h1>Turn public pages into crawl reports</h1>
+          <p className="user-summary">Collect page titles, links, status codes, and content snapshots from a single focused workspace.</p>
+          <div className="user-stat-strip" aria-label="Crawler highlights">
+            <div>
+              <strong>{recentPages.totalCount}</strong>
+              <span>indexed pages</span>
+            </div>
+            <div>
+              <strong>{successfulRecentPages}</strong>
+              <span>healthy recent</span>
+            </div>
+            <div>
+              <strong>CSV/JSON</strong>
+              <span>export ready</span>
+            </div>
+          </div>
         </div>
 
-        <form className="user-crawl-panel" onSubmit={(event) => void handleSubmit(event)}>
-          <label>
-            Target URL
-            <input
-              type="url"
-              value={form.targetUrl}
-              onChange={(event) => setForm((current) => ({ ...current, targetUrl: event.target.value }))}
-              required
-            />
-          </label>
-
-          <div className="form-row">
-            <label>
-              Max depth
-              <input
-                type="number"
-                min="0"
-                max="10"
-                value={form.maxDepth}
-                onChange={(event) => setForm((current) => ({ ...current, maxDepth: Number(event.target.value) }))}
-                required
-              />
-            </label>
-            <label>
-              Max pages
-              <input
-                type="number"
-                min="1"
-                max="500"
-                value={form.maxPages}
-                onChange={(event) => setForm((current) => ({ ...current, maxPages: Number(event.target.value) }))}
-                required
-              />
-            </label>
-          </div>
-
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              checked={form.stayWithinDomain}
-              onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
-            />
-            Stay within domain
-          </label>
-
-          <div className="crawl-review">
-            <span>{crawlScopeLabel}</span>
-            <span>{form.maxDepth} depth</span>
-            <span>{form.maxPages} pages</span>
-          </div>
-
-          <button className="primary-button user-submit-button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Crawling..." : "Start crawl"}
-          </button>
-
-          {error && <div className="alert">{error}</div>}
-          {createdJobId && (
-            <div className="success-callout">
-              <strong>Crawl started</strong>
-              <Link to={`/jobs/${createdJobId}`}>Open result</Link>
+        <div className="crawl-studio">
+          <form className="user-crawl-panel" onSubmit={(event) => void handleSubmit(event)}>
+            <div className="panel-heading">
+              <div>
+                <p className="eyebrow">New report</p>
+                <h2>Start a crawl</h2>
+              </div>
             </div>
-          )}
-        </form>
+
+            <label>
+              Target URL
+              <input
+                type="url"
+                value={form.targetUrl}
+                onChange={(event) => setForm((current) => ({ ...current, targetUrl: event.target.value }))}
+                required
+              />
+            </label>
+
+            <div className="form-row">
+              <label>
+                Max depth
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={form.maxDepth}
+                  onChange={(event) => setForm((current) => ({ ...current, maxDepth: Number(event.target.value) }))}
+                  required
+                />
+              </label>
+              <label>
+                Max pages
+                <input
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={form.maxPages}
+                  onChange={(event) => setForm((current) => ({ ...current, maxPages: Number(event.target.value) }))}
+                  required
+                />
+              </label>
+            </div>
+
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={form.stayWithinDomain}
+                onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
+              />
+              Stay within domain
+            </label>
+
+            <div className="crawl-review">
+              <span>{crawlScopeLabel}</span>
+              <span>{form.maxDepth} depth</span>
+              <span>{form.maxPages} pages</span>
+            </div>
+
+            <button className="primary-button user-submit-button" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Crawling..." : "Start crawl"}
+            </button>
+
+            {error && <div className="alert">{error}</div>}
+            {createdJobId && (
+              <div className="success-callout">
+                <strong>Crawl started</strong>
+                <Link to={`/jobs/${createdJobId}`}>Open result</Link>
+              </div>
+            )}
+          </form>
+
+          <aside className="report-preview" aria-label="Crawl report preview">
+            <div className="report-window-bar">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div className="report-preview-header">
+              <p className="eyebrow">Report preview</p>
+              <h2>Structured output</h2>
+            </div>
+            <div className="preview-score">
+              <strong>{successfulRecentPages}</strong>
+              <span>healthy recent pages</span>
+            </div>
+            <div className="preview-list">
+              <div>
+                <span>Titles</span>
+                <strong>Extracted</strong>
+              </div>
+              <div>
+                <span>Links</span>
+                <strong>Internal / external</strong>
+              </div>
+              <div>
+                <span>Snapshots</span>
+                <strong>Searchable</strong>
+              </div>
+              <div>
+                <span>Export</span>
+                <strong>CSV / JSON</strong>
+              </div>
+            </div>
+          </aside>
+        </div>
       </section>
 
       <section className="recent-results">
@@ -171,7 +232,13 @@ export function UserCrawlerPage() {
             {recentPages.items.map((page) => (
               <article className="result-card" key={page.id}>
                 <div>
-                  <span className="status-badge status-completed">{page.statusCode ?? "No status"}</span>
+                  <span
+                    className={`status-badge ${
+                      page.statusCode && page.statusCode >= 400 ? "status-failed" : "status-completed"
+                    }`}
+                  >
+                    {page.statusCode ?? "No status"}
+                  </span>
                 </div>
                 <h3>{page.title || "Untitled page"}</h3>
                 <p>{page.url}</p>
