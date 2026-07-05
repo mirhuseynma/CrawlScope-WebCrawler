@@ -2,7 +2,9 @@ using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
 using CrawlScope.Application.Modules.Crawling.Commands.SetCrawlScheduleStatus;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules;
+using CrawlScope.Domain.Constants;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrawlScope.Api.Controllers
@@ -12,6 +14,7 @@ namespace CrawlScope.Api.Controllers
     public class CrawlScheduleController(IMediator mediator) : ControllerBase
     {
         [HttpPost]
+        [Authorize(Policy = Permissions.Schedules.Create)]
         public async Task<IActionResult> Create(
             [FromBody] CreateCrawlScheduleRequestDto request,
             CancellationToken cancellationToken)
@@ -22,6 +25,7 @@ namespace CrawlScope.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Permissions.Schedules.View)]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             var query = new GetCrawlSchedulesQuery();
@@ -30,6 +34,7 @@ namespace CrawlScope.Api.Controllers
         }
 
         [HttpPatch("{id:guid}/enable")]
+        [Authorize(Policy = Permissions.Schedules.Manage)]
         public async Task<IActionResult> Enable(Guid id, CancellationToken cancellationToken)
         {
             var command = new SetCrawlScheduleStatusCommand(id, true);
@@ -38,6 +43,7 @@ namespace CrawlScope.Api.Controllers
         }
 
         [HttpPatch("{id:guid}/disable")]
+        [Authorize(Policy = Permissions.Schedules.Manage)]
         public async Task<IActionResult> Disable(Guid id, CancellationToken cancellationToken)
         {
             var command = new SetCrawlScheduleStatusCommand(id, false);

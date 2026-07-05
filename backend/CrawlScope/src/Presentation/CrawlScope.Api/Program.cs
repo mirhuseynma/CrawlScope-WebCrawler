@@ -1,8 +1,13 @@
 using CrawlScope.Api.Common.Middleware;
 using CrawlScope.Api.Common.Http;
+using CrawlScope.Api.Authorization;
 using CrawlScope.Application;
 using CrawlScope.Infrastructure;
 using CrawlScope.Persistence;
+using CrawlScope.Persistence.Context;
+using CrawlScope.Persistence.Seed;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
@@ -36,9 +41,11 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(response);
     };
 });
-builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(dashboardCorsPolicy, policy =>
@@ -58,9 +65,30 @@ builder.Services.AddSwaggerGen(options =>
         Title = "CrawlScope.Api",
         Version = "v1"
     });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Paste only the JWT token. Swagger will send it as a Bearer token.",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document, null)] = []
+    });
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
+    await SeedRolesAndAdmin.SeedAsync(services);
+}
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -94,6 +122,7 @@ app.UseHttpsRedirection();
 
 app.UseCors(dashboardCorsPolicy);
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

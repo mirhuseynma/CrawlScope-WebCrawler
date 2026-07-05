@@ -10,4 +10,8 @@
     <Folder Include="Modules\Auth\Models\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
+  </ItemGroup>
+
 </Project>

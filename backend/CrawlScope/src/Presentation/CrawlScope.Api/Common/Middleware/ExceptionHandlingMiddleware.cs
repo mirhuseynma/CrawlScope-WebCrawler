@@ -23,6 +23,10 @@ namespace CrawlScope.Api.Common.Middleware
             {
                 await WriteProblemAsync(context, ex, StatusCodes.Status400BadRequest, ex.Message);
             }
+            catch (BadRequestException ex)
+            {
+                await WriteProblemAsync(context, ex, StatusCodes.Status400BadRequest, ex.Message);
+            }
             catch (NotFoundException ex)
             {
                 await WriteProblemAsync(context, ex, StatusCodes.Status404NotFound, ex.Message);
