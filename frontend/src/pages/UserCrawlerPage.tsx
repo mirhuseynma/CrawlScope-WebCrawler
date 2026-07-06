@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createCrawlJob, startCrawlJob } from "../api/crawlJobsApi";
 import { useAuth } from "../auth/AuthContext";
+import { UserTopbar } from "../components/UserTopbar";
 import type { CreateCrawlJobRequest } from "../types/crawlJob";
 
 const initialFormState: CreateCrawlJobRequest = {
@@ -12,7 +13,7 @@ const initialFormState: CreateCrawlJobRequest = {
 };
 
 export function UserCrawlerPage() {
-  const { logout, status, user } = useAuth();
+  const { status } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState<CreateCrawlJobRequest>(initialFormState);
   const [createdJobId, setCreatedJobId] = useState<string | null>(null);
@@ -62,28 +63,7 @@ export function UserCrawlerPage() {
 
   return (
     <main className="user-shell">
-      <header className="user-topbar">
-        <Link className="brand-link" to="/">
-          CrawlScope
-        </Link>
-        <div className="user-account-menu">
-          {isAuthenticated ? (
-            <>
-              <span>{user?.fullName || user?.userName}</span>
-              <Link className="secondary-link-button" to="/reports">
-                My reports
-              </Link>
-              <button className="secondary-button" type="button" onClick={logout}>
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link className="secondary-link-button" to="/login">
-              Login
-            </Link>
-          )}
-        </div>
-      </header>
+      <UserTopbar />
 
       <section className="user-workspace">
         <div className="user-intro">

@@ -3,6 +3,7 @@ import { AuthProvider } from "./auth/AuthContext";
 import { permissions } from "./auth/permissions";
 import { AppShell } from "./components/AppShell";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { UserTopbar } from "./components/UserTopbar";
 import { JobDetailsPage } from "./pages/JobDetailsPage";
 import { JobsPage } from "./pages/JobsPage";
 import { PagesPage } from "./pages/PagesPage";
@@ -30,6 +31,7 @@ export default function App() {
           element={
             <ProtectedRoute>
               <main className="user-shell">
+                <UserTopbar />
                 <JobDetailsPage variant="user" />
               </main>
             </ProtectedRoute>

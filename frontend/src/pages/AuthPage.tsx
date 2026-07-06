@@ -6,12 +6,12 @@ type AuthMode = "login" | "register";
 
 export function AuthPage() {
   const [mode, setMode] = useState<AuthMode>("login");
-  const [emailOrUserName, setEmailOrUserName] = useState("admin@crawlscope.local");
+  const [emailOrUserName, setEmailOrUserName] = useState("");
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [fullName, setFullName] = useState("");
-  const [password, setPassword] = useState("Admin123!");
-  const [confirmPassword, setConfirmPassword] = useState("Admin123!");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { loginUser, registerUser, status } = useAuth();
