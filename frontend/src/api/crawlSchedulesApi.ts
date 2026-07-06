@@ -23,3 +23,9 @@ export function disableCrawlSchedule(id: string) {
     method: "PATCH",
   });
 }
+
+export function deleteCrawlSchedule(id: string) {
+  return request<void>(`/api/CrawlSchedule/${id}`, {
+    method: "DELETE",
+  });
+}

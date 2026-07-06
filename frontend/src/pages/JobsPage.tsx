@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { createCrawlJob, getCrawlJobs, startCrawlJob } from "../api/crawlJobsApi";
+import { createCrawlJob, deleteCrawlJob, getCrawlJobs, startCrawlJob, toggleCrawlJobImportance } from "../api/crawlJobsApi";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
 import type { CrawlJob, CreateCrawlJobRequest, PagedResult } from "../types/crawlJob";
@@ -27,11 +27,14 @@ export function JobsPage() {
   const [form, setForm] = useState<CreateCrawlJobRequest>(initialFormState);
   const [jobsSearch, setJobsSearch] = useState("");
   const [jobsStatus, setJobsStatus] = useState("");
+  const [importantOnly, setImportantOnly] = useState(false);
   const [jobsPageNumber, setJobsPageNumber] = useState(1);
   const [jobsPageSize, setJobsPageSize] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
+  const [updatingImportantJobId, setUpdatingImportantJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const totals = useMemo(
@@ -39,6 +42,7 @@ export function JobsPage() {
       jobs: jobsPage.totalCount,
       crawled: jobsPage.items.reduce((sum, job) => sum + job.pagesCrawled, 0),
       failed: jobsPage.items.reduce((sum, job) => sum + job.pagesFailed, 0),
+      important: jobsPage.items.filter((job) => job.isImportant).length,
     }),
     [jobsPage],
   );
@@ -51,6 +55,7 @@ export function JobsPage() {
       const data = await getCrawlJobs({
         search: jobsSearch,
         status: jobsStatus,
+        importantOnly,
         pageNumber,
         pageSize: jobsPageSize,
       });
@@ -97,6 +102,40 @@ export function JobsPage() {
     }
   }
 
+  async function handleDeleteJob(job: CrawlJob) {
+    const confirmed = window.confirm(`Delete crawl job for ${job.targetUrl}? This will remove its pages, logs, and exports.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingJobId(job.id);
+    setError(null);
+
+    try {
+      await deleteCrawlJob(job.id);
+      await loadJobs(jobsPageNumber);
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Failed to delete crawl job.");
+    } finally {
+      setDeletingJobId(null);
+    }
+  }
+
+  async function handleToggleImportance(job: CrawlJob) {
+    setUpdatingImportantJobId(job.id);
+    setError(null);
+
+    try {
+      await toggleCrawlJobImportance(job.id);
+      await loadJobs(jobsPageNumber);
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Failed to update job importance.");
+    } finally {
+      setUpdatingImportantJobId(null);
+    }
+  }
+
   function applyJobFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void loadJobs(1);
@@ -126,6 +165,10 @@ export function JobsPage() {
         <div className="metric-card">
           <span>Failed pages on page</span>
           <strong>{totals.failed}</strong>
+        </div>
+        <div className="metric-card">
+          <span>Important on page</span>
+          <strong>{totals.important}</strong>
         </div>
       </div>
 
@@ -218,6 +261,14 @@ export function JobsPage() {
               <option value={25}>25</option>
               <option value={50}>50</option>
             </select>
+            <label className="filter-check">
+              <input
+                type="checkbox"
+                checked={importantOnly}
+                onChange={(event) => setImportantOnly(event.target.checked)}
+              />
+              Important
+            </label>
             <button className="secondary-button" type="submit">
               Apply
             </button>
@@ -236,6 +287,7 @@ export function JobsPage() {
                   <thead>
                     <tr>
                       <th>Target</th>
+                      <th>Watch</th>
                       <th>Status</th>
                       <th>Depth</th>
                       <th>Pages</th>
@@ -248,6 +300,17 @@ export function JobsPage() {
                       <tr key={job.id}>
                         <td data-label="Target">
                           <div className="url-cell">{job.targetUrl}</div>
+                        </td>
+                        <td data-label="Watch">
+                          <button
+                            className={`watch-button${job.isImportant ? " is-active" : ""}`}
+                            type="button"
+                            onClick={() => void handleToggleImportance(job)}
+                            disabled={updatingImportantJobId === job.id}
+                            title={job.isImportant ? "Remove from important jobs" : "Mark as important"}
+                          >
+                            {job.isImportant ? "Important" : "Watch"}
+                          </button>
                         </td>
                         <td data-label="Status">
                           <StatusBadge status={job.status} />
@@ -271,6 +334,14 @@ export function JobsPage() {
                               disabled={job.status !== "Pending" || activeJobId === job.id}
                             >
                               {activeJobId === job.id ? "Starting..." : "Start"}
+                            </button>
+                            <button
+                              className="danger-button"
+                              type="button"
+                              onClick={() => void handleDeleteJob(job)}
+                              disabled={job.status === "InProgress" || deletingJobId === job.id}
+                            >
+                              {deletingJobId === job.id ? "Deleting..." : "Delete"}
                             </button>
                           </div>
                         </td>

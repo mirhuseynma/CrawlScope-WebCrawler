@@ -29,6 +29,7 @@ export function getCrawlJobs(query: CrawlJobsQuery) {
     `/api/CrawlJob${toQueryString({
       search: query.search,
       status: query.status,
+      importantOnly: query.importantOnly ? "true" : undefined,
       pageNumber: query.pageNumber,
       pageSize: query.pageSize,
     })}`,
@@ -49,6 +50,18 @@ export function createCrawlJob(payload: CreateCrawlJobRequest) {
 export function startCrawlJob(id: string) {
   return request<void>(`/api/CrawlJob/${id}/start`, {
     method: "POST",
+  });
+}
+
+export function deleteCrawlJob(id: string) {
+  return request<void>(`/api/CrawlJob/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function toggleCrawlJobImportance(id: string) {
+  return request<{ isImportant: boolean }>(`/api/CrawlJob/${id}/importance`, {
+    method: "PATCH",
   });
 }
 
@@ -89,5 +102,11 @@ export function getCrawlLogs(id: string, query: CrawlLogsQuery) {
 export async function exportCrawlJob(id: string, format: "Csv" | "Json") {
   return requestBlob(`/api/CrawlJob/${id}/export?format=${format}`, {
     method: "POST",
+  });
+}
+
+export function deleteExportFile(id: string) {
+  return request<void>(`/api/CrawlJob/exports/${id}`, {
+    method: "DELETE",
   });
 }

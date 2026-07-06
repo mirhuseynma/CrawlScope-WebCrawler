@@ -1,11 +1,14 @@
 using System.Security.Claims;
 using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
+using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlJob;
 using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
+using CrawlScope.Application.Modules.Crawling.Commands.ToggleCrawlJobImportance;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs;
+using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
 using CrawlScope.Application.Modules.Export.Commands.ExportCrawledData;
 using CrawlScope.Domain.Constants;
 using CrawlScope.Domain.Modules.Crawling.Enums;
@@ -40,11 +43,12 @@ namespace CrawlScope.Api.Controllers
         public async Task<IActionResult> GetAll(
             [FromQuery] string? search,
             [FromQuery] string? status,
+            [FromQuery] bool? importantOnly,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 5,
             CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawlJobsQuery(search, status, pageNumber, pageSize, CurrentUserId, CanAccessAllUsers);
+            var query = new GetCrawlJobsQuery(search, status, importantOnly, pageNumber, pageSize, CurrentUserId, CanAccessAllUsers);
             var crawlJobs = await mediator.Send(query, cancellationToken);
             return Ok(crawlJobs);
         }
@@ -69,6 +73,23 @@ namespace CrawlScope.Api.Controllers
         public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
         {
             var command = new StartCrawlJobCommand(id, CurrentUserId, CanAccessAllUsers);
+            await mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpPatch("{id:guid}/importance")]
+        [Authorize(Policy = Permissions.Admin.Access)]
+        public async Task<IActionResult> ToggleImportance(Guid id, CancellationToken cancellationToken)
+        {
+            var isImportant = await mediator.Send(new ToggleCrawlJobImportanceCommand(id), cancellationToken);
+            return Ok(new { isImportant });
+        }
+
+        [HttpDelete("{id:guid}")]
+        [Authorize(Policy = Permissions.CrawlJobs.View)]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteCrawlJobCommand(id, CurrentUserId, CanAccessAllUsers);
             await mediator.Send(command, cancellationToken);
             return NoContent();
         }
@@ -145,6 +166,15 @@ namespace CrawlScope.Api.Controllers
             var export = await mediator.Send(command, cancellationToken);
 
             return File(export.Content, export.ContentType, export.FileName);
+        }
+
+        [HttpDelete("exports/{id:guid}")]
+        [Authorize(Policy = Permissions.CrawlJobs.Export)]
+        public async Task<IActionResult> DeleteExport(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteExportFileCommand(id, CurrentUserId, CanAccessAllUsers);
+            await mediator.Send(command, cancellationToken);
+            return NoContent();
         }
     }
 }

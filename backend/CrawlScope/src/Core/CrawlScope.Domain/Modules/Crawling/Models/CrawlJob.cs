@@ -20,6 +20,7 @@ namespace CrawlScope.Domain.Modules.Crawling.Models
         public DateTime? StartedAt { get; set; }
         public DateTime? FinishedAt { get; set; }
         public string CreatedBy { get; set; } = null!;
+        public bool IsImportant { get; set; }
         public int PagesFound { get; set; }
         public int PagesCrawled { get; set; }
         public int PagesFailed { get; set; }

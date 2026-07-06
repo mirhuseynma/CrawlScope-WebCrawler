@@ -19,6 +19,7 @@ export type CrawlJob = {
   pagesFound: number;
   pagesCrawled: number;
   pagesFailed: number;
+  isImportant: boolean;
   createdAt: string;
 };
 
@@ -30,6 +31,7 @@ export type CrawlJobDetails = {
   maxPages: number;
   pagesFound: number;
   pagesFailed: number;
+  isImportant: boolean;
   createdAt: string;
   startedAt: string | null;
   finishedAt: string | null;
@@ -90,6 +92,7 @@ export type CreateCrawlScheduleRequest = {
 export type CrawlJobsQuery = {
   search?: string;
   status?: string;
+  importantOnly?: boolean;
   pageNumber: number;
   pageSize: number;
 };
