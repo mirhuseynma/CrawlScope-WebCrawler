@@ -16,6 +16,11 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
                 .AsNoTracking()
                 .Where(x => x.CrawlJobId == request.CrawlJobId);
 
+            if (!request.IncludeAllUsers)
+            {
+                query = query.Where(x => x.CrawlJob.CreatedBy == request.RequestingUserId);
+            }
+
             if (!string.IsNullOrWhiteSpace(request.Level)
                 && Enum.TryParse<CrawlLogLevel>(request.Level, ignoreCase: true, out var level))
             {

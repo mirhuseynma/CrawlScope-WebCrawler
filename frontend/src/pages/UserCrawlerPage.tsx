@@ -70,6 +70,9 @@ export function UserCrawlerPage() {
           {isAuthenticated ? (
             <>
               <span>{user?.fullName || user?.userName}</span>
+              <Link className="secondary-link-button" to="/reports">
+                My reports
+              </Link>
               <button className="secondary-button" type="button" onClick={logout}>
                 Logout
               </button>
@@ -186,7 +189,10 @@ export function UserCrawlerPage() {
             {createdJobId && (
               <div className="success-callout">
                 <strong>Crawl started</strong>
-                <Link to={`/reports/${createdJobId}`}>Open report</Link>
+                <span className="success-actions">
+                  <Link to={`/reports/${createdJobId}`}>Open report</Link>
+                  <Link to="/reports">My reports</Link>
+                </span>
               </div>
             )}
           </form>

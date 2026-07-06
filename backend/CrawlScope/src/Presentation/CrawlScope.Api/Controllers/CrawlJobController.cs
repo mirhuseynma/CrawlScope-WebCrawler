@@ -1,4 +1,5 @@
-﻿using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
+using System.Security.Claims;
+using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
 using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages;
@@ -18,12 +19,18 @@ namespace CrawlScope.Api.Controllers
     [ApiController]
     public class CrawlJobController(IMediator mediator) : ControllerBase
     {
+        private string CurrentUserId =>
+            User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException("Authenticated user id was not found.");
+
+        private bool CanAccessAllUsers =>
+            User.Claims.Any(claim => claim.Type == "Permission" && claim.Value == Permissions.Admin.Access);
 
         [HttpPost]
         [Authorize(Policy = Permissions.CrawlJobs.Create)]
         public async Task<IActionResult> Create([FromBody] CreateCrawlJobRequestDto request, CancellationToken cancellationToken)
         {
-            var command = new CreateCrawlJobCommand(request, "System");
+            var command = new CreateCrawlJobCommand(request, CurrentUserId);
             var id = await mediator.Send(command, cancellationToken);
             return Ok(id);
         }
@@ -37,7 +44,7 @@ namespace CrawlScope.Api.Controllers
             [FromQuery] int pageSize = 5,
             CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawlJobsQuery(search, status, pageNumber, pageSize);
+            var query = new GetCrawlJobsQuery(search, status, pageNumber, pageSize, CurrentUserId, CanAccessAllUsers);
             var crawlJobs = await mediator.Send(query, cancellationToken);
             return Ok(crawlJobs);
         }
@@ -46,12 +53,14 @@ namespace CrawlScope.Api.Controllers
         [Authorize(Policy = Permissions.CrawlJobs.View)]
         public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
         {
-            var query = new GetCrawlJobByIdQuery(id);
+            var query = new GetCrawlJobByIdQuery(id, CurrentUserId, CanAccessAllUsers);
             var crawlJob = await mediator.Send(query, cancellationToken);
+
             if (crawlJob == null)
             {
                 return NotFound();
             }
+
             return Ok(crawlJob);
         }
 
@@ -59,7 +68,7 @@ namespace CrawlScope.Api.Controllers
         [Authorize(Policy = Permissions.CrawlJobs.Start)]
         public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
         {
-            var command = new StartCrawlJobCommand(id);
+            var command = new StartCrawlJobCommand(id, CurrentUserId, CanAccessAllUsers);
             await mediator.Send(command, cancellationToken);
             return NoContent();
         }
@@ -75,7 +84,15 @@ namespace CrawlScope.Api.Controllers
             [FromQuery] int pageSize = 5,
             CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawledPagesQuery(id, search, statusCode, depthLevel, pageNumber, pageSize);
+            var query = new GetCrawledPagesQuery(
+                id,
+                search,
+                statusCode,
+                depthLevel,
+                pageNumber,
+                pageSize,
+                CurrentUserId,
+                CanAccessAllUsers);
             var pages = await mediator.Send(query, cancellationToken);
             return Ok(pages);
         }
@@ -90,7 +107,15 @@ namespace CrawlScope.Api.Controllers
             [FromQuery] int pageSize = 5,
             CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawledPagesQuery(null, search, statusCode, depthLevel, pageNumber, pageSize);
+            var query = new GetCrawledPagesQuery(
+                null,
+                search,
+                statusCode,
+                depthLevel,
+                pageNumber,
+                pageSize,
+                CurrentUserId,
+                CanAccessAllUsers);
             var pages = await mediator.Send(query, cancellationToken);
             return Ok(pages);
         }
@@ -104,7 +129,7 @@ namespace CrawlScope.Api.Controllers
             [FromQuery] int pageSize = 20,
             CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawlLogsQuery(id, level, pageNumber, pageSize);
+            var query = new GetCrawlLogsQuery(id, level, pageNumber, pageSize, CurrentUserId, CanAccessAllUsers);
             var logs = await mediator.Send(query, cancellationToken);
             return Ok(logs);
         }
@@ -116,7 +141,7 @@ namespace CrawlScope.Api.Controllers
             [FromQuery] ExportFormat format,
             CancellationToken cancellationToken)
         {
-            var command = new ExportCrawledDataCommand(id, format, "System");
+            var command = new ExportCrawledDataCommand(id, format, CurrentUserId, CanAccessAllUsers);
             var export = await mediator.Send(command, cancellationToken);
 
             return File(export.Content, export.ContentType, export.FileName);

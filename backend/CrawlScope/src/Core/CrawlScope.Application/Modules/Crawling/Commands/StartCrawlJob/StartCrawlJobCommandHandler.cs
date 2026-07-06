@@ -14,7 +14,12 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob
     {
         public async Task Handle(StartCrawlJobCommand request, CancellationToken cancellationToken)
         {
-            var crawlJob = await context.CrawlJobs.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken) ?? throw new NotFoundException($"Crawl job with ID {request.Id} not found.");
+            var crawlJob = await context.CrawlJobs
+                .FirstOrDefaultAsync(
+                    x => x.Id == request.Id
+                        && (request.IncludeAllUsers || x.CreatedBy == request.RequestingUserId),
+                    cancellationToken)
+                ?? throw new NotFoundException($"Crawl job with ID {request.Id} not found.");
 
             if (crawlJob.Status != CrawlJobStatus.Pending)
             {

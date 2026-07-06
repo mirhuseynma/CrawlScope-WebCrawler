@@ -21,7 +21,10 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
         {
             var crawlJobExists = await context.CrawlJobs
                 .AsNoTracking()
-                .AnyAsync(x => x.Id == request.CrawlJobId, cancellationToken);
+                .AnyAsync(
+                    x => x.Id == request.CrawlJobId
+                        && (request.IncludeAllUsers || x.CreatedBy == request.CreatedByUserId),
+                    cancellationToken);
 
             if (!crawlJobExists)
             {
