@@ -9,6 +9,7 @@ import { PagesPage } from "./pages/PagesPage";
 import { SchedulesPage } from "./pages/SchedulesPage";
 import { AuthPage } from "./pages/AuthPage";
 import { UserCrawlerPage } from "./pages/UserCrawlerPage";
+import { UserReportsPage } from "./pages/UserReportsPage";
 
 export default function App() {
   return (
@@ -16,6 +17,14 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<AuthPage />} />
         <Route path="/" element={<UserCrawlerPage />} />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <UserReportsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/reports/:id"
           element={

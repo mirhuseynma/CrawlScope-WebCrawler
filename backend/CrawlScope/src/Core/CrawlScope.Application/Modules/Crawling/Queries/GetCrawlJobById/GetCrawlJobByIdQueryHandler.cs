@@ -16,6 +16,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById
             return await context.CrawlJobs
                 .AsNoTracking()
                 .Where(x => x.Id == request.Id)
+                .Where(x => request.IncludeAllUsers || x.CreatedBy == request.RequestingUserId)
                 .ProjectTo<CrawlJobDetailsDto>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException("Crawl job not found.");

@@ -8,5 +8,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
         Guid CrawlJobId,
         string? Level,
         int PageNumber,
-        int PageSize) : IRequest<PagedResult<CrawlLogDto>>;
+        int PageSize,
+        string RequestingUserId,
+        bool IncludeAllUsers) : IRequest<PagedResult<CrawlLogDto>>;
 }

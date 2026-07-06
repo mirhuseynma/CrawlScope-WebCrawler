@@ -8,5 +8,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs
         string? Search,
         string? Status,
         int PageNumber,
-        int PageSize) : IRequest<PagedResult<CrawlJobListItemDto>>;
+        int PageSize,
+        string RequestingUserId,
+        bool IncludeAllUsers) : IRequest<PagedResult<CrawlJobListItemDto>>;
 }

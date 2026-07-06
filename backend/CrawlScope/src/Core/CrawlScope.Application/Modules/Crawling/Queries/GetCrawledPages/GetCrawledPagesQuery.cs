@@ -10,5 +10,7 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
         int? StatusCode,
         int? DepthLevel,
         int PageNumber,
-        int PageSize) : IRequest<PagedResult<CrawledPageListItemDto>>;
+        int PageSize,
+        string RequestingUserId,
+        bool IncludeAllUsers) : IRequest<PagedResult<CrawledPageListItemDto>>;
 }

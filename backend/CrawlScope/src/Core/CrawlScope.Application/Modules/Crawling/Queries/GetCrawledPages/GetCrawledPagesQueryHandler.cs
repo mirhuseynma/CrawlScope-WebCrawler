@@ -14,6 +14,11 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
             var query = context.CrawledPages
                 .AsNoTracking();
 
+            if (!request.IncludeAllUsers)
+            {
+                query = query.Where(x => x.CrawlJob.CreatedBy == request.RequestingUserId);
+            }
+
             if (request.CrawlJobId.HasValue)
             {
                 query = query.Where(x => x.CrawlJobId == request.CrawlJobId.Value);

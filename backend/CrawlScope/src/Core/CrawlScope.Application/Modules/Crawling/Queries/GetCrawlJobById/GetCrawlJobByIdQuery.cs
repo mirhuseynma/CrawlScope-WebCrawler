@@ -6,7 +6,10 @@ using System.Text;
 
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById
 {
-    public record GetCrawlJobByIdQuery(Guid Id) : IRequest<CrawlJobDetailsDto?>
+    public record GetCrawlJobByIdQuery(
+        Guid Id,
+        string RequestingUserId,
+        bool IncludeAllUsers) : IRequest<CrawlJobDetailsDto?>
     {
     }
 }

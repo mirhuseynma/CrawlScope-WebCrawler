@@ -16,6 +16,11 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs
         {
             var query = dbContext.CrawlJobs.AsNoTracking();
 
+            if (!request.IncludeAllUsers)
+            {
+                query = query.Where(x => x.CreatedBy == request.RequestingUserId);
+            }
+
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 var search = request.Search.Trim();
