@@ -429,6 +429,44 @@ select:focus {
   background: #d8ecff;
 }
 
+.danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 0;
+  border-radius: 6px;
+  padding: 9px 14px;
+  color: #9f2f24;
+  background: #fff0ee;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.danger-button:hover:not(:disabled) {
+  background: #ffe0dc;
+}
+
+.watch-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1px solid #c8d8e5;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #31556f;
+  background: #f8fbfd;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.watch-button.is-active {
+  border-color: #f4c85b;
+  color: #6c4a00;
+  background: #fff4cc;
+}
+
 .icon-button {
   color: #17202a;
   background: #e8edf4;
@@ -443,10 +481,30 @@ select:focus {
 
 .filter-bar {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(150px, 190px) minmax(100px, 130px) minmax(96px, auto);
+  grid-template-columns: minmax(220px, 1fr) minmax(150px, 190px) minmax(100px, 130px) minmax(120px, auto) minmax(96px, auto);
   gap: 10px;
   align-items: center;
   margin-top: 16px;
+}
+
+.filter-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid #cddbea;
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: #304259;
+  background: #ffffff;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.filter-check input {
+  width: 16px;
+  min-height: 16px;
 }
 
 .compact-filter {

@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   createCrawlSchedule,
+  deleteCrawlSchedule,
   disableCrawlSchedule,
   enableCrawlSchedule,
   getCrawlSchedules,
@@ -22,6 +23,7 @@ export function SchedulesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeScheduleId, setActiveScheduleId] = useState<string | null>(null);
+  const [deletingScheduleId, setDeletingScheduleId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const totals = useMemo(
@@ -83,6 +85,26 @@ export function SchedulesPage() {
       setError(exception instanceof Error ? exception.message : "Failed to update schedule.");
     } finally {
       setActiveScheduleId(null);
+    }
+  }
+
+  async function handleDeleteSchedule(schedule: CrawlSchedule) {
+    const confirmed = window.confirm(`Delete schedule for ${schedule.targetUrl}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingScheduleId(schedule.id);
+    setError(null);
+
+    try {
+      await deleteCrawlSchedule(schedule.id);
+      await loadSchedules();
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Failed to delete schedule.");
+    } finally {
+      setDeletingScheduleId(null);
     }
   }
 
@@ -246,13 +268,21 @@ export function SchedulesPage() {
                             className="secondary-button"
                             type="button"
                             onClick={() => void handleToggleSchedule(schedule)}
-                            disabled={activeScheduleId === schedule.id}
+                            disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
                           >
                             {activeScheduleId === schedule.id
                               ? "Updating..."
                               : schedule.isEnabled
                                 ? "Pause"
                                 : "Enable"}
+                          </button>
+                          <button
+                            className="danger-button"
+                            type="button"
+                            onClick={() => void handleDeleteSchedule(schedule)}
+                            disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
+                          >
+                            {deletingScheduleId === schedule.id ? "Deleting..." : "Delete"}
                           </button>
                         </div>
                       </td>

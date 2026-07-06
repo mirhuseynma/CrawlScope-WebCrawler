@@ -13,6 +13,7 @@ namespace CrawlScope.Application.Modules.Crawling.DTOs
         public int MaxPages { get; set; }
         public int PagesFound { get; set; }
         public int PagesFailed { get; set; }
+        public bool IsImportant { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? FinishedAt { get; set; }

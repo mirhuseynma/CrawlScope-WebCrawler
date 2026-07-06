@@ -33,8 +33,14 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs
                 query = query.Where(x => x.Status == status);
             }
 
+            if (request.ImportantOnly == true)
+            {
+                query = query.Where(x => x.IsImportant);
+            }
+
             var projectedQuery = query
-                .OrderByDescending(cj => cj.CreatedAt)
+                .OrderByDescending(cj => cj.IsImportant)
+                .ThenByDescending(cj => cj.CreatedAt)
                 .ProjectTo<CrawlJobListItemDto>(mapper.ConfigurationProvider);
 
             return await PagedResult<CrawlJobListItemDto>.CreateAsync(

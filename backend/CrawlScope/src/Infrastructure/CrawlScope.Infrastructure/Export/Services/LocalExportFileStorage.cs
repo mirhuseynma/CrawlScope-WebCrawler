@@ -14,5 +14,16 @@ namespace CrawlScope.Infrastructure.Export.Services
 
             return filePath;
         }
+
+        public Task DeleteAsync(string filePath, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+            {
+                return Task.CompletedTask;
+            }
+
+            File.Delete(filePath);
+            return Task.CompletedTask;
+        }
     }
 }

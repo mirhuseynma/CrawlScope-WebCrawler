@@ -27,6 +27,8 @@ namespace CrawlScope.Persistence.Configurations.Crawling
 
             builder.Property(x => x.CreatedBy) .IsRequired();
 
+            builder.Property(x => x.IsImportant).IsRequired();
+
             builder.Property(x => x.ErrorMessage).HasMaxLength(2000);
 
             builder.HasMany(x => x.QueueItems)
