@@ -4,10 +4,11 @@ import { useAuth } from "../auth/AuthContext";
 
 type ProtectedRouteProps = {
   children: ReactElement;
+  loginPath?: string;
   permission?: string;
 };
 
-export function ProtectedRoute({ children, permission }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, loginPath = "/login", permission }: ProtectedRouteProps) {
   const location = useLocation();
   const { hasPermission, status } = useAuth();
 
@@ -16,7 +17,7 @@ export function ProtectedRoute({ children, permission }: ProtectedRouteProps) {
   }
 
   if (status === "guest") {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate to={loginPath} replace state={{ from: location }} />;
   }
 
   if (permission && !hasPermission(permission)) {

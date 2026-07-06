@@ -7,8 +7,8 @@ type AuthStatus = "checking" | "authenticated" | "guest";
 type AuthContextValue = {
   status: AuthStatus;
   user: AuthUser | null;
-  loginUser: (payload: LoginRequest) => Promise<void>;
-  registerUser: (payload: RegisterRequest) => Promise<void>;
+  loginUser: (payload: LoginRequest) => Promise<AuthUser>;
+  registerUser: (payload: RegisterRequest) => Promise<AuthUser>;
   logout: () => void;
   hasPermission: (permission: string) => boolean;
 };
@@ -74,6 +74,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       permissions: response.permissions,
     });
     setStatus("authenticated");
+    return response;
   }, []);
 
   const registerUser = useCallback(async (payload: RegisterRequest) => {
@@ -91,6 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       permissions: response.permissions,
     });
     setStatus("authenticated");
+    return response;
   }, []);
 
   const hasPermission = useCallback(

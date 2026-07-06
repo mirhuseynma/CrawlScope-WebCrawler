@@ -16,7 +16,8 @@ export default function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/login" element={<AuthPage />} />
+        <Route path="/login" element={<AuthPage variant="user" />} />
+        <Route path="/admin/login" element={<AuthPage variant="admin" />} />
         <Route path="/" element={<UserCrawlerPage />} />
         <Route
           path="/reports"
@@ -41,7 +42,7 @@ export default function App() {
         <Route
           path="/admin/jobs"
           element={
-            <ProtectedRoute permission={permissions.adminAccess}>
+            <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
               <AppShell>
                 <JobsPage />
               </AppShell>
@@ -51,7 +52,7 @@ export default function App() {
         <Route
           path="/admin/jobs/:id"
           element={
-            <ProtectedRoute permission={permissions.adminAccess}>
+            <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
               <AppShell>
                 <JobDetailsPage variant="admin" />
               </AppShell>
@@ -61,7 +62,7 @@ export default function App() {
         <Route
           path="/admin/pages"
           element={
-            <ProtectedRoute permission={permissions.adminAccess}>
+            <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
               <AppShell>
                 <PagesPage />
               </AppShell>
@@ -71,7 +72,7 @@ export default function App() {
         <Route
           path="/admin/schedules"
           element={
-            <ProtectedRoute permission={permissions.adminAccess}>
+            <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
               <AppShell>
                 <SchedulesPage />
               </AppShell>

@@ -1,10 +1,14 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { permissions } from "../auth/permissions";
 
 type AuthMode = "login" | "register";
+type AuthPageProps = {
+  variant?: "user" | "admin";
+};
 
-export function AuthPage() {
+export function AuthPage({ variant = "user" }: AuthPageProps) {
   const [mode, setMode] = useState<AuthMode>("login");
   const [emailOrUserName, setEmailOrUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -14,15 +18,23 @@ export function AuthPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { loginUser, registerUser, status } = useAuth();
+  const { loginUser, logout, registerUser, status } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/";
+  const isAdminLogin = variant === "admin";
+  const defaultRedirectPath = isAdminLogin ? "/admin/jobs" : "/";
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? defaultRedirectPath;
 
-  const title = useMemo(() => (mode === "login" ? "Welcome back" : "Create your crawler account"), [mode]);
+  const title = useMemo(() => {
+    if (isAdminLogin) {
+      return "Admin sign in";
+    }
+
+    return mode === "login" ? "Welcome back" : "Create your crawler account";
+  }, [isAdminLogin, mode]);
 
   if (status === "authenticated") {
-    return <Navigate to="/" replace />;
+    return <Navigate to={defaultRedirectPath} replace />;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -31,8 +43,14 @@ export function AuthPage() {
     setIsSubmitting(true);
 
     try {
-      if (mode === "login") {
-        await loginUser({ emailOrUserName, password });
+      if (mode === "login" || isAdminLogin) {
+        const authenticatedUser = await loginUser({ emailOrUserName, password });
+
+        if (isAdminLogin && !authenticatedUser.permissions.includes(permissions.adminAccess)) {
+          logout();
+          setError("This account does not have admin access.");
+          return;
+        }
       } else {
         if (password !== confirmPassword) {
           setError("Passwords do not match.");
@@ -56,23 +74,39 @@ export function AuthPage() {
         <div className="auth-copy">
           <p className="eyebrow">CrawlScope</p>
           <h1>{title}</h1>
-          <p>Run focused crawl reports, inspect indexed pages, and export structured results from one secured workspace.</p>
+          <p>
+            {isAdminLogin
+              ? "Access crawl operations, schedules, exports, and system-wide reporting from the secured admin workspace."
+              : "Run focused crawl reports, inspect indexed pages, and export structured results from one secured workspace."}
+          </p>
           <div className="auth-proof">
-            <span>JWT secured</span>
-            <span>Permission aware</span>
-            <span>Admin ready</span>
+            {isAdminLogin ? (
+              <>
+                <span>Admin workspace</span>
+                <span>Permission required</span>
+                <span>JWT secured</span>
+              </>
+            ) : (
+              <>
+                <span>JWT secured</span>
+                <span>Private reports</span>
+                <span>Export ready</span>
+              </>
+            )}
           </div>
         </div>
 
         <form className="auth-form" onSubmit={(event) => void handleSubmit(event)}>
-          <div className="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
-            <button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>
-              Login
-            </button>
-            <button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>
-              Register
-            </button>
-          </div>
+          {!isAdminLogin && (
+            <div className="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
+              <button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>
+                Login
+              </button>
+              <button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>
+                Register
+              </button>
+            </div>
+          )}
 
           {mode === "login" ? (
             <label>
@@ -148,7 +182,7 @@ export function AuthPage() {
           )}
 
           <button className="primary-button auth-submit" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Please wait..." : mode === "login" ? "Login" : "Create account"}
+            {isSubmitting ? "Please wait..." : mode === "login" || isAdminLogin ? "Login" : "Create account"}
           </button>
 
           {error && <div className="alert">{error}</div>}
