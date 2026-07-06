@@ -1,9 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCrawlJobs } from "../api/crawlJobsApi";
-import { useAuth } from "../auth/AuthContext";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
+import { UserTopbar } from "../components/UserTopbar";
 import type { CrawlJob, PagedResult } from "../types/crawlJob";
 
 const emptyReportsPage: PagedResult<CrawlJob> = {
@@ -17,7 +17,6 @@ const emptyReportsPage: PagedResult<CrawlJob> = {
 };
 
 export function UserReportsPage() {
-  const { logout, user } = useAuth();
   const [reportsPage, setReportsPage] = useState<PagedResult<CrawlJob>>(emptyReportsPage);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -56,20 +55,7 @@ export function UserReportsPage() {
 
   return (
     <main className="user-shell">
-      <header className="user-topbar">
-        <Link className="brand-link" to="/">
-          CrawlScope
-        </Link>
-        <div className="user-account-menu">
-          <span>{user?.fullName || user?.userName}</span>
-          <Link className="secondary-link-button" to="/">
-            New crawl
-          </Link>
-          <button className="secondary-button" type="button" onClick={logout}>
-            Logout
-          </button>
-        </div>
-      </header>
+      <UserTopbar />
 
       <section className="user-reports">
         <div className="section-header">
@@ -114,7 +100,7 @@ export function UserReportsPage() {
                     <StatusBadge status={report.status} />
                     <h3>{report.targetUrl}</h3>
                     <p>
-                      {report.pagesCrawled}/{report.maxPages} pages crawled · depth {report.maxDepth}
+                      {report.pagesCrawled}/{report.maxPages} pages crawled / depth {report.maxDepth}
                     </p>
                   </div>
                   <div className="report-card-actions">
