@@ -146,15 +146,15 @@ export function PagesPage() {
 
       <div className="metric-grid">
         <div className="metric-card">
-          <span>Total pages</span>
+          <span>Crawled pages matching filters</span>
           <strong>{totals.pages}</strong>
         </div>
         <div className="metric-card">
-          <span>Successful on page</span>
+          <span>Successful pages in current list</span>
           <strong>{totals.ok}</strong>
         </div>
         <div className="metric-card">
-          <span>Failed on page</span>
+          <span>HTTP-error pages in current list</span>
           <strong>{totals.failed}</strong>
         </div>
       </div>

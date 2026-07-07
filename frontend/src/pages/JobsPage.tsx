@@ -155,19 +155,19 @@ export function JobsPage() {
 
       <div className="metric-grid">
         <div className="metric-card">
-          <span>Total jobs</span>
+          <span>Jobs in current list</span>
           <strong>{totals.jobs}</strong>
         </div>
         <div className="metric-card">
-          <span>Pages crawled on page</span>
+          <span>Crawled pages in current list</span>
           <strong>{totals.crawled}</strong>
         </div>
         <div className="metric-card">
-          <span>Failed pages on page</span>
+          <span>Failed URLs in current list</span>
           <strong>{totals.failed}</strong>
         </div>
         <div className="metric-card">
-          <span>Important on page</span>
+          <span>Watched jobs in current list</span>
           <strong>{totals.important}</strong>
         </div>
       </div>
