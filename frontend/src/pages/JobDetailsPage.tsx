@@ -1,9 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { exportCrawlJob, getCrawledPages, getCrawlJob, getCrawlLogs } from "../api/crawlJobsApi";
+import { exportCrawlJob, getBrokenLinks, getCrawledPages, getCrawlJob, getCrawlLogs } from "../api/crawlJobsApi";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
-import type { CrawledPage, CrawlJobDetails, CrawlLog, PagedResult } from "../types/crawlJob";
+import type { BrokenLink, CrawledPage, CrawlJobDetails, CrawlLog, PagedResult } from "../types/crawlJob";
 
 const emptyPagesPage: PagedResult<CrawledPage> = {
   items: [],
@@ -25,9 +25,43 @@ const emptyLogsPage: PagedResult<CrawlLog> = {
   hasNextPage: false,
 };
 
+const emptyBrokenLinksPage: PagedResult<BrokenLink> = {
+  items: [],
+  pageNumber: 1,
+  pageSize: 5,
+  totalCount: 0,
+  totalPages: 0,
+  hasPreviousPage: false,
+  hasNextPage: false,
+};
+
 type JobDetailsPageProps = {
   variant?: "admin" | "user";
 };
+
+function getBrokenLinkAction(link: BrokenLink) {
+  if (link.statusCode === 404) {
+    return "Fix the source link, restore the target page, or add a 301 redirect.";
+  }
+
+  if (link.statusCode === 401 || link.statusCode === 403) {
+    return "Review access rules or remove private links from public pages.";
+  }
+
+  if (link.statusCode && link.statusCode >= 500) {
+    return "Check the target server logs, deployment health, and upstream services.";
+  }
+
+  if (!link.statusCode) {
+    return "Check DNS, SSL, timeout, firewall, or network availability.";
+  }
+
+  if (link.statusCode >= 300 && link.statusCode < 400) {
+    return "Verify redirect target and update the source link if the destination changed.";
+  }
+
+  return "Review the target URL and confirm it should remain linked.";
+}
 
 export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
   const { id } = useParams<{ id: string }>();
@@ -35,10 +69,15 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
   const [job, setJob] = useState<CrawlJobDetails | null>(null);
   const [pagesPage, setPagesPage] = useState<PagedResult<CrawledPage>>(emptyPagesPage);
   const [logsPage, setLogsPage] = useState<PagedResult<CrawlLog>>(emptyLogsPage);
+  const [brokenLinksPage, setBrokenLinksPage] = useState<PagedResult<BrokenLink>>(emptyBrokenLinksPage);
   const [pagesSearch, setPagesSearch] = useState("");
   const [pagesStatusCode, setPagesStatusCode] = useState("");
   const [pagesDepthLevel, setPagesDepthLevel] = useState("");
   const [pagesPageNumber, setPagesPageNumber] = useState(1);
+  const [brokenSearch, setBrokenSearch] = useState("");
+  const [brokenStatusCode, setBrokenStatusCode] = useState("");
+  const [brokenScope, setBrokenScope] = useState("");
+  const [brokenPageNumber, setBrokenPageNumber] = useState(1);
   const [logsLevel, setLogsLevel] = useState("");
   const [logsPageNumber, setLogsPageNumber] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +85,7 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
   const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
-  async function loadDetails(pageNumber = pagesPageNumber, logPageNumber = logsPageNumber) {
+  async function loadDetails(pageNumber = pagesPageNumber, logPageNumber = logsPageNumber, brokenPage = brokenPageNumber) {
     if (!id) {
       return;
     }
@@ -55,7 +94,7 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
     setError(null);
 
     try {
-      const [loadedJob, loadedPages, loadedLogs] = await Promise.all([
+      const [loadedJob, loadedPages, loadedLogs, loadedBrokenLinks] = await Promise.all([
         getCrawlJob(id),
         getCrawledPages(id, {
           search: pagesSearch,
@@ -71,13 +110,22 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
               pageNumber: logPageNumber,
               pageSize: 20,
             }),
+        getBrokenLinks(id, {
+          search: brokenSearch,
+          statusCode: brokenStatusCode === "" ? undefined : Number(brokenStatusCode),
+          externalOnly: brokenScope === "" ? undefined : brokenScope === "external",
+          pageNumber: brokenPage,
+          pageSize: 5,
+        }),
       ]);
 
       setJob(loadedJob);
       setPagesPage(loadedPages);
       setLogsPage(loadedLogs);
+      setBrokenLinksPage(loadedBrokenLinks);
       setPagesPageNumber(loadedPages.pageNumber);
       setLogsPageNumber(loadedLogs.pageNumber);
+      setBrokenPageNumber(loadedBrokenLinks.pageNumber);
       setExpandedPageIds(new Set());
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to load crawl job details.");
@@ -92,7 +140,7 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
 
   function applyDetailFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void loadDetails(1, 1);
+    void loadDetails(1, 1, 1);
   }
 
   function toggleContentPreview(pageId: string) {
@@ -162,8 +210,89 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
             <span>Failed pages</span>
             <strong>{job.pagesFailed}</strong>
           </div>
+          <div className="metric-card">
+            <span>Broken links</span>
+            <strong>{brokenLinksPage.totalCount}</strong>
+          </div>
         </div>
       )}
+
+      <section className="panel broken-links-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Site health audit</p>
+            <h3>Broken links</h3>
+          </div>
+        </div>
+
+        <form className="filter-bar" onSubmit={applyDetailFilters}>
+          <input
+            aria-label="Search broken links"
+            placeholder="Search source, target, or anchor"
+            value={brokenSearch}
+            onChange={(event) => setBrokenSearch(event.target.value)}
+          />
+          <input
+            aria-label="Filter broken links by status code"
+            placeholder="Status code"
+            type="number"
+            value={brokenStatusCode}
+            onChange={(event) => setBrokenStatusCode(event.target.value)}
+          />
+          <select aria-label="Filter broken links by scope" value={brokenScope} onChange={(event) => setBrokenScope(event.target.value)}>
+            <option value="">Internal and external</option>
+            <option value="internal">Internal only</option>
+            <option value="external">External only</option>
+          </select>
+          <button className="secondary-button" type="submit">
+            Apply
+          </button>
+        </form>
+
+        {isLoading ? (
+          <div className="empty-state">Checking broken links...</div>
+        ) : brokenLinksPage.items.length === 0 ? (
+          <div className="empty-state">No broken links detected for this crawl.</div>
+        ) : (
+          <>
+            <div className="broken-link-list">
+              {brokenLinksPage.items.map((link) => (
+                <article className="broken-link-card" key={link.id}>
+                  <div className="broken-link-status">
+                    <span>{link.statusCode ?? "Network"}</span>
+                    <strong>{link.isExternal ? "External" : "Internal"}</strong>
+                  </div>
+                  <div className="broken-link-content">
+                    <div>
+                      <span>Source page</span>
+                      <strong title={link.sourceUrl}>{link.sourceUrl}</strong>
+                    </div>
+                    <div>
+                      <span>Broken target</span>
+                      <strong title={link.targetUrl}>{link.targetUrl}</strong>
+                    </div>
+                    <div className="broken-link-meta">
+                      <span>Anchor: {link.anchorText || "No anchor text"}</span>
+                      <span>Depth {link.depthLevel}</span>
+                      <span>{link.responseTimeMs === null ? "No response time" : `${link.responseTimeMs} ms`}</span>
+                      <span>{new Date(link.detectedAt).toLocaleString()}</span>
+                    </div>
+                    <div className="broken-link-action">
+                      <span>{link.errorMessage || "HTTP request failed."}</span>
+                      <strong>{getBrokenLinkAction(link)}</strong>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <PaginationControls
+              label="Broken links"
+              page={brokenLinksPage}
+              onPageChange={(pageNumber) => void loadDetails(pagesPageNumber, logsPageNumber, pageNumber)}
+            />
+          </>
+        )}
+      </section>
 
       <section className="panel detail-panel">
         <div className="panel-heading">
@@ -280,7 +409,7 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
             <PaginationControls
               label="Pages"
               page={pagesPage}
-              onPageChange={(pageNumber) => void loadDetails(pageNumber, logsPageNumber)}
+                onPageChange={(pageNumber) => void loadDetails(pageNumber, logsPageNumber)}
             />
           </>
         )}

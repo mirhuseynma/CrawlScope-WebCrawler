@@ -60,6 +60,20 @@ export type CrawlLog = {
   createdAt: string;
 };
 
+export type BrokenLink = {
+  id: string;
+  crawlJobId: string;
+  sourceUrl: string;
+  targetUrl: string;
+  anchorText: string | null;
+  isExternal: boolean;
+  depthLevel: number;
+  statusCode: number | null;
+  responseTimeMs: number | null;
+  errorMessage: string | null;
+  detectedAt: string;
+};
+
 export type ExportFile = {
   id: string;
   crawlJobId: string;
@@ -165,6 +179,14 @@ export type CrawledPagesQuery = {
   search?: string;
   statusCode?: number;
   depthLevel?: number;
+  pageNumber: number;
+  pageSize: number;
+};
+
+export type BrokenLinksQuery = {
+  search?: string;
+  statusCode?: number;
+  externalOnly?: boolean;
   pageNumber: number;
   pageSize: number;
 };

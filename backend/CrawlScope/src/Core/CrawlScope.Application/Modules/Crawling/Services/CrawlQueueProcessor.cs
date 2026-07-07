@@ -80,6 +80,8 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 queueItem.Status = CrawlQueueStatus.Failed;
                 queueItem.ProcessedAt = DateTime.UtcNow;
                 queueItem.ErrorMessage = fetchResult.ErrorMessage ?? $"HTTP request failed with status code {fetchResult.StatusCode}.";
+                queueItem.StatusCode = fetchResult.StatusCode;
+                queueItem.ResponseTimeMs = fetchResult.ResponseTimeMs;
                 crawlJob.PagesFailed++;
 
                 await AddLogAsync(crawlJob.Id, CrawlLogLevel.Warning, $"Failed to fetch {queueItem.Url}: {queueItem.ErrorMessage}", cancellationToken);
@@ -164,8 +166,10 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                     CrawlJobId = crawlJob.Id,
                     Url = link.TargetUrl,
                     DepthLevel = sourceQueueItem.DepthLevel + 1,
-                    Status = CrawlQueueStatus.Pending,
                     DiscoveredFromUrl = sourceQueueItem.Url,
+                    AnchorText = link.AnchorText,
+                    IsExternal = link.IsExternal,
+                    Status = CrawlQueueStatus.Pending,
                     CreatedAt = DateTime.UtcNow
                 }, cancellationToken);
 

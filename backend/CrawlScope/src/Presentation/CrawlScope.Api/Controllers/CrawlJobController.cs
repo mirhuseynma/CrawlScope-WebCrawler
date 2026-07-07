@@ -4,6 +4,7 @@ using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlJob;
 using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
 using CrawlScope.Application.Modules.Crawling.Commands.ToggleCrawlJobImportance;
 using CrawlScope.Application.Modules.Crawling.DTOs;
+using CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
@@ -153,6 +154,30 @@ namespace CrawlScope.Api.Controllers
             var query = new GetCrawlLogsQuery(id, level, pageNumber, pageSize, CurrentUserId, CanAccessAllUsers);
             var logs = await mediator.Send(query, cancellationToken);
             return Ok(logs);
+        }
+
+        [HttpGet("{id:guid}/broken-links")]
+        [Authorize(Policy = Permissions.CrawledPages.View)]
+        public async Task<IActionResult> GetBrokenLinks(
+            Guid id,
+            [FromQuery] string? search,
+            [FromQuery] int? statusCode,
+            [FromQuery] bool? externalOnly,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetBrokenLinksQuery(
+                id,
+                search,
+                statusCode,
+                externalOnly,
+                pageNumber,
+                pageSize,
+                CurrentUserId,
+                CanAccessAllUsers);
+            var brokenLinks = await mediator.Send(query, cancellationToken);
+            return Ok(brokenLinks);
         }
 
         [HttpPost("{id:guid}/export")]
