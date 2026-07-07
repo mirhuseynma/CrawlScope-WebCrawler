@@ -28,6 +28,10 @@ namespace CrawlScope.Persistence.Configurations.Crawling
 
             builder.Property(x => x.DiscoveredFromUrl).HasMaxLength(2048);
 
+            builder.Property(x => x.AnchorText).HasMaxLength(500);
+
+            builder.Property(x => x.IsExternal).IsRequired();
+
             builder.Property(x => x.ErrorMessage).HasMaxLength(2000);
 
             builder.HasIndex(x => new { x.CrawlJobId, x.Url }).IsUnique();

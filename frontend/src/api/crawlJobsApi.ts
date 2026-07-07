@@ -1,5 +1,7 @@
 import { request, requestBlob } from "./httpClient";
 import type {
+  BrokenLink,
+  BrokenLinksQuery,
   CrawledPage,
   CrawledPagesQuery,
   CrawlJob,
@@ -83,6 +85,18 @@ export function getAllCrawledPages(query: CrawledPagesQuery) {
       search: query.search,
       statusCode: query.statusCode,
       depthLevel: query.depthLevel,
+      pageNumber: query.pageNumber,
+      pageSize: query.pageSize,
+    })}`,
+  );
+}
+
+export function getBrokenLinks(id: string, query: BrokenLinksQuery) {
+  return request<PagedResult<BrokenLink>>(
+    `/api/CrawlJob/${id}/broken-links${toQueryString({
+      search: query.search,
+      statusCode: query.statusCode,
+      externalOnly: query.externalOnly === undefined ? undefined : String(query.externalOnly),
       pageNumber: query.pageNumber,
       pageSize: query.pageSize,
     })}`,
