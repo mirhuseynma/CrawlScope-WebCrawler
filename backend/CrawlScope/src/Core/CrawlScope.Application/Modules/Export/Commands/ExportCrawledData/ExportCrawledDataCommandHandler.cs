@@ -81,6 +81,7 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
                 Format = request.Format,
                 FileName = fileName,
                 FilePath = filePath,
+                FileSizeBytes = content.LongLength,
                 CreatedAt = createdAt,
                 CreatedByUserId = request.CreatedByUserId
             };

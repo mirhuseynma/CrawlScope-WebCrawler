@@ -11,6 +11,7 @@ import { SchedulesPage } from "./pages/SchedulesPage";
 import { AuthPage } from "./pages/AuthPage";
 import { UserCrawlerPage } from "./pages/UserCrawlerPage";
 import { UserReportsPage } from "./pages/UserReportsPage";
+import { ExportsPage } from "./pages/ExportsPage";
 
 export default function App() {
   return (
@@ -75,6 +76,16 @@ export default function App() {
             <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
               <AppShell>
                 <SchedulesPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/exports"
+          element={
+            <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
+              <AppShell>
+                <ExportsPage />
               </AppShell>
             </ProtectedRoute>
           }
