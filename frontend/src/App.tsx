@@ -12,6 +12,7 @@ import { AuthPage } from "./pages/AuthPage";
 import { UserCrawlerPage } from "./pages/UserCrawlerPage";
 import { UserReportsPage } from "./pages/UserReportsPage";
 import { ExportsPage } from "./pages/ExportsPage";
+import { AdminOverviewPage } from "./pages/AdminOverviewPage";
 
 export default function App() {
   return (
@@ -39,7 +40,17 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/admin" element={<Navigate to="/admin/jobs" replace />} />
+        <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
+        <Route
+          path="/admin/overview"
+          element={
+            <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
+              <AppShell>
+                <AdminOverviewPage />
+              </AppShell>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/jobs"
           element={

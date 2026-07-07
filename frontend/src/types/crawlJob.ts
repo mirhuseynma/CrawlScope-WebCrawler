@@ -114,6 +114,53 @@ export type ExportFilesQuery = {
   pageSize: number;
 };
 
+export type AdminOverviewTotals = {
+  totalJobs: number;
+  pendingJobs: number;
+  inProgressJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  canceledJobs: number;
+  importantJobs: number;
+  totalPages: number;
+  failedPages: number;
+  totalExports: number;
+  totalExportSizeBytes: number;
+};
+
+export type AdminStatusCount = {
+  status: string;
+  count: number;
+};
+
+export type AdminOverviewJob = {
+  id: string;
+  targetUrl: string;
+  status: CrawlJobStatus | string;
+  pagesCrawled: number;
+  pagesFailed: number;
+  isImportant: boolean;
+  createdAt: string;
+};
+
+export type AdminOverviewExport = {
+  id: string;
+  crawlJobId: string;
+  crawlJobTargetUrl: string;
+  format: "Csv" | "Json" | string;
+  fileName: string;
+  fileSizeBytes: number;
+  createdAt: string;
+};
+
+export type AdminOverview = {
+  totals: AdminOverviewTotals;
+  statusDistribution: AdminStatusCount[];
+  recentJobs: AdminOverviewJob[];
+  recentExports: AdminOverviewExport[];
+  problemJobs: AdminOverviewJob[];
+};
+
 export type CrawledPagesQuery = {
   search?: string;
   statusCode?: number;
