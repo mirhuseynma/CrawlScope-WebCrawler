@@ -283,7 +283,7 @@ export function JobsPage() {
           ) : (
             <>
               <div className="table-scroll">
-                <table>
+                <table className="jobs-table">
                   <thead>
                     <tr>
                       <th>Target</th>
@@ -299,7 +299,9 @@ export function JobsPage() {
                     {jobsPage.items.map((job) => (
                       <tr key={job.id}>
                         <td data-label="Target">
-                          <div className="url-cell">{job.targetUrl}</div>
+                          <div className="url-cell" title={job.targetUrl}>
+                            {job.targetUrl}
+                          </div>
                         </td>
                         <td data-label="Watch">
                           <button
@@ -323,7 +325,7 @@ export function JobsPage() {
                           <span className="date-cell">{new Date(job.createdAt).toLocaleString()}</span>
                         </td>
                         <td data-label="Actions">
-                          <div className="button-group">
+                          <div className="button-group jobs-actions">
                             <Link className="secondary-link-button" to={`/admin/jobs/${job.id}`}>
                               View
                             </Link>
