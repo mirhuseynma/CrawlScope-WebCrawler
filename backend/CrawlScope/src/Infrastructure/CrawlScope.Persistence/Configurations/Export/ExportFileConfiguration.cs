@@ -28,6 +28,8 @@ namespace CrawlScope.Persistence.Configurations.Export
                 .IsRequired()
                 .HasMaxLength(1000);
 
+            builder.Property(x => x.FileSizeBytes).IsRequired();
+
             builder.Property(x => x.CreatedByUserId).IsRequired();
         }
     }

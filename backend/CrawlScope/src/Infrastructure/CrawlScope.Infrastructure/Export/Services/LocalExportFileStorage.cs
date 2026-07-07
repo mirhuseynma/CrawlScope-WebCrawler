@@ -15,6 +15,16 @@ namespace CrawlScope.Infrastructure.Export.Services
             return filePath;
         }
 
+        public async Task<byte[]?> ReadAsync(string filePath, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+            {
+                return null;
+            }
+
+            return await File.ReadAllBytesAsync(filePath, cancellationToken);
+        }
+
         public Task DeleteAsync(string filePath, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))

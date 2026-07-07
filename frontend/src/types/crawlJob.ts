@@ -60,6 +60,16 @@ export type CrawlLog = {
   createdAt: string;
 };
 
+export type ExportFile = {
+  id: string;
+  crawlJobId: string;
+  crawlJobTargetUrl: string;
+  format: "Csv" | "Json" | string;
+  fileName: string;
+  fileSizeBytes: number;
+  createdAt: string;
+};
+
 export type CreateCrawlJobRequest = {
   targetUrl: string;
   maxDepth: number;
@@ -93,6 +103,13 @@ export type CrawlJobsQuery = {
   search?: string;
   status?: string;
   importantOnly?: boolean;
+  pageNumber: number;
+  pageSize: number;
+};
+
+export type ExportFilesQuery = {
+  search?: string;
+  format?: string;
   pageNumber: number;
   pageSize: number;
 };
