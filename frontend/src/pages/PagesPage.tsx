@@ -14,6 +14,58 @@ const emptyPagesPage: PagedResult<CrawledPage> = {
   hasNextPage: false,
 };
 
+function formatPageContent(content?: string | null) {
+  if (!content) {
+    return "";
+  }
+
+  return content
+    .replace(/\s+/g, " ")
+    .replace(/([.!?])(?=[A-Z])/g, "$1 ")
+    .replace(/([a-z])(?=[A-Z][a-z])/g, "$1 ")
+    .trim();
+}
+
+function getStatusTone(statusCode?: number | null) {
+  if (!statusCode) {
+    return "unknown";
+  }
+
+  if (statusCode >= 200 && statusCode < 300) {
+    return "ok";
+  }
+
+  if (statusCode >= 300 && statusCode < 400) {
+    return "redirect";
+  }
+
+  if (statusCode >= 400) {
+    return "failed";
+  }
+
+  return "unknown";
+}
+
+function getStatusLabel(statusCode?: number | null) {
+  if (!statusCode) {
+    return "No response";
+  }
+
+  if (statusCode >= 200 && statusCode < 300) {
+    return "Successful";
+  }
+
+  if (statusCode >= 300 && statusCode < 400) {
+    return "Redirect";
+  }
+
+  if (statusCode >= 400) {
+    return "Needs attention";
+  }
+
+  return "Unknown";
+}
+
 export function PagesPage() {
   const [pagesPage, setPagesPage] = useState<PagedResult<CrawledPage>>(emptyPagesPage);
   const [search, setSearch] = useState("");
@@ -155,70 +207,76 @@ export function PagesPage() {
           <div className="empty-state">No crawled pages match the current filters.</div>
         ) : (
           <>
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Page</th>
-                    <th>Job</th>
-                    <th>Status</th>
-                    <th>Depth</th>
-                    <th>Links</th>
-                    <th>Crawled</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pagesPage.items.map((page) => {
-                    const isExpanded = expandedPageIds.has(page.id);
-                    const hasExpandableContent = Boolean(page.contentPreview && page.contentPreview.length > 160);
+            <div className="pages-list">
+              {pagesPage.items.map((page) => {
+                const isExpanded = expandedPageIds.has(page.id);
+                const readableContent = formatPageContent(page.contentPreview);
+                const hasExpandableContent = readableContent.length > 90;
+                const statusTone = getStatusTone(page.statusCode);
+                const statusLabel = getStatusLabel(page.statusCode);
 
-                    return (
-                      <tr key={page.id}>
-                        <td data-label="Page">
-                          <div className="page-title">{page.title || "Untitled page"}</div>
-                          <div className="url-cell">{page.url}</div>
-                          <p
-                            className={`content-preview${page.contentPreview ? "" : " is-empty"}${
-                              isExpanded ? " is-expanded" : ""
-                            }`}
-                          >
-                            {page.contentPreview || "No content snapshot captured."}
-                          </p>
-                          {hasExpandableContent && (
-                            <button
-                              className="text-button"
-                              type="button"
-                              onClick={() => toggleContentPreview(page.id)}
-                              aria-expanded={isExpanded}
-                            >
-                              {isExpanded ? "Less" : "More"}
-                            </button>
-                          )}
-                        </td>
-                        <td data-label="Job">
-                          <div className="url-cell compact-url-cell">{page.crawlJobTargetUrl}</div>
-                        </td>
-                        <td data-label="Status">{page.statusCode ?? "-"}</td>
-                        <td data-label="Depth">{page.depthLevel}</td>
-                        <td data-label="Links">
-                          {page.internalLinksCount} internal / {page.externalLinksCount} external
-                        </td>
-                        <td data-label="Crawled">
-                          <span className="date-cell">{new Date(page.crawledAt).toLocaleString()}</span>
-                        </td>
-                        <td data-label="Actions">
-                          <div className="button-group">
-                            <Link className="secondary-link-button" to={`/admin/jobs/${page.crawlJobId}`}>
-                              Open job
-                            </Link>
+                return (
+                  <article className={`crawled-page-card status-${statusTone}`} key={page.id}>
+                    <div className="page-feed-marker" aria-hidden="true">
+                      <span>{page.statusCode ?? "-"}</span>
+                    </div>
+                    <div className="crawled-page-body">
+                      <div className="crawled-page-header">
+                        <div className="crawled-page-main">
+                          <div className="crawled-page-kicker">
+                            <span className={`http-status-pill ${statusTone}`}>{statusLabel}</span>
+                            <span>Status {page.statusCode ?? "-"}</span>
+                            <span>Depth {page.depthLevel}</span>
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          <div className="page-title" title={page.title || "Untitled page"}>
+                            {page.title || "Untitled page"}
+                          </div>
+                          <div className="url-cell" title={page.url}>
+                            {page.url}
+                          </div>
+                        </div>
+                        <Link className="secondary-link-button page-card-action" to={`/admin/jobs/${page.crawlJobId}`}>
+                          Open job
+                        </Link>
+                      </div>
+
+                      <div className="page-meta-grid">
+                        <div>
+                          <span>Links</span>
+                          <strong>
+                            {page.internalLinksCount} internal / {page.externalLinksCount} external
+                          </strong>
+                        </div>
+                        <div>
+                          <span>Crawled</span>
+                          <strong>{new Date(page.crawledAt).toLocaleString()}</strong>
+                        </div>
+                        <div>
+                          <span>Job</span>
+                          <strong title={page.crawlJobTargetUrl}>{page.crawlJobTargetUrl}</strong>
+                        </div>
+                      </div>
+
+                      <div className="page-content-section">
+                        <span>Content preview</span>
+                        <div className={`page-content-box${readableContent ? "" : " is-empty"}${isExpanded ? " is-expanded" : ""}`}>
+                          {readableContent || "No content snapshot captured."}
+                        </div>
+                        {hasExpandableContent && (
+                          <button
+                            className="text-button page-more-button"
+                            type="button"
+                            onClick={() => toggleContentPreview(page.id)}
+                            aria-expanded={isExpanded}
+                          >
+                            {isExpanded ? "Show less" : "Read more"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
             <PaginationControls label="Pages" page={pagesPage} onPageChange={(nextPage) => void loadPages(nextPage)} />
           </>

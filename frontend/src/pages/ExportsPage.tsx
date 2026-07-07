@@ -192,61 +192,58 @@ export function ExportsPage() {
           <div className="empty-state">No exports match the current filters.</div>
         ) : (
           <>
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>File</th>
-                    <th>Format</th>
-                    <th>Size</th>
-                    <th>Job</th>
-                    <th>Created</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {exportsPage.items.map((exportFile) => (
-                    <tr key={exportFile.id}>
-                      <td data-label="File">
-                        <div className="page-title">{exportFile.fileName}</div>
-                      </td>
-                      <td data-label="Format">
+            <div className="export-list">
+              {exportsPage.items.map((exportFile) => (
+                <article className="export-card" key={exportFile.id}>
+                  <div className="export-main">
+                    <div className="export-file-name" title={exportFile.fileName}>
+                      {exportFile.fileName}
+                    </div>
+                    <div className="export-job-url" title={exportFile.crawlJobTargetUrl}>
+                      {exportFile.crawlJobTargetUrl}
+                    </div>
+                  </div>
+
+                  <div className="export-meta-grid">
+                    <div>
+                      <span>Format</span>
+                      <strong>
                         <span className="format-pill">{exportFile.format.toUpperCase()}</span>
-                      </td>
-                      <td data-label="Size">{formatFileSize(exportFile.fileSizeBytes)}</td>
-                      <td data-label="Job">
-                        <div className="url-cell compact-url-cell">{exportFile.crawlJobTargetUrl}</div>
-                      </td>
-                      <td data-label="Created">
-                        <span className="date-cell">{new Date(exportFile.createdAt).toLocaleString()}</span>
-                      </td>
-                      <td data-label="Actions">
-                        <div className="button-group">
-                          <button
-                            className="secondary-button"
-                            type="button"
-                            onClick={() => void handleDownload(exportFile)}
-                            disabled={activeExportId === exportFile.id}
-                          >
-                            {activeExportId === exportFile.id ? "Downloading..." : "Download"}
-                          </button>
-                          <Link className="secondary-link-button" to={`/admin/jobs/${exportFile.crawlJobId}`}>
-                            Open job
-                          </Link>
-                          <button
-                            className="danger-button"
-                            type="button"
-                            onClick={() => void handleDelete(exportFile)}
-                            disabled={deletingExportId === exportFile.id}
-                          >
-                            {deletingExportId === exportFile.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Size</span>
+                      <strong>{formatFileSize(exportFile.fileSizeBytes)}</strong>
+                    </div>
+                    <div>
+                      <span>Created</span>
+                      <strong>{new Date(exportFile.createdAt).toLocaleString()}</strong>
+                    </div>
+                  </div>
+
+                  <div className="export-actions">
+                    <button
+                      className="secondary-button"
+                      type="button"
+                      onClick={() => void handleDownload(exportFile)}
+                      disabled={activeExportId === exportFile.id}
+                    >
+                      {activeExportId === exportFile.id ? "Downloading..." : "Download"}
+                    </button>
+                    <Link className="secondary-link-button" to={`/admin/jobs/${exportFile.crawlJobId}`}>
+                      Open job
+                    </Link>
+                    <button
+                      className="danger-button"
+                      type="button"
+                      onClick={() => void handleDelete(exportFile)}
+                      disabled={deletingExportId === exportFile.id}
+                    >
+                      {deletingExportId === exportFile.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
             <PaginationControls label="Exports" page={exportsPage} onPageChange={(nextPage) => void loadExports(nextPage)} />
           </>

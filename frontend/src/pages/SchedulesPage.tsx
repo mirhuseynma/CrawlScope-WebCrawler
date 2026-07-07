@@ -218,78 +218,57 @@ export function SchedulesPage() {
           ) : schedules.length === 0 ? (
             <div className="empty-state">No periodic crawl schedules have been created.</div>
           ) : (
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Target</th>
-                    <th>Status</th>
-                    <th>Interval</th>
-                    <th>Scope</th>
-                    <th>Next run</th>
-                    <th>Last run</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {schedules.map((schedule) => (
-                    <tr key={schedule.id}>
-                      <td data-label="Target">
-                        <div className="url-cell">{schedule.targetUrl}</div>
-                        <span className="meta-line">
-                          depth {schedule.maxDepth} / {schedule.maxPages} pages
-                        </span>
-                      </td>
-                      <td data-label="Status">
-                        <span className={`status-badge ${schedule.isEnabled ? "status-completed" : "status-cancelled"}`}>
-                          {schedule.isEnabled ? "Enabled" : "Paused"}
-                        </span>
-                      </td>
-                      <td data-label="Interval">{schedule.intervalMinutes} min</td>
-                      <td data-label="Scope">{schedule.stayWithinDomain ? "Domain only" : "Any domain"}</td>
-                      <td data-label="Next run">
-                        <span className="date-cell">{new Date(schedule.nextRunAt).toLocaleString()}</span>
-                      </td>
-                      <td data-label="Last run">
-                        {schedule.lastRunAt ? (
-                          <span className="date-cell">{new Date(schedule.lastRunAt).toLocaleString()}</span>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td data-label="Actions">
-                        <div className="button-group">
-                          {schedule.lastCrawlJobId && (
-                            <Link className="secondary-link-button" to={`/admin/jobs/${schedule.lastCrawlJobId}`}>
-                              Last job
-                            </Link>
-                          )}
-                          <button
-                            className="secondary-button"
-                            type="button"
-                            onClick={() => void handleToggleSchedule(schedule)}
-                            disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
-                          >
-                            {activeScheduleId === schedule.id
-                              ? "Updating..."
-                              : schedule.isEnabled
-                                ? "Pause"
-                                : "Enable"}
-                          </button>
-                          <button
-                            className="danger-button"
-                            type="button"
-                            onClick={() => void handleDeleteSchedule(schedule)}
-                            disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
-                          >
-                            {deletingScheduleId === schedule.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="schedule-list">
+              {schedules.map((schedule) => (
+                <article className="schedule-card" key={schedule.id}>
+                  <div className="schedule-summary">
+                    <div className="schedule-main">
+                      <div className="schedule-target" title={schedule.targetUrl}>
+                        {schedule.targetUrl}
+                      </div>
+                      <span className="meta-line">
+                        Next run: {new Date(schedule.nextRunAt).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <span className={`status-badge ${schedule.isEnabled ? "status-completed" : "status-cancelled"}`}>
+                      {schedule.isEnabled ? "Enabled" : "Paused"}
+                    </span>
+                  </div>
+
+                  <div className="schedule-chip-row">
+                    <span>{schedule.intervalMinutes} min interval</span>
+                    <span>depth {schedule.maxDepth}</span>
+                    <span>{schedule.maxPages} pages max</span>
+                    <span>{schedule.stayWithinDomain ? "domain only" : "any domain"}</span>
+                    <span>last run: {schedule.lastRunAt ? new Date(schedule.lastRunAt).toLocaleString() : "-"}</span>
+                  </div>
+
+                  <div className="schedule-actions">
+                    {schedule.lastCrawlJobId && (
+                      <Link className="secondary-link-button" to={`/admin/jobs/${schedule.lastCrawlJobId}`}>
+                        Last job
+                      </Link>
+                    )}
+                    <button
+                      className="secondary-button"
+                      type="button"
+                      onClick={() => void handleToggleSchedule(schedule)}
+                      disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
+                    >
+                      {activeScheduleId === schedule.id ? "Updating..." : schedule.isEnabled ? "Pause" : "Enable"}
+                    </button>
+                    <button
+                      className="danger-button"
+                      type="button"
+                      onClick={() => void handleDeleteSchedule(schedule)}
+                      disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
+                    >
+                      {deletingScheduleId === schedule.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
         </div>

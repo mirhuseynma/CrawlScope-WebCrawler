@@ -82,7 +82,7 @@ export function AdminOverviewPage() {
   }
 
   return (
-    <section className="page-section">
+    <section className="page-section overview-page">
       <div className="section-header overview-hero">
         <div>
           <p className="eyebrow">Operations overview</p>
@@ -127,60 +127,35 @@ export function AdminOverviewPage() {
         </div>
       </div>
 
-      <div className="overview-columns">
-        <section className="panel">
-          <div className="panel-heading">
-            <div>
-              <p className="eyebrow">Status distribution</p>
-              <h3>Crawl health</h3>
-            </div>
+      <section className="panel overview-health-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Status distribution</p>
+            <h3>Crawl health</h3>
           </div>
-          <div className="status-stack">
-            {overview.statusDistribution.length === 0 ? (
-              <div className="empty-state">No crawl jobs yet.</div>
-            ) : (
-              overview.statusDistribution.map((status) => {
-                const percent = calculatePercent(status.count, overview.totals.totalJobs);
+        </div>
+        <div className="status-stack">
+          {overview.statusDistribution.length === 0 ? (
+            <div className="empty-state">No crawl jobs yet.</div>
+          ) : (
+            overview.statusDistribution.map((status) => {
+              const percent = calculatePercent(status.count, overview.totals.totalJobs);
 
-                return (
-                  <div className="status-row" key={status.status}>
-                    <div>
-                      <StatusBadge status={status.status} />
-                      <strong>{formatNumber(status.count)}</strong>
-                    </div>
-                    <div className="status-bar">
-                      <span style={{ width: `${percent}%` }} />
-                    </div>
+              return (
+                <div className="status-row" key={status.status}>
+                  <div>
+                    <StatusBadge status={status.status} />
+                    <strong>{formatNumber(status.count)}</strong>
                   </div>
-                );
-              })
-            )}
-          </div>
-        </section>
-
-        <section className="panel quick-actions-panel">
-          <div className="panel-heading">
-            <div>
-              <p className="eyebrow">Shortcuts</p>
-              <h3>Quick actions</h3>
-            </div>
-          </div>
-          <div className="quick-action-grid">
-            <Link className="quick-action" to="/admin/jobs">
-              Create crawl job
-            </Link>
-            <Link className="quick-action" to="/admin/pages">
-              Inspect pages
-            </Link>
-            <Link className="quick-action" to="/admin/exports">
-              Manage exports
-            </Link>
-            <Link className="quick-action" to="/admin/schedules">
-              Review schedules
-            </Link>
-          </div>
-        </section>
-      </div>
+                  <div className="status-bar">
+                    <span style={{ width: `${percent}%` }} />
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </section>
 
       <div className="overview-columns wide">
         <section className="panel table-panel">
@@ -210,31 +185,56 @@ export function AdminOverviewPage() {
           )}
         </section>
 
-        <section className="panel table-panel">
-          <div className="panel-heading">
-            <div>
-              <p className="eyebrow">Attention</p>
-              <h3>Problem jobs</h3>
+        <div className="overview-side-stack">
+          <section className="panel table-panel">
+            <div className="panel-heading">
+              <div>
+                <p className="eyebrow">Attention</p>
+                <h3>Problem jobs</h3>
+              </div>
             </div>
-          </div>
-          {overview.problemJobs.length === 0 ? (
-            <div className="empty-state">No failed jobs or failed pages detected.</div>
-          ) : (
-            <div className="overview-list">
-              {overview.problemJobs.map((job) => (
-                <Link className="overview-list-item problem" to={`/admin/jobs/${job.id}`} key={job.id}>
-                  <div>
-                    <strong>{job.targetUrl}</strong>
-                    <span>
-                      {job.pagesFailed} failed / {job.pagesCrawled} crawled
-                    </span>
-                  </div>
-                  <StatusBadge status={job.status} />
-                </Link>
-              ))}
+            {overview.problemJobs.length === 0 ? (
+              <div className="empty-state">No failed jobs or failed pages detected.</div>
+            ) : (
+              <div className="overview-list">
+                {overview.problemJobs.map((job) => (
+                  <Link className="overview-list-item problem" to={`/admin/jobs/${job.id}`} key={job.id}>
+                    <div>
+                      <strong>{job.targetUrl}</strong>
+                      <span>
+                        {job.pagesFailed} failed / {job.pagesCrawled} crawled
+                      </span>
+                    </div>
+                    <StatusBadge status={job.status} />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="panel quick-actions-panel">
+            <div className="panel-heading">
+              <div>
+                <p className="eyebrow">Shortcuts</p>
+                <h3>Quick actions</h3>
+              </div>
             </div>
-          )}
-        </section>
+            <div className="quick-action-grid">
+              <Link className="quick-action" to="/admin/jobs">
+                Create crawl job
+              </Link>
+              <Link className="quick-action" to="/admin/pages">
+                Inspect pages
+              </Link>
+              <Link className="quick-action" to="/admin/exports">
+                Manage exports
+              </Link>
+              <Link className="quick-action" to="/admin/schedules">
+                Review schedules
+              </Link>
+            </div>
+          </section>
+        </div>
       </div>
 
       <section className="panel table-panel">
