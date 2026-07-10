@@ -6,10 +6,10 @@ import { permissions } from "../auth/permissions";
 type AuthMode = "login" | "register";
 type AuthPageProps = {
   variant?: "user" | "admin";
+  mode?: AuthMode;
 };
 
-export function AuthPage({ variant = "user" }: AuthPageProps) {
-  const [mode, setMode] = useState<AuthMode>("login");
+export function AuthPage({ variant = "user", mode: requestedMode = "login" }: AuthPageProps) {
   const [emailOrUserName, setEmailOrUserName] = useState("");
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
@@ -25,6 +25,7 @@ export function AuthPage({ variant = "user" }: AuthPageProps) {
   const defaultRedirectPath = isAdminLogin ? "/admin/jobs" : "/";
   const routeState = location.state as { from?: { pathname?: string }; reason?: string } | null;
   const from = routeState?.from?.pathname ?? defaultRedirectPath;
+  const mode = isAdminLogin ? "login" : requestedMode;
   const accessNotice =
     routeState?.reason === "forbidden"
       ? "Your account is signed in, but it does not have permission to access the admin workspace."
@@ -132,17 +133,6 @@ export function AuthPage({ variant = "user" }: AuthPageProps) {
         </div>
 
         <form className="auth-form" onSubmit={(event) => void handleSubmit(event)}>
-          {!isAdminLogin && (
-            <div className="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
-              <button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>
-                Login
-              </button>
-              <button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>
-                Register
-              </button>
-            </div>
-          )}
-
           {mode === "login" ? (
             <label>
               Email or username
@@ -222,6 +212,22 @@ export function AuthPage({ variant = "user" }: AuthPageProps) {
 
           {accessNotice && <div className="alert">{accessNotice}</div>}
           {error && <div className="alert">{error}</div>}
+
+          {!isAdminLogin && (
+            <div className="auth-route-switch">
+              {mode === "login" ? (
+                <>
+                  <span>New to CrawlScope?</span>
+                  <Link to="/register">Create account</Link>
+                </>
+              ) : (
+                <>
+                  <span>Already have an account?</span>
+                  <Link to="/login">Login</Link>
+                </>
+              )}
+            </div>
+          )}
         </form>
       </section>
     </main>
