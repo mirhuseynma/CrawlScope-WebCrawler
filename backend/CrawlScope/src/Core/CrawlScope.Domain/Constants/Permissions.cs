@@ -27,6 +27,18 @@ namespace CrawlScope.Domain.Constants
             public const string Access = "Permissions.Admin.Access";
         }
 
+        public static class Users
+        {
+            public const string View = "Permissions.Users.View";
+            public const string Manage = "Permissions.Users.Manage";
+        }
+
+        public static class Roles
+        {
+            public const string View = "Permissions.Roles.View";
+            public const string Manage = "Permissions.Roles.Manage";
+        }
+
         public static IEnumerable<string> All()
         {
             yield return CrawlJobs.View;
@@ -38,6 +50,10 @@ namespace CrawlScope.Domain.Constants
             yield return Schedules.Create;
             yield return Schedules.Manage;
             yield return Admin.Access;
+            yield return Users.View;
+            yield return Users.Manage;
+            yield return Roles.View;
+            yield return Roles.Manage;
         }
 
         public static IEnumerable<string> UserDefaults()

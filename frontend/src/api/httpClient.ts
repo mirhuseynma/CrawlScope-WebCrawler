@@ -3,7 +3,7 @@ import { getAuthToken } from "./authStorage";
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5058";
 
 type RequestOptions = {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   skipAuth?: boolean;
 };
