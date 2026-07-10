@@ -163,12 +163,12 @@ export function SchedulesPage() {
 
       <div className="workspace-grid">
         <form className="panel create-form" onSubmit={(event) => void handleCreateSchedule(event)}>
-          <div>
+          <div className="create-form-header">
             <p className="eyebrow">New schedule</p>
             <h3>Create periodic crawl</h3>
           </div>
 
-          <label>
+          <label className="create-url-field">
             Target URL
             <input
               type="url"
@@ -178,7 +178,7 @@ export function SchedulesPage() {
             />
           </label>
 
-          <div className="form-row">
+          <div className="create-options">
             <label>
               Max depth
               <input
@@ -203,7 +203,7 @@ export function SchedulesPage() {
             </label>
           </div>
 
-          <label>
+          <label className="create-interval-field">
             Interval minutes
             <input
               type="number"
@@ -215,18 +215,20 @@ export function SchedulesPage() {
             />
           </label>
 
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              checked={form.stayWithinDomain}
-              onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
-            />
-            Stay within domain
-          </label>
+          <div className="create-actions">
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={form.stayWithinDomain}
+                onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
+              />
+              Stay within domain
+            </label>
 
-          <button className="primary-button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create schedule"}
-          </button>
+            <button className="primary-button create-submit" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create schedule"}
+            </button>
+          </div>
         </form>
 
         <div className="panel table-panel">

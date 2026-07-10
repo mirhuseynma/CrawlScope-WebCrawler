@@ -174,12 +174,12 @@ export function JobsPage() {
 
       <div className="workspace-grid">
         <form className="panel create-form" onSubmit={(event) => void handleCreateJob(event)}>
-          <div>
+          <div className="create-form-header">
             <p className="eyebrow">New crawl</p>
             <h3>Create job</h3>
           </div>
 
-          <label>
+          <label className="create-url-field">
             Target URL
             <input
               type="url"
@@ -189,7 +189,7 @@ export function JobsPage() {
             />
           </label>
 
-          <div className="form-row">
+          <div className="create-options create-options-with-domain">
             <label>
               Max depth
               <input
@@ -212,20 +212,21 @@ export function JobsPage() {
                 required
               />
             </label>
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={form.stayWithinDomain}
+                onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
+              />
+              Stay within domain
+            </label>
           </div>
 
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              checked={form.stayWithinDomain}
-              onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
-            />
-            Stay within domain
-          </label>
-
-          <button className="primary-button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create crawl job"}
-          </button>
+          <div className="create-actions">
+            <button className="primary-button create-submit" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create crawl job"}
+            </button>
+          </div>
         </form>
 
         <div className="panel table-panel">
