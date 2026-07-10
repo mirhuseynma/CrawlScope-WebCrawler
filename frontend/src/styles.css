@@ -2796,6 +2796,10 @@ tbody tr:hover td {
   margin: auto;
 }
 
+.auth-panel-compact {
+  grid-template-columns: minmax(0, 0.95fr) minmax(300px, 400px);
+}
+
 .auth-copy {
   display: grid;
   gap: 18px;
@@ -2843,6 +2847,15 @@ tbody tr:hover td {
   padding: 22px;
   background: #ffffff;
   box-shadow: 0 20px 44px rgb(23 32 42 / 10%);
+}
+
+.auth-message-panel {
+  align-content: center;
+}
+
+.auth-message-panel .primary-button,
+.auth-message-panel .secondary-button {
+  width: 100%;
 }
 
 .auth-mode-toggle {

@@ -7,7 +7,8 @@ import {
   enableCrawlSchedule,
   getCrawlSchedules,
 } from "../api/crawlSchedulesApi";
-import type { CrawlSchedule, CreateCrawlScheduleRequest } from "../types/crawlJob";
+import { PaginationControls } from "../components/PaginationControls";
+import type { CrawlSchedule, CreateCrawlScheduleRequest, PagedResult } from "../types/crawlJob";
 
 const initialFormState: CreateCrawlScheduleRequest = {
   targetUrl: "https://example.com",
@@ -17,9 +18,23 @@ const initialFormState: CreateCrawlScheduleRequest = {
   intervalMinutes: 60,
 };
 
+const emptySchedulesPage: PagedResult<CrawlSchedule> = {
+  items: [],
+  pageNumber: 1,
+  pageSize: 5,
+  totalCount: 0,
+  totalPages: 0,
+  hasPreviousPage: false,
+  hasNextPage: false,
+};
+
 export function SchedulesPage() {
-  const [schedules, setSchedules] = useState<CrawlSchedule[]>([]);
+  const [schedulesPage, setSchedulesPage] = useState<PagedResult<CrawlSchedule>>(emptySchedulesPage);
   const [form, setForm] = useState<CreateCrawlScheduleRequest>(initialFormState);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeScheduleId, setActiveScheduleId] = useState<string | null>(null);
@@ -28,20 +43,26 @@ export function SchedulesPage() {
 
   const totals = useMemo(
     () => ({
-      total: schedules.length,
-      enabled: schedules.filter((schedule) => schedule.isEnabled).length,
-      paused: schedules.filter((schedule) => !schedule.isEnabled).length,
+      total: schedulesPage.totalCount,
+      enabled: schedulesPage.items.filter((schedule) => schedule.isEnabled).length,
+      paused: schedulesPage.items.filter((schedule) => !schedule.isEnabled).length,
     }),
-    [schedules],
+    [schedulesPage],
   );
 
-  async function loadSchedules() {
+  async function loadSchedules(nextPageNumber = pageNumber) {
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await getCrawlSchedules();
-      setSchedules(data);
+      const data = await getCrawlSchedules({
+        search,
+        isEnabled: statusFilter === "" ? undefined : statusFilter === "enabled",
+        pageNumber: nextPageNumber,
+        pageSize,
+      });
+      setSchedulesPage(data);
+      setPageNumber(data.pageNumber);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to load schedules.");
     } finally {
@@ -50,8 +71,13 @@ export function SchedulesPage() {
   }
 
   useEffect(() => {
-    void loadSchedules();
+    void loadSchedules(1);
   }, []);
+
+  function applyFilters(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void loadSchedules(1);
+  }
 
   async function handleCreateSchedule(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,7 +87,7 @@ export function SchedulesPage() {
     try {
       await createCrawlSchedule(form);
       setForm(initialFormState);
-      await loadSchedules();
+      await loadSchedules(1);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to create schedule.");
     } finally {
@@ -80,7 +106,7 @@ export function SchedulesPage() {
         await enableCrawlSchedule(schedule.id);
       }
 
-      await loadSchedules();
+      await loadSchedules(pageNumber);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to update schedule.");
     } finally {
@@ -100,7 +126,7 @@ export function SchedulesPage() {
 
     try {
       await deleteCrawlSchedule(schedule.id);
-      await loadSchedules();
+      await loadSchedules(pageNumber);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to delete schedule.");
     } finally {
@@ -115,22 +141,22 @@ export function SchedulesPage() {
           <p className="eyebrow">Periodic crawling</p>
           <h2>Schedules</h2>
         </div>
-        <button className="icon-button" type="button" onClick={() => void loadSchedules()} title="Refresh schedules">
+        <button className="icon-button" type="button" onClick={() => void loadSchedules(pageNumber)} title="Refresh schedules">
           Refresh
         </button>
       </div>
 
       <div className="metric-grid">
         <div className="metric-card">
-          <span>Total schedules</span>
+          <span>Schedules matching filters</span>
           <strong>{totals.total}</strong>
         </div>
         <div className="metric-card">
-          <span>Enabled</span>
+          <span>Enabled in current list</span>
           <strong>{totals.enabled}</strong>
         </div>
         <div className="metric-card">
-          <span>Paused</span>
+          <span>Paused in current list</span>
           <strong>{totals.paused}</strong>
         </div>
       </div>
@@ -213,63 +239,93 @@ export function SchedulesPage() {
 
           {error && <div className="alert">{error}</div>}
 
+          <form className="filter-bar" onSubmit={applyFilters}>
+            <input
+              aria-label="Search schedules"
+              placeholder="Search target URL"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <select aria-label="Filter schedule status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+              <option value="">All statuses</option>
+              <option value="enabled">Enabled</option>
+              <option value="paused">Paused</option>
+            </select>
+            <select aria-label="Schedules page size" value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))}>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+            <button className="secondary-button" type="submit">
+              Apply
+            </button>
+          </form>
+
           {isLoading ? (
             <div className="empty-state">Loading schedules...</div>
-          ) : schedules.length === 0 ? (
-            <div className="empty-state">No periodic crawl schedules have been created.</div>
+          ) : schedulesPage.items.length === 0 ? (
+            <div className="empty-state">No schedules match the current filters.</div>
           ) : (
-            <div className="schedule-list">
-              {schedules.map((schedule) => (
-                <article className="schedule-card" key={schedule.id}>
-                  <div className="schedule-summary">
-                    <div className="schedule-main">
-                      <div className="schedule-target" title={schedule.targetUrl}>
-                        {schedule.targetUrl}
+            <>
+              <div className="schedule-list">
+                {schedulesPage.items.map((schedule) => (
+                  <article className="schedule-card" key={schedule.id}>
+                    <div className="schedule-summary">
+                      <div className="schedule-main">
+                        <div className="schedule-target" title={schedule.targetUrl}>
+                          {schedule.targetUrl}
+                        </div>
+                        <span className="meta-line">
+                          Next run: {new Date(schedule.nextRunAt).toLocaleString()}
+                        </span>
                       </div>
-                      <span className="meta-line">
-                        Next run: {new Date(schedule.nextRunAt).toLocaleString()}
+
+                      <span className={`status-badge ${schedule.isEnabled ? "status-completed" : "status-cancelled"}`}>
+                        {schedule.isEnabled ? "Enabled" : "Paused"}
                       </span>
                     </div>
 
-                    <span className={`status-badge ${schedule.isEnabled ? "status-completed" : "status-cancelled"}`}>
-                      {schedule.isEnabled ? "Enabled" : "Paused"}
-                    </span>
-                  </div>
+                    <div className="schedule-chip-row">
+                      <span>{schedule.intervalMinutes} min interval</span>
+                      <span>depth {schedule.maxDepth}</span>
+                      <span>{schedule.maxPages} pages max</span>
+                      <span>{schedule.stayWithinDomain ? "domain only" : "any domain"}</span>
+                      <span>last run: {schedule.lastRunAt ? new Date(schedule.lastRunAt).toLocaleString() : "-"}</span>
+                    </div>
 
-                  <div className="schedule-chip-row">
-                    <span>{schedule.intervalMinutes} min interval</span>
-                    <span>depth {schedule.maxDepth}</span>
-                    <span>{schedule.maxPages} pages max</span>
-                    <span>{schedule.stayWithinDomain ? "domain only" : "any domain"}</span>
-                    <span>last run: {schedule.lastRunAt ? new Date(schedule.lastRunAt).toLocaleString() : "-"}</span>
-                  </div>
-
-                  <div className="schedule-actions">
-                    {schedule.lastCrawlJobId && (
-                      <Link className="secondary-link-button" to={`/admin/jobs/${schedule.lastCrawlJobId}`}>
-                        Last job
-                      </Link>
-                    )}
-                    <button
-                      className="secondary-button"
-                      type="button"
-                      onClick={() => void handleToggleSchedule(schedule)}
-                      disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
-                    >
-                      {activeScheduleId === schedule.id ? "Updating..." : schedule.isEnabled ? "Pause" : "Enable"}
-                    </button>
-                    <button
-                      className="danger-button"
-                      type="button"
-                      onClick={() => void handleDeleteSchedule(schedule)}
-                      disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
-                    >
-                      {deletingScheduleId === schedule.id ? "Deleting..." : "Delete"}
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    <div className="schedule-actions">
+                      {schedule.lastCrawlJobId && (
+                        <Link className="secondary-link-button" to={`/admin/jobs/${schedule.lastCrawlJobId}`}>
+                          Last job
+                        </Link>
+                      )}
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() => void handleToggleSchedule(schedule)}
+                        disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
+                      >
+                        {activeScheduleId === schedule.id ? "Updating..." : schedule.isEnabled ? "Pause" : "Enable"}
+                      </button>
+                      <button
+                        className="danger-button"
+                        type="button"
+                        onClick={() => void handleDeleteSchedule(schedule)}
+                        disabled={activeScheduleId === schedule.id || deletingScheduleId === schedule.id}
+                      >
+                        {deletingScheduleId === schedule.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <PaginationControls
+                label="Schedules"
+                page={schedulesPage}
+                onPageChange={(nextPageNumber) => void loadSchedules(nextPageNumber)}
+              />
+            </>
           )}
         </div>
       </div>

@@ -32,9 +32,14 @@ namespace CrawlScope.Api.Controllers
 
         [HttpGet]
         [Authorize(Policy = Permissions.Schedules.View)]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? search,
+            [FromQuery] bool? isEnabled,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5,
+            CancellationToken cancellationToken = default)
         {
-            var query = new GetCrawlSchedulesQuery();
+            var query = new GetCrawlSchedulesQuery(search, isEnabled, pageNumber, pageSize);
             var schedules = await mediator.Send(query, cancellationToken);
             return Ok(schedules);
         }

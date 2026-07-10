@@ -1,4 +1,5 @@
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,13 +7,26 @@ using Microsoft.EntityFrameworkCore;
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules
 {
     public class GetCrawlSchedulesQueryHandler(IAppDbContext context)
-        : IRequestHandler<GetCrawlSchedulesQuery, IEnumerable<CrawlScheduleListItemDto>>
+        : IRequestHandler<GetCrawlSchedulesQuery, PagedResult<CrawlScheduleListItemDto>>
     {
-        public async Task<IEnumerable<CrawlScheduleListItemDto>> Handle(GetCrawlSchedulesQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<CrawlScheduleListItemDto>> Handle(GetCrawlSchedulesQuery request, CancellationToken cancellationToken)
         {
-            return await context.CrawlSchedules
-                .AsNoTracking()
-                .OrderBy(x => x.NextRunAt)
+            var query = context.CrawlSchedules.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                var search = request.Search.Trim();
+                query = query.Where(x => x.TargetUrl.Contains(search));
+            }
+
+            if (request.IsEnabled.HasValue)
+            {
+                query = query.Where(x => x.IsEnabled == request.IsEnabled.Value);
+            }
+
+            var projectedQuery = query
+                .OrderByDescending(x => x.IsEnabled)
+                .ThenBy(x => x.NextRunAt)
                 .Select(x => new CrawlScheduleListItemDto
                 {
                     Id = x.Id,
@@ -26,8 +40,13 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules
                     NextRunAt = x.NextRunAt,
                     LastRunAt = x.LastRunAt,
                     LastCrawlJobId = x.LastCrawlJobId
-                })
-                .ToListAsync(cancellationToken);
+                });
+
+            return await PagedResult<CrawlScheduleListItemDto>.CreateAsync(
+                projectedQuery,
+                request.PageNumber,
+                request.PageSize,
+                cancellationToken);
         }
     }
 }
