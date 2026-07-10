@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\CrawlScope.Application\CrawlScope.Application.csproj" />
     <ProjectReference Include="..\..\src\Infrastructure\CrawlScope.Persistence\CrawlScope.Persistence.csproj" />
+    <ProjectReference Include="..\..\src\Presentation\CrawlScope.Api\CrawlScope.Api.csproj" />
   </ItemGroup>
 
 </Project>
