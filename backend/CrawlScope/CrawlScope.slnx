@@ -11,5 +11,7 @@
   <Folder Name="/src/Presentation/">
     <Project Path="src/Presentation/CrawlScope.Api/CrawlScope.Api.csproj" Id="5f06fb61-1a01-4dbf-849e-34a1dac7b644" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/CrawlScope.Application.Tests/CrawlScope.Application.Tests.csproj" Id="67b0ca2b-6824-48b1-8062-ddfdd6114d14" />
+  </Folder>
 </Solution>
