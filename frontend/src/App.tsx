@@ -20,7 +20,8 @@ export default function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/login" element={<AuthPage variant="user" />} />
+        <Route path="/login" element={<AuthPage variant="user" mode="login" />} />
+        <Route path="/register" element={<AuthPage variant="user" mode="register" />} />
         <Route path="/admin/login" element={<AuthPage variant="admin" />} />
         <Route path="/" element={<UserCrawlerPage />} />
         <Route

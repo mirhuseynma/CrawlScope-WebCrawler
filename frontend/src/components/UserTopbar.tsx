@@ -22,16 +22,7 @@ export function UserTopbar() {
         </span>
       </Link>
 
-      <nav className="user-nav" aria-label="User navigation">
-        <NavLink className={({ isActive }) => (isActive ? "user-nav-link active" : "user-nav-link")} to="/" end>
-          New crawl
-        </NavLink>
-        {isAuthenticated && (
-          <NavLink className={({ isActive }) => (isActive ? "user-nav-link active" : "user-nav-link")} to="/reports">
-            My reports
-          </NavLink>
-        )}
-      </nav>
+      <span className="topbar-spacer" aria-hidden="true" />
 
       <div className="user-account-menu">
         {isAuthenticated ? (
@@ -50,15 +41,28 @@ export function UserTopbar() {
                 <strong>{displayName}</strong>
                 <span>Signed in</span>
               </div>
+              <nav className="user-menu-nav" aria-label="Workspace navigation">
+                <NavLink className={({ isActive }) => (isActive ? "user-menu-action active" : "user-menu-action")} to="/" end>
+                  New crawl
+                </NavLink>
+                <NavLink className={({ isActive }) => (isActive ? "user-menu-action active" : "user-menu-action")} to="/reports">
+                  My reports
+                </NavLink>
+              </nav>
               <button className="user-menu-action" type="button" onClick={logout}>
                 Sign out
               </button>
             </div>
           </details>
         ) : (
-          <Link className="secondary-link-button topbar-action" to="/login">
-            Login
-          </Link>
+          <div className="topbar-auth-actions">
+            <Link className="secondary-link-button topbar-action" to="/login">
+              Login
+            </Link>
+            <Link className="primary-button topbar-action" to="/register">
+              Create account
+            </Link>
+          </div>
         )}
       </div>
     </header>
