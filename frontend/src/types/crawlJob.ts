@@ -105,6 +105,13 @@ export type CrawlSchedule = {
   lastCrawlJobId: string | null;
 };
 
+export type CrawlSchedulesQuery = {
+  search?: string;
+  isEnabled?: boolean;
+  pageNumber: number;
+  pageSize: number;
+};
+
 export type CreateCrawlScheduleRequest = {
   targetUrl: string;
   maxDepth: number;

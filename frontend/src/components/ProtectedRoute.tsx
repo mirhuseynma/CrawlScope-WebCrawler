@@ -21,7 +21,7 @@ export function ProtectedRoute({ children, loginPath = "/login", permission }: P
   }
 
   if (permission && !hasPermission(permission)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={loginPath} replace state={{ from: location, reason: "forbidden" }} />;
   }
 
   return children;

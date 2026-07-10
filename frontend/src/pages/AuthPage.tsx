@@ -1,5 +1,5 @@
 import { FormEvent, useMemo, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { permissions } from "../auth/permissions";
 
@@ -18,12 +18,17 @@ export function AuthPage({ variant = "user" }: AuthPageProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { loginUser, logout, registerUser, status } = useAuth();
+  const { hasPermission, loginUser, logout, registerUser, status, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isAdminLogin = variant === "admin";
   const defaultRedirectPath = isAdminLogin ? "/admin/jobs" : "/";
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? defaultRedirectPath;
+  const routeState = location.state as { from?: { pathname?: string }; reason?: string } | null;
+  const from = routeState?.from?.pathname ?? defaultRedirectPath;
+  const accessNotice =
+    routeState?.reason === "forbidden"
+      ? "Your account is signed in, but it does not have permission to access the admin workspace."
+      : null;
 
   const title = useMemo(() => {
     if (isAdminLogin) {
@@ -32,6 +37,36 @@ export function AuthPage({ variant = "user" }: AuthPageProps) {
 
     return mode === "login" ? "Welcome back" : "Create your crawler account";
   }, [isAdminLogin, mode]);
+
+  if (status === "authenticated" && isAdminLogin && !hasPermission(permissions.adminAccess)) {
+    return (
+      <main className="auth-shell">
+        <section className="auth-panel auth-panel-compact" aria-label="Admin access required">
+          <div className="auth-copy">
+            <p className="eyebrow">CrawlScope</p>
+            <h1>Admin access required</h1>
+            <p>
+              {user?.email || user?.userName} is signed in, but this account does not have permission to open the admin workspace.
+            </p>
+            <div className="auth-proof">
+              <span>Permission required</span>
+              <span>Current role: {user?.roles.join(", ") || "User"}</span>
+            </div>
+          </div>
+
+          <div className="auth-form auth-message-panel">
+            <div className="alert">Use an admin account or return to the user workspace.</div>
+            <Link className="primary-button auth-submit" to="/">
+              Go to user workspace
+            </Link>
+            <button className="secondary-button auth-submit" type="button" onClick={logout}>
+              Sign out
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (status === "authenticated") {
     return <Navigate to={defaultRedirectPath} replace />;
@@ -185,6 +220,7 @@ export function AuthPage({ variant = "user" }: AuthPageProps) {
             {isSubmitting ? "Please wait..." : mode === "login" || isAdminLogin ? "Login" : "Create account"}
           </button>
 
+          {accessNotice && <div className="alert">{accessNotice}</div>}
           {error && <div className="alert">{error}</div>}
         </form>
       </section>
