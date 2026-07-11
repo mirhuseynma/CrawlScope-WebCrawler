@@ -1,10 +1,6 @@
-using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
+﻿using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
 using CrawlScope.Application.Modules.Export.Queries.DownloadExportFile;
 using CrawlScope.Application.Modules.Export.Queries.GetExportFiles;
-using CrawlScope.Domain.Constants;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CrawlScope.Api.Controllers
 {

@@ -1,10 +1,5 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using CrawlScope.Application.Abstractions.Auth;
+﻿using System.IdentityModel.Tokens.Jwt;
 using CrawlScope.Application.Common.Settings;
-using CrawlScope.Domain.Modules.Auth.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 

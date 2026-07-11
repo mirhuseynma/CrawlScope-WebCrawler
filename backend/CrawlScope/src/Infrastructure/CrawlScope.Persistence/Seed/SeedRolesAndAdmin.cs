@@ -1,8 +1,4 @@
-using System.Security.Claims;
-using CrawlScope.Domain.Constants;
-using CrawlScope.Domain.Modules.Auth.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace CrawlScope.Persistence.Seed
 {

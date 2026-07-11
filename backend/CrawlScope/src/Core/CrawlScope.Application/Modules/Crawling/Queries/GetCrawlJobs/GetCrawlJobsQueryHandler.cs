@@ -1,12 +1,4 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using CrawlScope.Application.Common.Extensions;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper.QueryableExtensions;
 
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs
 {

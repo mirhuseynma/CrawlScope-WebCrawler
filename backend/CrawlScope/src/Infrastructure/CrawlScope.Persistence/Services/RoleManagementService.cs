@@ -1,13 +1,4 @@
-using System.Security.Claims;
-using CrawlScope.Application.Abstractions.Auth;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Application.Modules.Auth.DTOs;
-using CrawlScope.Domain.Constants;
-using CrawlScope.Domain.Modules.Auth.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Persistence.Services
+﻿namespace CrawlScope.Persistence.Services
 {
     public class RoleManagementService(
         RoleManager<IdentityRole> roleManager,

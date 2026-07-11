@@ -1,10 +1,5 @@
-using CrawlScope.Application.Abstractions.Auth;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Domain.Modules.Auth.Models;
-using CrawlScope.Persistence.Context;
+﻿using CrawlScope.Application.Abstractions.Persistence;
 using CrawlScope.Persistence.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

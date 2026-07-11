@@ -1,11 +1,4 @@
-﻿using CrawlScope.Domain.Common;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using CrawlScope.Domain.Modules.Crawling.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CrawlScope.Domain.Modules.Crawling.Models;
 
 namespace CrawlScope.Domain.Modules.Export.Models
 {

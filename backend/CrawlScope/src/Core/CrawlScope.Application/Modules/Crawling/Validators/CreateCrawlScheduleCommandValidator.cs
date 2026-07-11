@@ -1,5 +1,4 @@
-using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
-using FluentValidation;
+﻿using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
 
 namespace CrawlScope.Application.Modules.Crawling.Validators
 {

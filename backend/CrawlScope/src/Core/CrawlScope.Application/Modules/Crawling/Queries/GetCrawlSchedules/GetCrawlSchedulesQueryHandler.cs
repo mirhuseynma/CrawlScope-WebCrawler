@@ -1,10 +1,4 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules
+﻿namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules
 {
     public class GetCrawlSchedulesQueryHandler(IAppDbContext context)
         : IRequestHandler<GetCrawlSchedulesQuery, PagedResult<CrawlScheduleListItemDto>>

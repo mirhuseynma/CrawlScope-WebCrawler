@@ -1,9 +1,4 @@
-﻿using AutoMapper;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using CrawlScope.Domain.Modules.Crawling.Models;
-using MediatR;
-
+﻿
 namespace CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob
 {
     public class CreateCrawlJobCommandHandler(IMapper mapper, IAppDbContext dbContext) : IRequestHandler<CreateCrawlJobCommand, Guid>

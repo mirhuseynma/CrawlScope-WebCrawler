@@ -1,4 +1,3 @@
-using CrawlScope.Application.Abstractions.Crawling.Services;
 using CrawlScope.Application.Abstractions.Export.Services;
 using CrawlScope.Infrastructure.Crawling.Services;
 using CrawlScope.Infrastructure.Export.Services;
@@ -22,6 +21,13 @@ namespace CrawlScope.Infrastructure
 
             services.AddScoped<IHtmlParser, HtmlParser>();
             services.AddScoped<IExportFileStorage, LocalExportFileStorage>();
+            
+            services.AddScoped<IExportStrategy, CrawlScope.Infrastructure.Export.Services.CsvExportStrategy>();
+            services.AddScoped<IExportStrategy, CrawlScope.Infrastructure.Export.Services.JsonExportStrategy>();
+            
+            services.AddSingleton<ICrawlJobChannel, CrawlScope.Infrastructure.BackgroundJobs.CrawlJobChannel>();
+            services.AddHostedService<CrawlScope.Infrastructure.BackgroundJobs.CrawlJobBackgroundService>();
+            
             services.AddHostedService<CrawlScheduleWorker>();
 
             return services;

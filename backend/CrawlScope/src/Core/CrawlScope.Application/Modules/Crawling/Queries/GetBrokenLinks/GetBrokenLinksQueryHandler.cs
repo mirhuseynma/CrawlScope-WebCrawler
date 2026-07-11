@@ -1,12 +1,4 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Extensions;
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks
+﻿namespace CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks
 {
     public class GetBrokenLinksQueryHandler(IAppDbContext context)
         : IRequestHandler<GetBrokenLinksQuery, PagedResult<BrokenLinkListItemDto>>

@@ -9,11 +9,7 @@ using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs;
 using CrawlScope.Application.Modules.Export.Commands.ExportCrawledData;
-using CrawlScope.Domain.Constants;
 using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CrawlScope.Api.Controllers
 {
@@ -181,7 +177,7 @@ namespace CrawlScope.Api.Controllers
             var command = new ExportCrawledDataCommand(id, format, CurrentUserId, CanAccessAllUsers);
             var export = await mediator.Send(command, cancellationToken);
 
-            return File(export.Content, export.ContentType, export.FileName);
+            return PhysicalFile(export.FilePath, export.ContentType, export.FileName);
         }
     }
 }

@@ -1,10 +1,4 @@
-using CrawlScope.Application.Abstractions.Auth;
-using CrawlScope.Application.Modules.Auth.DTOs;
-using CrawlScope.Domain.Constants;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace CrawlScope.Api.Controllers
+﻿namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

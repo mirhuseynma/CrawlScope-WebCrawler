@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 
 namespace CrawlScope.Application.Common.Pagination
 {

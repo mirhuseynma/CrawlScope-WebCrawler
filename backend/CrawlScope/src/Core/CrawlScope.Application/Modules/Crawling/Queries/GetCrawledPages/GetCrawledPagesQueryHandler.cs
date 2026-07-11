@@ -1,11 +1,4 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Extensions;
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
+﻿namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
 {
     public class GetCrawledPagesQueryHandler(IAppDbContext context)
         : IRequestHandler<GetCrawledPagesQuery, PagedResult<CrawledPageListItemDto>>

@@ -1,12 +1,4 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Extensions;
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Export.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Application.Modules.Export.Queries.GetExportFiles
+﻿namespace CrawlScope.Application.Modules.Export.Queries.GetExportFiles
 {
     public class GetExportFilesQueryHandler(IAppDbContext context)
         : IRequestHandler<GetExportFilesQuery, PagedResult<ExportFileListItemDto>>

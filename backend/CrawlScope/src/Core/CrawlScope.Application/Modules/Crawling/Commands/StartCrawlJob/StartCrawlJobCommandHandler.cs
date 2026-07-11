@@ -1,16 +1,9 @@
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using CrawlScope.Domain.Modules.Crawling.Models;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob
 {
     public class StartCrawlJobCommandHandler(
         IAppDbContext context,
-        ICrawlQueueProcessor crawlQueueProcessor) : IRequestHandler<StartCrawlJobCommand>
+        ICrawlJobChannel crawlJobChannel) : IRequestHandler<StartCrawlJobCommand>
     {
         public async Task Handle(StartCrawlJobCommand request, CancellationToken cancellationToken)
         {
@@ -57,7 +50,7 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob
 
             await context.SaveChangesAsync(cancellationToken);
 
-            await crawlQueueProcessor.ProcessAsync(crawlJob.Id, cancellationToken);
+            await crawlJobChannel.AddCrawlJobAsync(crawlJob.Id, cancellationToken);
         }
     }
 }

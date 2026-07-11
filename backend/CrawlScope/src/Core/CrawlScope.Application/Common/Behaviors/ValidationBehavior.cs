@@ -1,5 +1,3 @@
-using FluentValidation;
-using MediatR;
 
 namespace CrawlScope.Application.Common.Behaviors
 {

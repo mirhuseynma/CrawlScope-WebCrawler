@@ -1,10 +1,6 @@
-using System.Text;
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Application.Common.Behaviors;
+﻿using CrawlScope.Application.Common.Behaviors;
 using CrawlScope.Application.Common.Settings;
 using CrawlScope.Application.Modules.Crawling.Services;
-using FluentValidation;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;

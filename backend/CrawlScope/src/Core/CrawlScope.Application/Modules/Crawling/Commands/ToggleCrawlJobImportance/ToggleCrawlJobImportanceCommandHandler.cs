@@ -1,7 +1,3 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Exceptions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CrawlScope.Application.Modules.Crawling.Commands.ToggleCrawlJobImportance
 {

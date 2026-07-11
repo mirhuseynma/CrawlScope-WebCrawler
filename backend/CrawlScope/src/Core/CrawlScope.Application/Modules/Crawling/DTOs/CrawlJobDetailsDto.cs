@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CrawlScope.Application.Modules.Crawling.DTOs
+﻿namespace CrawlScope.Application.Modules.Crawling.DTOs
 {
     public class CrawlJobDetailsDto
     {

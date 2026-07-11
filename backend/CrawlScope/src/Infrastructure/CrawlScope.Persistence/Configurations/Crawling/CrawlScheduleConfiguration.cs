@@ -1,8 +1,4 @@
-using CrawlScope.Domain.Modules.Crawling.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace CrawlScope.Persistence.Configurations.Crawling
+﻿namespace CrawlScope.Persistence.Configurations.Crawling
 {
     public class CrawlScheduleConfiguration : IEntityTypeConfiguration<CrawlSchedule>
     {
