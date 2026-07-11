@@ -36,9 +36,26 @@ internal class FakeExportFileStorage : IExportFileStorage
 
     public Stream CreateFileStream(string fileName)
     {
-        var stream = new MemoryStream();
-        Files[fileName] = [];
-        return stream;
+        var filePath = GetFilePath(fileName);
+        return new FakeStream(this, filePath);
+    }
+
+    private class FakeStream : MemoryStream
+    {
+        private readonly FakeExportFileStorage _storage;
+        private readonly string _filePath;
+
+        public FakeStream(FakeExportFileStorage storage, string filePath)
+        {
+            _storage = storage;
+            _filePath = filePath;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            _storage.Files[_filePath] = ToArray();
+            base.Dispose(disposing);
+        }
     }
 
     public Stream? OpenFileStream(string filePath)
