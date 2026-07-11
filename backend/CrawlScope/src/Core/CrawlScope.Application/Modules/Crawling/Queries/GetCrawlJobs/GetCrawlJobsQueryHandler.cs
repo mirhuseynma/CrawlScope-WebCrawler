@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CrawlScope.Application.Common.Extensions;
 using CrawlScope.Application.Abstractions.Persistence;
 using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
@@ -16,11 +17,6 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs
         {
             var query = dbContext.CrawlJobs.AsNoTracking();
 
-            if (!request.IncludeAllUsers)
-            {
-                query = query.Where(x => x.CreatedBy == request.RequestingUserId);
-            }
-
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 var search = request.Search.Trim();
@@ -33,10 +29,9 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs
                 query = query.Where(x => x.Status == status);
             }
 
-            if (request.ImportantOnly == true)
-            {
-                query = query.Where(x => x.IsImportant);
-            }
+            query = query
+                .WhereIf(!request.IncludeAllUsers, x => x.CreatedBy == request.RequestingUserId)
+                .WhereIf(request.ImportantOnly == true, x => x.IsImportant);
 
             var projectedQuery = query
                 .OrderByDescending(cj => cj.IsImportant)

@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
 using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlJob;
 using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
@@ -9,7 +8,6 @@ using CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs;
-using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
 using CrawlScope.Application.Modules.Export.Commands.ExportCrawledData;
 using CrawlScope.Domain.Constants;
 using CrawlScope.Domain.Modules.Crawling.Enums;
@@ -21,15 +19,8 @@ namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CrawlJobController(IMediator mediator) : ControllerBase
+    public class CrawlJobController(IMediator mediator) : ApiControllerBase
     {
-        private string CurrentUserId =>
-            User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new UnauthorizedAccessException("Authenticated user id was not found.");
-
-        private bool CanAccessAllUsers =>
-            User.Claims.Any(claim => claim.Type == "Permission" && claim.Value == Permissions.Admin.Access);
-
         [HttpPost]
         [Authorize(Policy = Permissions.CrawlJobs.Create)]
         public async Task<IActionResult> Create([FromBody] CreateCrawlJobRequestDto request, CancellationToken cancellationToken)
@@ -191,15 +182,6 @@ namespace CrawlScope.Api.Controllers
             var export = await mediator.Send(command, cancellationToken);
 
             return File(export.Content, export.ContentType, export.FileName);
-        }
-
-        [HttpDelete("exports/{id:guid}")]
-        [Authorize(Policy = Permissions.CrawlJobs.Export)]
-        public async Task<IActionResult> DeleteExport(Guid id, CancellationToken cancellationToken)
-        {
-            var command = new DeleteExportFileCommand(id, CurrentUserId, CanAccessAllUsers);
-            await mediator.Send(command, cancellationToken);
-            return NoContent();
         }
     }
 }

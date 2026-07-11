@@ -178,7 +178,7 @@ export function SchedulesPage() {
             />
           </label>
 
-          <div className="create-options">
+          <div className="create-options-row">
             <label>
               Max depth
               <input
@@ -201,19 +201,18 @@ export function SchedulesPage() {
                 required
               />
             </label>
+            <label>
+              Interval minutes
+              <input
+                type="number"
+                min="1"
+                max="10080"
+                value={form.intervalMinutes}
+                onChange={(event) => setForm((current) => ({ ...current, intervalMinutes: Number(event.target.value) }))}
+                required
+              />
+            </label>
           </div>
-
-          <label className="create-interval-field">
-            Interval minutes
-            <input
-              type="number"
-              min="1"
-              max="10080"
-              value={form.intervalMinutes}
-              onChange={(event) => setForm((current) => ({ ...current, intervalMinutes: Number(event.target.value) }))}
-              required
-            />
-          </label>
 
           <div className="create-actions">
             <label className="checkbox-row">

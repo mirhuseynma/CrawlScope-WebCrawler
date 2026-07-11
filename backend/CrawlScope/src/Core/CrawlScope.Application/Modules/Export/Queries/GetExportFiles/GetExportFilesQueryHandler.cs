@@ -1,4 +1,5 @@
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Extensions;
 using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Export.DTOs;
 using CrawlScope.Domain.Modules.Crawling.Enums;
@@ -15,12 +16,7 @@ namespace CrawlScope.Application.Modules.Export.Queries.GetExportFiles
             var query = context.ExportFiles
                 .AsNoTracking()
                 .Include(x => x.CrawlJob)
-                .AsQueryable();
-
-            if (!request.IncludeAllUsers)
-            {
-                query = query.Where(x => x.CreatedByUserId == request.RequestingUserId);
-            }
+                .WhereIf(!request.IncludeAllUsers, x => x.CreatedByUserId == request.RequestingUserId);
 
             if (!string.IsNullOrWhiteSpace(request.Search))
             {

@@ -1,4 +1,5 @@
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Extensions;
 using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using MediatR;
@@ -12,17 +13,9 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
         public async Task<PagedResult<CrawledPageListItemDto>> Handle(GetCrawledPagesQuery request, CancellationToken cancellationToken)
         {
             var query = context.CrawledPages
-                .AsNoTracking();
-
-            if (!request.IncludeAllUsers)
-            {
-                query = query.Where(x => x.CrawlJob.CreatedBy == request.RequestingUserId);
-            }
-
-            if (request.CrawlJobId.HasValue)
-            {
-                query = query.Where(x => x.CrawlJobId == request.CrawlJobId.Value);
-            }
+                .AsNoTracking()
+                .WhereIf(!request.IncludeAllUsers, x => x.CrawlJob.CreatedBy == request.RequestingUserId)
+                .WhereIf(request.CrawlJobId.HasValue, x => x.CrawlJobId == request.CrawlJobId!.Value);
 
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
@@ -33,15 +26,9 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages
                     || (x.Content != null && x.Content.Contains(search)));
             }
 
-            if (request.StatusCode.HasValue)
-            {
-                query = query.Where(x => x.StatusCode == request.StatusCode.Value);
-            }
-
-            if (request.DepthLevel.HasValue)
-            {
-                query = query.Where(x => x.DepthLevel == request.DepthLevel.Value);
-            }
+            query = query
+                .WhereIf(request.StatusCode.HasValue, x => x.StatusCode == request.StatusCode!.Value)
+                .WhereIf(request.DepthLevel.HasValue, x => x.DepthLevel == request.DepthLevel!.Value);
 
             var projectedQuery = query
                 .OrderBy(x => x.DepthLevel)

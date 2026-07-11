@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
 using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlSchedule;
 using CrawlScope.Application.Modules.Crawling.Commands.SetCrawlScheduleStatus;
@@ -13,12 +12,8 @@ namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CrawlScheduleController(IMediator mediator) : ControllerBase
+    public class CrawlScheduleController(IMediator mediator) : ApiControllerBase
     {
-        private string CurrentUserId =>
-            User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new UnauthorizedAccessException("Authenticated user id was not found.");
-
         [HttpPost]
         [Authorize(Policy = Permissions.Schedules.Create)]
         public async Task<IActionResult> Create(

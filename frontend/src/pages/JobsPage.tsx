@@ -189,7 +189,7 @@ export function JobsPage() {
             />
           </label>
 
-          <div className="create-options create-options-with-domain">
+          <div className="create-options-row two-cols">
             <label>
               Max depth
               <input
@@ -212,6 +212,9 @@ export function JobsPage() {
                 required
               />
             </label>
+          </div>
+
+          <div className="create-actions">
             <label className="checkbox-row">
               <input
                 type="checkbox"
@@ -220,9 +223,7 @@ export function JobsPage() {
               />
               Stay within domain
             </label>
-          </div>
 
-          <div className="create-actions">
             <button className="primary-button create-submit" type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Creating..." : "Create crawl job"}
             </button>

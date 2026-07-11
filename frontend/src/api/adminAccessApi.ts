@@ -12,19 +12,7 @@ import type {
   UsersPageResult,
   UsersQuery,
 } from "../types/adminAccess";
-
-function toQueryString(query: Record<string, string | number | undefined>) {
-  const params = new URLSearchParams();
-
-  Object.entries(query).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      params.set(key, String(value));
-    }
-  });
-
-  const value = params.toString();
-  return value ? `?${value}` : "";
-}
+import { toQueryString } from "./queryUtils";
 
 export function getPermissions() {
   return request<Permission[]>("/api/AdminRoles/permissions");
