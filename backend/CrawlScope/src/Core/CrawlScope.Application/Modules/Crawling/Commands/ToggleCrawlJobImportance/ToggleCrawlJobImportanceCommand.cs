@@ -1,4 +1,3 @@
-using MediatR;
 
 namespace CrawlScope.Application.Modules.Crawling.Commands.ToggleCrawlJobImportance
 {

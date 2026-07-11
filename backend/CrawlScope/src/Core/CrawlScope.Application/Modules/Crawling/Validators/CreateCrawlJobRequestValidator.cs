@@ -1,7 +1,4 @@
-﻿using CrawlScope.Application.Modules.Crawling.DTOs;
-using FluentValidation;
-
-namespace CrawlScope.Application.Modules.Crawling.Validators
+﻿namespace CrawlScope.Application.Modules.Crawling.Validators
 {
     public class CreateCrawlJobRequestValidator : AbstractValidator<CreateCrawlJobRequestDto>
     {

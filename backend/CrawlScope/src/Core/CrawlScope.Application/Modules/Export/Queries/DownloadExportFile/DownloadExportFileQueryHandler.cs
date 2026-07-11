@@ -1,12 +1,4 @@
-using CrawlScope.Application.Abstractions.Export.Services;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Application.Modules.Export.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Application.Modules.Export.Queries.DownloadExportFile
+﻿namespace CrawlScope.Application.Modules.Export.Queries.DownloadExportFile
 {
     public class DownloadExportFileQueryHandler(
         IAppDbContext context,

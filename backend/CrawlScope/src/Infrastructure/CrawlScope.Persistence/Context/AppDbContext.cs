@@ -1,10 +1,6 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Domain.Modules.Auth.Models;
-using CrawlScope.Domain.Modules.Crawling.Models;
+﻿using CrawlScope.Application.Abstractions.Persistence;
 using CrawlScope.Domain.Modules.Export.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 
 namespace CrawlScope.Persistence.Context
 {

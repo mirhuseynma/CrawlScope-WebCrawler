@@ -1,11 +1,4 @@
-using CrawlScope.Application.Abstractions.Auth;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Auth.DTOs;
-using CrawlScope.Domain.Constants;
-using CrawlScope.Domain.Modules.Auth.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using CrawlScope.Application.Common.Pagination;
 
 namespace CrawlScope.Persistence.Services
 {

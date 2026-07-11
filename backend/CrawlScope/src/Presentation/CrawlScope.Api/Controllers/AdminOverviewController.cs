@@ -1,8 +1,4 @@
-using CrawlScope.Application.Modules.Admin.Queries.GetAdminOverview;
-using CrawlScope.Domain.Constants;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using CrawlScope.Application.Modules.Admin.Queries.GetAdminOverview;
 
 namespace CrawlScope.Api.Controllers
 {

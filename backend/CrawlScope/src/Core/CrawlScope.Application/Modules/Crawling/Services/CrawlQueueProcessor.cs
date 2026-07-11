@@ -1,10 +1,4 @@
 using CrawlScope.Application.Abstractions.Crawling.Models;
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using CrawlScope.Domain.Modules.Crawling.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace CrawlScope.Application.Modules.Crawling.Services
 {
@@ -137,25 +131,34 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 return;
             }
 
-            foreach (var link in links)
+            var validLinks = links
+                .Where(link => !(crawlJob.StayWithinDomain && link.IsExternal))
+                .Select(link => link.TargetUrl)
+                .Distinct()
+                .ToList();
+
+            if (validLinks.Count == 0) return;
+
+            var existingQueuedUrls = await context.CrawlQueueItems
+                .Where(x => x.CrawlJobId == crawlJob.Id && validLinks.Contains(x.Url))
+                .Select(x => x.Url)
+                .ToListAsync(cancellationToken);
+
+            var existingCrawledUrls = await context.CrawledPages
+                .Where(x => x.CrawlJobId == crawlJob.Id && validLinks.Contains(x.Url))
+                .Select(x => x.Url)
+                .ToListAsync(cancellationToken);
+
+            var existingUrls = new HashSet<string>(existingQueuedUrls.Concat(existingCrawledUrls));
+
+            foreach (var link in links.Where(l => validLinks.Contains(l.TargetUrl)))
             {
                 if (crawlJob.PagesFound >= crawlJob.MaxPages)
                 {
                     break;
                 }
 
-                if (crawlJob.StayWithinDomain && link.IsExternal)
-                {
-                    continue;
-                }
-
-                var alreadyQueued = await context.CrawlQueueItems
-                    .AnyAsync(x => x.CrawlJobId == crawlJob.Id && x.Url == link.TargetUrl, cancellationToken);
-
-                var alreadyCrawled = await context.CrawledPages
-                    .AnyAsync(x => x.CrawlJobId == crawlJob.Id && x.Url == link.TargetUrl, cancellationToken);
-
-                if (alreadyQueued || alreadyCrawled)
+                if (!existingUrls.Add(link.TargetUrl))
                 {
                     continue;
                 }

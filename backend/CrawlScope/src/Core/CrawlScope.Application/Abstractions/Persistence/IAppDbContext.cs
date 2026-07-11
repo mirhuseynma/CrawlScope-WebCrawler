@@ -1,7 +1,4 @@
-﻿using CrawlScope.Domain.Modules.Crawling.Models;
-using CrawlScope.Domain.Modules.Export.Models;
-using Microsoft.EntityFrameworkCore;
-
+﻿
 namespace CrawlScope.Application.Abstractions.Persistence
 {
     public interface IAppDbContext

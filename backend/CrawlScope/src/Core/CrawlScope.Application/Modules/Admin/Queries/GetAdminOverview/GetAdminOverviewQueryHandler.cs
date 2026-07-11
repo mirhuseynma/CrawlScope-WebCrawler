@@ -1,8 +1,3 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Modules.Admin.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CrawlScope.Application.Modules.Admin.Queries.GetAdminOverview
 {

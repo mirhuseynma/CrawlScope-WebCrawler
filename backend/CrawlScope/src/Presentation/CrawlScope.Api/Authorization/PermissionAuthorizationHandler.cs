@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
-
-namespace CrawlScope.Api.Authorization
+﻿namespace CrawlScope.Api.Authorization
 {
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
     {

@@ -1,5 +1,4 @@
-using CrawlScope.Application.Modules.Auth.DTOs;
-using FluentValidation;
+﻿using CrawlScope.Application.Modules.Auth.DTOs;
 
 namespace CrawlScope.Application.Modules.Auth.Validators
 {

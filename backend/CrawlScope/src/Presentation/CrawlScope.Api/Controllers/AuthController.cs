@@ -1,7 +1,4 @@
-using CrawlScope.Application.Abstractions.Auth;
-using CrawlScope.Application.Modules.Auth.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using CrawlScope.Application.Common.Models;
 
 namespace CrawlScope.Api.Controllers
 {
@@ -14,8 +11,8 @@ namespace CrawlScope.Api.Controllers
             [FromBody] RegisterRequestDto request,
             CancellationToken cancellationToken)
         {
-            var response = await authService.RegisterAsync(request);
-            return Ok(response);
+            var result = await authService.RegisterAsync(request);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(new { message = result.ErrorMessage });
         }
 
         [HttpPost("login")]
@@ -23,8 +20,8 @@ namespace CrawlScope.Api.Controllers
             [FromBody] LoginRequestDto request,
             CancellationToken cancellationToken)
         {
-            var response = await authService.LoginAsync(request);
-            return Ok(response);
+            var result = await authService.LoginAsync(request);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(new { message = result.ErrorMessage });
         }
 
         [Authorize]
@@ -37,8 +34,8 @@ namespace CrawlScope.Api.Controllers
                 return Unauthorized();
             }
 
-            var response = await authService.GetCurrentUserAsync(userId);
-            return Ok(response);
+            var result = await authService.GetCurrentUserAsync(userId);
+            return result.IsSuccess ? Ok(result.Value) : NotFound(new { message = result.ErrorMessage });
         }
     }
 }

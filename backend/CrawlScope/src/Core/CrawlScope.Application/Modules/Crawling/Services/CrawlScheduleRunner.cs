@@ -1,22 +1,18 @@
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using CrawlScope.Domain.Modules.Crawling.Models;
-using Microsoft.EntityFrameworkCore;
-
 namespace CrawlScope.Application.Modules.Crawling.Services
 {
     public class CrawlScheduleRunner(
         IAppDbContext context,
-        ICrawlQueueProcessor crawlQueueProcessor) : ICrawlScheduleRunner
+        ICrawlJobChannel crawlJobChannel) : ICrawlScheduleRunner
     {
+        private const int MaxSchedulesPerRun = 5;
+
         public async Task RunDueSchedulesAsync(CancellationToken cancellationToken = default)
         {
             var now = DateTime.UtcNow;
             var dueSchedules = await context.CrawlSchedules
                 .Where(x => x.IsEnabled && x.NextRunAt <= now)
                 .OrderBy(x => x.NextRunAt)
-                .Take(5)
+                .Take(MaxSchedulesPerRun)
                 .ToListAsync(cancellationToken);
 
             foreach (var schedule in dueSchedules)
@@ -59,7 +55,7 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 schedule.NextRunAt = DateTime.UtcNow.AddMinutes(schedule.IntervalMinutes);
 
                 await context.SaveChangesAsync(cancellationToken);
-                await crawlQueueProcessor.ProcessAsync(crawlJob.Id, cancellationToken);
+                await crawlJobChannel.AddCrawlJobAsync(crawlJob.Id, cancellationToken);
             }
         }
     }

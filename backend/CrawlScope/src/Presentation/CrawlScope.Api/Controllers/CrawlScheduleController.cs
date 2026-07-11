@@ -1,12 +1,8 @@
-using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
+﻿using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
 using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlSchedule;
 using CrawlScope.Application.Modules.Crawling.Commands.SetCrawlScheduleStatus;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules;
-using CrawlScope.Domain.Constants;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CrawlScope.Api.Controllers
 {

@@ -1,11 +1,4 @@
-﻿using MediatR.NotificationPublishers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CrawlScope.Application.Modules.Crawling.DTOs
+﻿namespace CrawlScope.Application.Modules.Crawling.DTOs
 {
     public class CrawlJobListItemDto
     {

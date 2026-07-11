@@ -1,10 +1,4 @@
-using CrawlScope.Application.Abstractions.Export.Services;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Exceptions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Application.Modules.Export.Commands.DeleteExportFile
+﻿namespace CrawlScope.Application.Modules.Export.Commands.DeleteExportFile
 {
     public class DeleteExportFileCommandHandler(
         IAppDbContext context,

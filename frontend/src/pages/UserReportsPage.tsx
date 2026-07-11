@@ -24,8 +24,10 @@ export function UserReportsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadReports(nextPageNumber = pageNumber) {
-    setIsLoading(true);
+  async function loadReports(nextPageNumber = pageNumber, isBackground = false) {
+    if (!isBackground) {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -40,13 +42,27 @@ export function UserReportsPage() {
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to load reports.");
     } finally {
-      setIsLoading(false);
+      if (!isBackground) {
+        setIsLoading(false);
+      }
     }
   }
 
   useEffect(() => {
     void loadReports(1);
   }, []);
+
+  useEffect(() => {
+    const hasActiveReports = reportsPage.items.some(
+      (report) => report.status === "Pending" || report.status === "InProgress"
+    );
+    if (hasActiveReports) {
+      const interval = setInterval(() => {
+        void loadReports(pageNumber, true);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [reportsPage.items, pageNumber]);
 
   function applyFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

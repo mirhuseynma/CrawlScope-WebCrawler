@@ -1,4 +1,3 @@
-using CrawlScope.Application.Modules.Auth.DTOs;
 
 namespace CrawlScope.Application.Abstractions.Auth
 {

@@ -1,12 +1,4 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Extensions;
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-
-namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
+﻿namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
 {
     public class GetCrawlLogsQueryHandler(IAppDbContext context)
         : IRequestHandler<GetCrawlLogsQuery, PagedResult<CrawlLogDto>>

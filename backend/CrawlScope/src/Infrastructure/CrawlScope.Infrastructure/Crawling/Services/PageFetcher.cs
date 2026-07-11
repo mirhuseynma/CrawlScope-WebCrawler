@@ -1,5 +1,4 @@
-using CrawlScope.Application.Abstractions.Crawling.Models;
-using CrawlScope.Application.Abstractions.Crawling.Services;
+﻿using CrawlScope.Application.Abstractions.Crawling.Models;
 using System.Diagnostics;
 
 namespace CrawlScope.Infrastructure.Crawling.Services

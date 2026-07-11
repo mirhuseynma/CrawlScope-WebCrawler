@@ -1,6 +1,4 @@
-using System.Security.Claims;
-using CrawlScope.Domain.Constants;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
 
 namespace CrawlScope.Api.Controllers
 {

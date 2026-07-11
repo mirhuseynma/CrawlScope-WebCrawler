@@ -85,12 +85,14 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
   const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
-  async function loadDetails(pageNumber = pagesPageNumber, logPageNumber = logsPageNumber, brokenPage = brokenPageNumber) {
+  async function loadDetails(pageNumber = pagesPageNumber, logPageNumber = logsPageNumber, brokenPage = brokenPageNumber, isBackground = false) {
     if (!id) {
       return;
     }
 
-    setIsLoading(true);
+    if (!isBackground) {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -130,13 +132,24 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to load crawl job details.");
     } finally {
-      setIsLoading(false);
+      if (!isBackground) {
+        setIsLoading(false);
+      }
     }
   }
 
   useEffect(() => {
-    void loadDetails(1, 1);
+    void loadDetails(1, 1, 1);
   }, [id]);
+
+  useEffect(() => {
+    if (job?.status === "Pending" || job?.status === "InProgress") {
+      const interval = setInterval(() => {
+        void loadDetails(pagesPageNumber, logsPageNumber, brokenPageNumber, true);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [job?.status, pagesPageNumber, logsPageNumber, brokenPageNumber]);
 
   function applyDetailFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

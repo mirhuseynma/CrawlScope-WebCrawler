@@ -1,6 +1,4 @@
-using CrawlScope.Domain.Common;
-
-namespace CrawlScope.Domain.Modules.Crawling.Models
+﻿namespace CrawlScope.Domain.Modules.Crawling.Models
 {
     public class CrawlSchedule : BaseEntity
     {

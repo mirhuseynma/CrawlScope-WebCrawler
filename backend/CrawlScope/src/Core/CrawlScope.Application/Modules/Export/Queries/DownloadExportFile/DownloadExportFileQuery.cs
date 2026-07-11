@@ -1,7 +1,4 @@
-using CrawlScope.Application.Modules.Export.DTOs;
-using MediatR;
-
-namespace CrawlScope.Application.Modules.Export.Queries.DownloadExportFile
+﻿namespace CrawlScope.Application.Modules.Export.Queries.DownloadExportFile
 {
     public record DownloadExportFileQuery(
         Guid Id,

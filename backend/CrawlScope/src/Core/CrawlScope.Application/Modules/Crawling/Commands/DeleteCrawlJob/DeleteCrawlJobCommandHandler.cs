@@ -1,9 +1,3 @@
-using CrawlScope.Application.Abstractions.Export.Services;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlJob
 {

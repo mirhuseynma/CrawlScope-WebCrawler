@@ -47,8 +47,10 @@ export function JobsPage() {
     [jobsPage],
   );
 
-  async function loadJobs(pageNumber = jobsPageNumber) {
-    setIsLoading(true);
+  async function loadJobs(pageNumber = jobsPageNumber, isBackground = false) {
+    if (!isBackground) {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -64,13 +66,27 @@ export function JobsPage() {
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to load crawl jobs.");
     } finally {
-      setIsLoading(false);
+      if (!isBackground) {
+        setIsLoading(false);
+      }
     }
   }
 
   useEffect(() => {
     void loadJobs(1);
   }, []);
+
+  useEffect(() => {
+    const hasActiveJobs = jobsPage.items.some(
+      (job) => job.status === "Pending" || job.status === "InProgress"
+    );
+    if (hasActiveJobs) {
+      const interval = setInterval(() => {
+        void loadJobs(jobsPageNumber, true);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [jobsPage.items, jobsPageNumber]);
 
   async function handleCreateJob(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

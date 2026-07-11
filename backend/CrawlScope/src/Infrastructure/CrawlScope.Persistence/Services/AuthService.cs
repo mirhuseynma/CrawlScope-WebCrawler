@@ -1,10 +1,5 @@
-using System.Security.Claims;
-using CrawlScope.Application.Abstractions.Auth;
-using CrawlScope.Application.Common.Exceptions;
+using CrawlScope.Application.Common.Models;
 using CrawlScope.Application.Common.Settings;
-using CrawlScope.Application.Modules.Auth.DTOs;
-using CrawlScope.Domain.Modules.Auth.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 namespace CrawlScope.Persistence.Services
@@ -17,7 +12,7 @@ namespace CrawlScope.Persistence.Services
     {
         private readonly JwtSettings jwtSettings = jwtOptions.Value;
 
-        public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
+        public async Task<Result<AuthResponseDto>> RegisterAsync(RegisterRequestDto request)
         {
             var user = new AppUser
             {
@@ -31,38 +26,47 @@ namespace CrawlScope.Persistence.Services
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(error => error.Description));
-                throw new BadRequestException($"User registration failed: {errors}");
+                return Result<AuthResponseDto>.Failure($"User registration failed: {errors}");
             }
 
             await userManager.AddToRoleAsync(user, "User");
-            return await CreateAuthResponseAsync(user);
+            var authResponse = await CreateAuthResponseAsync(user);
+            return Result<AuthResponseDto>.Success(authResponse);
         }
 
-        public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
+        public async Task<Result<AuthResponseDto>> LoginAsync(LoginRequestDto request)
         {
             var user = await userManager.FindByEmailAsync(request.EmailOrUsername)
-                ?? await userManager.FindByNameAsync(request.EmailOrUsername)
-                ?? throw new BadRequestException("Invalid email/username or password.");
+                ?? await userManager.FindByNameAsync(request.EmailOrUsername);
+            
+            if (user is null)
+            {
+                return Result<AuthResponseDto>.Failure("Invalid email/username or password.");
+            }
 
             var isPasswordValid = await userManager.CheckPasswordAsync(user, request.Password);
 
             if (!isPasswordValid)
             {
-                throw new BadRequestException("Invalid email/username or password.");
+                return Result<AuthResponseDto>.Failure("Invalid email/username or password.");
             }
 
-            return await CreateAuthResponseAsync(user);
+            var authResponse = await CreateAuthResponseAsync(user);
+            return Result<AuthResponseDto>.Success(authResponse);
         }
 
-        public async Task<CurrentUserDto> GetCurrentUserAsync(string userId)
+        public async Task<Result<CurrentUserDto>> GetCurrentUserAsync(string userId)
         {
-            var user = await userManager.FindByIdAsync(userId)
-                ?? throw new NotFoundException("User not found.");
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return Result<CurrentUserDto>.Failure("User not found.");
+            }
 
             var roles = await userManager.GetRolesAsync(user);
             var permissions = await GetPermissionsAsync(roles);
 
-            return new CurrentUserDto
+            var currentUser = new CurrentUserDto
             {
                 UserId = user.Id,
                 UserName = user.UserName ?? string.Empty,
@@ -71,6 +75,7 @@ namespace CrawlScope.Persistence.Services
                 Roles = roles.ToArray(),
                 Permissions = permissions.ToArray()
             };
+            return Result<CurrentUserDto>.Success(currentUser);
         }
 
         private async Task<AuthResponseDto> CreateAuthResponseAsync(AppUser user)

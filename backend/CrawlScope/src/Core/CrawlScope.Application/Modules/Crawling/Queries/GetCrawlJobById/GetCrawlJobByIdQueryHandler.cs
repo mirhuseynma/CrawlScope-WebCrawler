@@ -1,10 +1,4 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper.QueryableExtensions;
 
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById
 {

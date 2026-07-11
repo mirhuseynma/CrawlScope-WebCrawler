@@ -1,8 +1,4 @@
-using CrawlScope.Application.Common.Pagination;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using MediatR;
-
-namespace CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks
+﻿namespace CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks
 {
     public record GetBrokenLinksQuery(
         Guid CrawlJobId,

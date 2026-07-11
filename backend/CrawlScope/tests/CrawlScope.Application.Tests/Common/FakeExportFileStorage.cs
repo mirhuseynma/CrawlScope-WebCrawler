@@ -28,4 +28,25 @@ internal class FakeExportFileStorage : IExportFileStorage
         Files.Remove(filePath);
         return Task.CompletedTask;
     }
+
+    public string GetFilePath(string fileName)
+    {
+        return fileName;
+    }
+
+    public Stream CreateFileStream(string fileName)
+    {
+        var stream = new MemoryStream();
+        Files[fileName] = [];
+        return stream;
+    }
+
+    public Stream? OpenFileStream(string filePath)
+    {
+        if (Files.TryGetValue(filePath, out var content))
+        {
+            return new MemoryStream(content);
+        }
+        return null;
+    }
 }

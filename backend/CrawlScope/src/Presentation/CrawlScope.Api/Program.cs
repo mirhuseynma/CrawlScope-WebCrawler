@@ -1,4 +1,4 @@
-using CrawlScope.Api.Common.Middleware;
+﻿using CrawlScope.Api.Common.Middleware;
 using CrawlScope.Api.Common.Http;
 using CrawlScope.Api.Authorization;
 using CrawlScope.Application;
@@ -6,9 +6,7 @@ using CrawlScope.Infrastructure;
 using CrawlScope.Persistence;
 using CrawlScope.Persistence.Context;
 using CrawlScope.Persistence.Seed;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
 

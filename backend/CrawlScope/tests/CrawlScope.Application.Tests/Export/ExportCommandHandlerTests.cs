@@ -56,7 +56,8 @@ public class ExportCommandHandlerTests
         await context.SaveChangesAsync();
 
         var storage = new FakeExportFileStorage();
-        var handler = new ExportCrawledDataCommandHandler(context, storage);
+        var strategies = new[] { new FakeExportStrategy(ExportFormat.Json, "Azərbaycan səhifəsi Salam dünya") };
+        var handler = new ExportCrawledDataCommandHandler(context, storage, strategies);
         var command = new ExportCrawledDataCommand(jobId, ExportFormat.Json, "user-1", IncludeAllUsers: false);
 
         var result = await handler.Handle(command, CancellationToken.None);
@@ -89,7 +90,8 @@ public class ExportCommandHandlerTests
         });
         await context.SaveChangesAsync();
 
-        var handler = new ExportCrawledDataCommandHandler(context, new FakeExportFileStorage());
+        var strategies = new[] { new FakeExportStrategy(ExportFormat.Csv, "csv") };
+        var handler = new ExportCrawledDataCommandHandler(context, new FakeExportFileStorage(), strategies);
         var command = new ExportCrawledDataCommand(jobId, ExportFormat.Csv, "another-user", IncludeAllUsers: false);
 
         await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
