@@ -3,11 +3,6 @@ using CrawlScope.Application.Abstractions.Persistence;
 using CrawlScope.Domain.Modules.Crawling.Enums;
 using CrawlScope.Domain.Modules.Crawling.Models;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob
 {

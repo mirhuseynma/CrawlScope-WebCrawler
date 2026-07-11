@@ -1,4 +1,5 @@
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Extensions;
 using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Domain.Modules.Crawling.Enums;
@@ -15,12 +16,8 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks
             var query = context.CrawlQueueItems
                 .AsNoTracking()
                 .Where(x => x.CrawlJobId == request.CrawlJobId)
-                .Where(x => x.Status == CrawlQueueStatus.Failed);
-
-            if (!request.IncludeAllUsers)
-            {
-                query = query.Where(x => x.CrawlJob.CreatedBy == request.RequestingUserId);
-            }
+                .Where(x => x.Status == CrawlQueueStatus.Failed)
+                .WhereIf(!request.IncludeAllUsers, x => x.CrawlJob.CreatedBy == request.RequestingUserId);
 
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
@@ -31,15 +28,9 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks
                     || (x.AnchorText != null && x.AnchorText.Contains(search)));
             }
 
-            if (request.StatusCode.HasValue)
-            {
-                query = query.Where(x => x.StatusCode == request.StatusCode.Value);
-            }
-
-            if (request.ExternalOnly.HasValue)
-            {
-                query = query.Where(x => x.IsExternal == request.ExternalOnly.Value);
-            }
+            query = query
+                .WhereIf(request.StatusCode.HasValue, x => x.StatusCode == request.StatusCode!.Value)
+                .WhereIf(request.ExternalOnly.HasValue, x => x.IsExternal == request.ExternalOnly!.Value);
 
             var projectedQuery = query
                 .OrderByDescending(x => x.ProcessedAt ?? x.CreatedAt)

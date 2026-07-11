@@ -161,7 +161,7 @@ async function createRequestError(response: Response) {
   return new ApiRequestError(errorText && response.status < 500 ? errorText : getStatusMessage(response.status), response.status);
 }
 
-export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function executeRequest(path: string, options: RequestOptions = {}) {
   const token = options.skipAuth ? null : getAuthToken();
   const response = await fetch(`${apiBaseUrl}${path}`, {
     method: options.method ?? "GET",
@@ -179,6 +179,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
     throw await createRequestError(response);
   }
+
+  return response;
+}
+
+export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const response = await executeRequest(path, options);
 
   if (response.status === 204) {
     return undefined as T;
@@ -188,23 +194,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 export async function requestBlob(path: string, options: RequestOptions = {}) {
-  const token = options.skipAuth ? null : getAuthToken();
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    method: options.method ?? "GET",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
-  });
-
-  if (!response.ok) {
-    if (response.status === 401 && !options.skipAuth) {
-      window.dispatchEvent(new Event("crawlscope:unauthorized"));
-    }
-
-    throw await createRequestError(response);
-  }
+  const response = await executeRequest(path, options);
 
   return response.blob();
 }

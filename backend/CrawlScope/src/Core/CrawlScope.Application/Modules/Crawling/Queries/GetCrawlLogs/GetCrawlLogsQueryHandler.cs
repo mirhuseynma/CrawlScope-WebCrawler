@@ -1,4 +1,5 @@
 using CrawlScope.Application.Abstractions.Persistence;
+using CrawlScope.Application.Common.Extensions;
 using CrawlScope.Application.Common.Pagination;
 using CrawlScope.Application.Modules.Crawling.DTOs;
 using CrawlScope.Domain.Modules.Crawling.Enums;
@@ -14,12 +15,8 @@ namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlLogs
         {
             var query = context.CrawlLogs
                 .AsNoTracking()
-                .Where(x => x.CrawlJobId == request.CrawlJobId);
-
-            if (!request.IncludeAllUsers)
-            {
-                query = query.Where(x => x.CrawlJob.CreatedBy == request.RequestingUserId);
-            }
+                .Where(x => x.CrawlJobId == request.CrawlJobId)
+                .WhereIf(!request.IncludeAllUsers, x => x.CrawlJob.CreatedBy == request.RequestingUserId);
 
             if (!string.IsNullOrWhiteSpace(request.Level)
                 && Enum.TryParse<CrawlLogLevel>(request.Level, ignoreCase: true, out var level))

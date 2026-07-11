@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { getCurrentUser, login, register, type AuthUser, type LoginRequest, type RegisterRequest } from "../api/authApi";
+import { getCurrentUser, login, register, type AuthResponse, type AuthUser, type LoginRequest, type RegisterRequest } from "../api/authApi";
 import { clearStoredAuth, getStoredAuth, setStoredAuth } from "../api/authStorage";
 
 type AuthStatus = "checking" | "authenticated" | "guest";
@@ -7,8 +7,8 @@ type AuthStatus = "checking" | "authenticated" | "guest";
 type AuthContextValue = {
   status: AuthStatus;
   user: AuthUser | null;
-  loginUser: (payload: LoginRequest) => Promise<AuthUser>;
-  registerUser: (payload: RegisterRequest) => Promise<AuthUser>;
+  loginUser: (payload: LoginRequest) => Promise<AuthResponse>;
+  registerUser: (payload: RegisterRequest) => Promise<AuthResponse>;
   logout: () => void;
   hasPermission: (permission: string) => boolean;
 };

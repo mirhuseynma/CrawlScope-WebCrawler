@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using CrawlScope.Application.Abstractions.Auth;
 using CrawlScope.Application.Modules.Auth.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +7,7 @@ namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(IAuthService authService) : ControllerBase
+    public class AuthController(IAuthService authService) : ApiControllerBase
     {
         [HttpPost("register")]
         public async Task<IActionResult> Register(
@@ -30,11 +29,10 @@ namespace CrawlScope.Api.Controllers
 
         [Authorize]
         [HttpGet("me")]
-        public async Task<IActionResult> Me(CancellationToken cancellationToken)
+        public async Task<IActionResult> Me()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrWhiteSpace(userId))
+            var userId = TryGetCurrentUserId();
+            if (userId is null)
             {
                 return Unauthorized();
             }

@@ -1,9 +1,28 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { useEffect, useRef } from "react";
 
 export function UserTopbar() {
   const { logout, status, user } = useAuth();
   const isAuthenticated = status === "authenticated";
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (detailsRef.current && detailsRef.current.open && !detailsRef.current.contains(event.target as Node)) {
+        detailsRef.current.open = false;
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const closeMenu = () => {
+    if (detailsRef.current) {
+      detailsRef.current.open = false;
+    }
+  };
+
   const displayName = user?.fullName || user?.userName || "User";
   const initials = displayName
     .split(" ")
@@ -26,7 +45,7 @@ export function UserTopbar() {
 
       <div className="user-account-menu">
         {isAuthenticated ? (
-          <details className="user-menu">
+          <details className="user-menu" ref={detailsRef}>
             <summary className="user-identity">
               <span className="user-avatar" aria-hidden="true">
                 {initials || "U"}
@@ -42,10 +61,10 @@ export function UserTopbar() {
                 <span>Signed in</span>
               </div>
               <nav className="user-menu-nav" aria-label="Workspace navigation">
-                <NavLink className={({ isActive }) => (isActive ? "user-menu-action active" : "user-menu-action")} to="/" end>
+                <NavLink className={({ isActive }) => (isActive ? "user-menu-action active" : "user-menu-action")} to="/" end onClick={closeMenu}>
                   New crawl
                 </NavLink>
-                <NavLink className={({ isActive }) => (isActive ? "user-menu-action active" : "user-menu-action")} to="/reports">
+                <NavLink className={({ isActive }) => (isActive ? "user-menu-action active" : "user-menu-action")} to="/reports" onClick={closeMenu}>
                   My reports
                 </NavLink>
               </nav>

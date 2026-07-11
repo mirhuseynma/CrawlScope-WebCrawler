@@ -12,19 +12,7 @@ import type {
   CreateCrawlJobRequest,
   PagedResult,
 } from "../types/crawlJob";
-
-function toQueryString(params: Record<string, string | number | undefined>) {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      searchParams.set(key, String(value));
-    }
-  });
-
-  const queryString = searchParams.toString();
-  return queryString ? `?${queryString}` : "";
-}
+import { toQueryString } from "./queryUtils";
 
 export function getCrawlJobs(query: CrawlJobsQuery) {
   return request<PagedResult<CrawlJob>>(

@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { permissions } from "./auth/permissions";
@@ -15,6 +16,69 @@ import { ExportsPage } from "./pages/ExportsPage";
 import { AdminOverviewPage } from "./pages/AdminOverviewPage";
 import { RolesPage } from "./pages/RolesPage";
 import { UsersPage } from "./pages/UsersPage";
+
+type AdminRoute = {
+  path: string;
+  element: ReactElement;
+  requiredPermissions: string[];
+};
+
+const adminRoutes: AdminRoute[] = [
+  {
+    path: "/admin/overview",
+    element: <AdminOverviewPage />,
+    requiredPermissions: [permissions.adminAccess],
+  },
+  {
+    path: "/admin/jobs",
+    element: <JobsPage />,
+    requiredPermissions: [permissions.adminAccess, permissions.crawlJobsView],
+  },
+  {
+    path: "/admin/jobs/:id",
+    element: <JobDetailsPage variant="admin" />,
+    requiredPermissions: [permissions.adminAccess, permissions.crawlJobsView],
+  },
+  {
+    path: "/admin/pages",
+    element: <PagesPage />,
+    requiredPermissions: [permissions.adminAccess, permissions.crawledPagesView],
+  },
+  {
+    path: "/admin/schedules",
+    element: <SchedulesPage />,
+    requiredPermissions: [permissions.adminAccess, permissions.schedulesView],
+  },
+  {
+    path: "/admin/exports",
+    element: <ExportsPage />,
+    requiredPermissions: [permissions.adminAccess, permissions.crawlJobsExport],
+  },
+  {
+    path: "/admin/users",
+    element: <UsersPage />,
+    requiredPermissions: [permissions.adminAccess, permissions.usersView],
+  },
+  {
+    path: "/admin/roles",
+    element: <RolesPage />,
+    requiredPermissions: [permissions.adminAccess, permissions.rolesView],
+  },
+];
+
+function renderAdminRoute({ element, path, requiredPermissions }: AdminRoute) {
+  return (
+    <Route
+      key={path}
+      path={path}
+      element={
+        <ProtectedRoute loginPath="/admin/login" permissions={requiredPermissions}>
+          <AppShell>{element}</AppShell>
+        </ProtectedRoute>
+      }
+    />
+  );
+}
 
 export default function App() {
   return (
@@ -44,86 +108,7 @@ export default function App() {
           }
         />
         <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
-        <Route
-          path="/admin/overview"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permission={permissions.adminAccess}>
-              <AppShell>
-                <AdminOverviewPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/jobs"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permissions={[permissions.adminAccess, permissions.crawlJobsView]}>
-              <AppShell>
-                <JobsPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/jobs/:id"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permissions={[permissions.adminAccess, permissions.crawlJobsView]}>
-              <AppShell>
-                <JobDetailsPage variant="admin" />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/pages"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permissions={[permissions.adminAccess, permissions.crawledPagesView]}>
-              <AppShell>
-                <PagesPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/schedules"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permissions={[permissions.adminAccess, permissions.schedulesView]}>
-              <AppShell>
-                <SchedulesPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/exports"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permissions={[permissions.adminAccess, permissions.crawlJobsExport]}>
-              <AppShell>
-                <ExportsPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permissions={[permissions.adminAccess, permissions.usersView]}>
-              <AppShell>
-                <UsersPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/roles"
-          element={
-            <ProtectedRoute loginPath="/admin/login" permissions={[permissions.adminAccess, permissions.rolesView]}>
-              <AppShell>
-                <RolesPage />
-              </AppShell>
-            </ProtectedRoute>
-          }
-        />
+        {adminRoutes.map(renderAdminRoute)}
       </Routes>
     </AuthProvider>
   );

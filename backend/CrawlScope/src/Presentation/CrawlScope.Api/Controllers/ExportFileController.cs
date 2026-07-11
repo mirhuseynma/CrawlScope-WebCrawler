@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
 using CrawlScope.Application.Modules.Export.Queries.DownloadExportFile;
 using CrawlScope.Application.Modules.Export.Queries.GetExportFiles;
@@ -11,15 +10,8 @@ namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ExportFileController(IMediator mediator) : ControllerBase
+    public class ExportFileController(IMediator mediator) : ApiControllerBase
     {
-        private string CurrentUserId =>
-            User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new UnauthorizedAccessException("Authenticated user id was not found.");
-
-        private bool CanAccessAllUsers =>
-            User.Claims.Any(claim => claim.Type == "Permission" && claim.Value == Permissions.Admin.Access);
-
         [HttpGet]
         [Authorize(Policy = Permissions.CrawlJobs.Export)]
         public async Task<IActionResult> GetAll(
