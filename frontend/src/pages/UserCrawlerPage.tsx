@@ -16,7 +16,6 @@ export function UserCrawlerPage() {
   const { status } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState<CreateCrawlJobRequest>(initialFormState);
-  const [createdJobId, setCreatedJobId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,16 +46,14 @@ export function UserCrawlerPage() {
     }
 
     setIsSubmitting(true);
-    setCreatedJobId(null);
     setError(null);
 
     try {
       const jobId = await createCrawlJob(form);
       await startCrawlJob(jobId);
-      setCreatedJobId(jobId);
+      navigate(`/reports/${jobId}`);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to start crawl.");
-    } finally {
       setIsSubmitting(false);
     }
   }
@@ -166,15 +163,6 @@ export function UserCrawlerPage() {
             )}
 
             {error && <div className="alert">{error}</div>}
-            {createdJobId && (
-              <div className="success-callout">
-                <strong>Crawl started</strong>
-                <span className="success-actions">
-                  <Link to={`/reports/${createdJobId}`}>Open report</Link>
-                  <Link to="/reports">My reports</Link>
-                </span>
-              </div>
-            )}
           </form>
 
           <aside className="report-preview" aria-label="Crawl report preview">
