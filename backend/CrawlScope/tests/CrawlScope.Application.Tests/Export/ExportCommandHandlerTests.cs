@@ -136,7 +136,10 @@ public class ExportCommandHandlerTests
 
         Assert.Equal("export.json", result.FileName);
         Assert.Equal("application/json; charset=utf-8", result.ContentType);
-        Assert.Equal("{}", Encoding.UTF8.GetString(result.Content));
+        
+        using var reader = new StreamReader(result.ContentStream);
+        var content = await reader.ReadToEndAsync();
+        Assert.Equal("{}", content);
     }
 
     [Fact]

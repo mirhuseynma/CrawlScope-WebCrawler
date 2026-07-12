@@ -70,9 +70,10 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
 
             long fileSizeBytes;
             await using (var fileStream = exportFileStorage.CreateFileStream(fileName))
+            await using (var countingStream = new CrawlScope.Application.Common.Streams.CountingStream(fileStream))
             {
-                await strategy.ExportAsync(request.CrawlJobId, pagesAsyncEnum, fileStream, cancellationToken);
-                fileSizeBytes = fileStream.Length;
+                await strategy.ExportAsync(request.CrawlJobId, pagesAsyncEnum, countingStream, cancellationToken);
+                fileSizeBytes = countingStream.BytesWritten;
             }
 
             var exportFile = new ExportFile
@@ -95,7 +96,6 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
                 ExportFileId = exportFile.Id,
                 FileName = fileName,
                 ContentType = strategy.GetContentType(),
-                Content = [],
                 FilePath = filePath,
                 CreatedAt = createdAt
             };

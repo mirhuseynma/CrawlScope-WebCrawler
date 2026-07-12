@@ -19,8 +19,7 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob
                 throw new InvalidOperationException($"Crawl job with ID {request.Id} is not in a pending state.");
             }
 
-            crawlJob.Status = CrawlJobStatus.InProgress;
-            crawlJob.StartedAt = DateTime.UtcNow;
+            crawlJob.Status = CrawlJobStatus.Queued;
             crawlJob.PagesFound = 1;
 
             var queueItemExists = await context.CrawlQueueItems
