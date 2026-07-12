@@ -68,12 +68,14 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
             var fileName = $"crawl-{request.CrawlJobId:N}-{createdAt:yyyyMMddHHmmss}.{strategy.GetFileExtension()}";
             var filePath = exportFileStorage.GetFilePath(fileName);
 
+            long fileSizeBytes;
             await using (var fileStream = exportFileStorage.CreateFileStream(fileName))
+            await using (var countingStream = new CrawlScope.Application.Common.Streams.CountingStream(fileStream))
             {
-                await strategy.ExportAsync(request.CrawlJobId, pagesAsyncEnum, fileStream, cancellationToken);
+                await strategy.ExportAsync(request.CrawlJobId, pagesAsyncEnum, countingStream, cancellationToken);
+                fileSizeBytes = countingStream.BytesWritten;
             }
 
-            var fileInfo = new System.IO.FileInfo(filePath);
             var exportFile = new ExportFile
             {
                 Id = Guid.NewGuid(),
@@ -81,7 +83,7 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
                 Format = request.Format,
                 FileName = fileName,
                 FilePath = filePath,
-                FileSizeBytes = fileInfo.Length,
+                FileSizeBytes = fileSizeBytes,
                 CreatedAt = createdAt,
                 CreatedByUserId = request.CreatedByUserId
             };
@@ -94,7 +96,6 @@ namespace CrawlScope.Application.Modules.Export.Commands.ExportCrawledData
                 ExportFileId = exportFile.Id,
                 FileName = fileName,
                 ContentType = strategy.GetContentType(),
-                Content = [],
                 FilePath = filePath,
                 CreatedAt = createdAt
             };

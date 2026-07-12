@@ -27,6 +27,7 @@ namespace CrawlScope.Infrastructure
             
             services.AddSingleton<ICrawlJobChannel, CrawlScope.Infrastructure.BackgroundJobs.CrawlJobChannel>();
             services.AddHostedService<CrawlScope.Infrastructure.BackgroundJobs.CrawlJobBackgroundService>();
+            services.AddHostedService<CrawlScope.Infrastructure.BackgroundJobs.CrawlJobRecoveryHostedService>();
             
             services.AddHostedService<CrawlScheduleWorker>();
 

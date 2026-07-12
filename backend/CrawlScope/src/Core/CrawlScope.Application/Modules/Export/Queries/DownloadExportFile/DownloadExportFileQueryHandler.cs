@@ -1,4 +1,4 @@
-﻿namespace CrawlScope.Application.Modules.Export.Queries.DownloadExportFile
+namespace CrawlScope.Application.Modules.Export.Queries.DownloadExportFile
 {
     public class DownloadExportFileQueryHandler(
         IAppDbContext context,
@@ -15,14 +15,14 @@
                     cancellationToken)
                 ?? throw new NotFoundException("Export file not found.");
 
-            var content = await exportFileStorage.ReadAsync(exportFile.FilePath, cancellationToken)
+            var stream = exportFileStorage.OpenFileStream(exportFile.FilePath)
                 ?? throw new NotFoundException("Export file content not found.");
 
             return new ExportFileDownloadDto
             {
                 FileName = exportFile.FileName,
                 ContentType = GetContentType(exportFile.Format),
-                Content = content
+                ContentStream = stream
             };
         }
 

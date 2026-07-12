@@ -19,6 +19,12 @@ namespace CrawlScope.Application.Modules.Crawling.Services
 
             try
             {
+                if (crawlJob.Status != CrawlJobStatus.InProgress)
+                {
+                    crawlJob.Status = CrawlJobStatus.InProgress;
+                    crawlJob.StartedAt = DateTime.UtcNow;
+                    await context.SaveChangesAsync(cancellationToken);
+                }
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     var queueItem = await GetNextPendingQueueItemAsync(crawlJobId, cancellationToken);

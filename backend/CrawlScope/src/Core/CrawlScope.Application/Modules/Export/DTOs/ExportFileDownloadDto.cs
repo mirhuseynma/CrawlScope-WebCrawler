@@ -4,6 +4,6 @@ namespace CrawlScope.Application.Modules.Export.DTOs
     {
         public string FileName { get; set; } = null!;
         public string ContentType { get; set; } = null!;
-        public byte[] Content { get; set; } = [];
+        public Stream ContentStream { get; set; } = null!;
     }
 }

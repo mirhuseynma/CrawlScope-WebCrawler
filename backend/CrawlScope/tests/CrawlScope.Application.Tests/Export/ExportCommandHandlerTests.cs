@@ -66,10 +66,10 @@ public class ExportCommandHandlerTests
         Assert.Equal(result.ExportFileId, exportFile.Id);
         Assert.Equal(ExportFormat.Json, exportFile.Format);
         Assert.Equal("user-1", exportFile.CreatedByUserId);
-        Assert.Equal(exportFile.FileSizeBytes, result.Content.LongLength);
-        Assert.Equal(result.Content, storage.Files[exportFile.FilePath]);
+        var storedContent = storage.Files[exportFile.FilePath];
+        Assert.Equal(exportFile.FileSizeBytes, storedContent.LongLength);
 
-        var json = Encoding.UTF8.GetString(result.Content);
+        var json = Encoding.UTF8.GetString(storedContent);
         Assert.Contains("Azərbaycan səhifəsi", json);
         Assert.Contains("Salam dünya", json);
     }
@@ -136,7 +136,10 @@ public class ExportCommandHandlerTests
 
         Assert.Equal("export.json", result.FileName);
         Assert.Equal("application/json; charset=utf-8", result.ContentType);
-        Assert.Equal("{}", Encoding.UTF8.GetString(result.Content));
+        
+        using var reader = new StreamReader(result.ContentStream);
+        var content = await reader.ReadToEndAsync();
+        Assert.Equal("{}", content);
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-﻿using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
+using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
 using CrawlScope.Application.Modules.Export.Queries.DownloadExportFile;
 using CrawlScope.Application.Modules.Export.Queries.GetExportFiles;
 
@@ -29,7 +29,7 @@ namespace CrawlScope.Api.Controllers
             var query = new DownloadExportFileQuery(id, CurrentUserId, CanAccessAllUsers);
             var export = await mediator.Send(query, cancellationToken);
 
-            return File(export.Content, export.ContentType, export.FileName);
+            return File(export.ContentStream, export.ContentType, export.FileName);
         }
 
         [HttpDelete("{id:guid}")]
