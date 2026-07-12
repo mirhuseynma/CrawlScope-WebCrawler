@@ -27,7 +27,13 @@ namespace CrawlScope.Infrastructure.Export.Services
                 WriteIndented = true
             };
 
-            await using var writer = new Utf8JsonWriter(outputStream);
+            var writerOptions = new JsonWriterOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                Indented = true
+            };
+
+            await using var writer = new Utf8JsonWriter(outputStream, writerOptions);
             writer.WriteStartObject();
             writer.WriteString("crawlJobId", crawlJobId.ToString());
             writer.WriteString("exportedAt", DateTime.UtcNow.ToString("O"));
