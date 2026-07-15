@@ -16,6 +16,9 @@ import { ExportsPage } from "./pages/ExportsPage";
 import { AdminOverviewPage } from "./pages/AdminOverviewPage";
 import { RolesPage } from "./pages/RolesPage";
 import { UsersPage } from "./pages/UsersPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 
 type AdminRoute = {
   path: string;
@@ -86,6 +89,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<AuthPage variant="user" mode="login" />} />
         <Route path="/register" element={<AuthPage variant="user" mode="register" />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/confirm-email" element={<ConfirmEmailPage />} />
         <Route path="/admin/login" element={<AuthPage variant="admin" />} />
         <Route path="/" element={<UserCrawlerPage />} />
         <Route
