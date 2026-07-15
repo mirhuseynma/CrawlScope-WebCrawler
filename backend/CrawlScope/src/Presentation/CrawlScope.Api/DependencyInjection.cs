@@ -40,7 +40,7 @@ public static class DependencyInjection
             options.AddPolicy(DashboardCorsPolicy, policy =>
             {
                 policy
-                    .WithOrigins("http://localhost:5173")
+                    .AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });
