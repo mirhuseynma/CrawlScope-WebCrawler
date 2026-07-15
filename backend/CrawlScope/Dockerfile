@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 # Copy the solution file
-COPY CrawlScope.sln ./
+COPY CrawlScope.slnx ./
 
 # Copy all project files keeping the directory structure intact
 COPY src/Core/CrawlScope.Domain/CrawlScope.Domain.csproj src/Core/CrawlScope.Domain/
