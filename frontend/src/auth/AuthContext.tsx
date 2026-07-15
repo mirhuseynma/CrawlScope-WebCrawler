@@ -79,19 +79,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const registerUser = useCallback(async (payload: RegisterRequest) => {
     const response = await register(payload);
-    setStoredAuth({
-      token: response.token,
-      expiresAt: response.expiresAt,
-    });
-    setUser({
-      userId: response.userId,
-      userName: response.userName,
-      email: response.email,
-      fullName: response.fullName,
-      roles: response.roles,
-      permissions: response.permissions,
-    });
-    setStatus("authenticated");
+    
+    // If the backend returns a token, log the user in.
+    // If we require email confirmation, backend might return an empty token.
+    if (response.token) {
+      setStoredAuth({
+        token: response.token,
+        expiresAt: response.expiresAt,
+      });
+      setUser({
+        userId: response.userId,
+        userName: response.userName,
+        email: response.email,
+        fullName: response.fullName,
+        roles: response.roles,
+        permissions: response.permissions,
+      });
+      setStatus("authenticated");
+    }
+    
     return response;
   }, []);
 
