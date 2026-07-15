@@ -34,15 +34,12 @@ app.UseStatusCodePages(async statusCodeContext =>
     await httpContext.Response.WriteAsJsonAsync(response);
 });
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.RoutePrefix = "swagger";
-        options.SwaggerEndpoint("v1/swagger.json", "CrawlScope.Api v1");
-    });
-}
+    options.RoutePrefix = "swagger";
+    options.SwaggerEndpoint("v1/swagger.json", "CrawlScope.Api v1");
+});
 
 app.UseHttpsRedirection();
 
