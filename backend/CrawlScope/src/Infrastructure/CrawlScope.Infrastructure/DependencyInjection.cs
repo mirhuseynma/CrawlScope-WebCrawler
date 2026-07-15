@@ -8,7 +8,7 @@ namespace CrawlScope.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             services.AddHttpClient<IPageFetcher, PageFetcher>(client =>
             {
@@ -30,6 +30,9 @@ namespace CrawlScope.Infrastructure
             services.AddHostedService<CrawlScope.Infrastructure.BackgroundJobs.CrawlJobRecoveryHostedService>();
             
             services.AddHostedService<CrawlScheduleWorker>();
+
+            services.Configure<CrawlScope.Infrastructure.Email.SmtpSettings>(configuration.GetSection("SmtpSettings"));
+            services.AddTransient<CrawlScope.Application.Abstractions.Email.IEmailService, CrawlScope.Infrastructure.Email.SmtpEmailService>();
 
             return services;
         }

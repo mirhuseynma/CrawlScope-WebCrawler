@@ -39,6 +39,8 @@ export function AuthPage({ variant = "user", mode: requestedMode = "login" }: Au
     return mode === "login" ? "Welcome back" : "Create your crawler account";
   }, [isAdminLogin, mode]);
 
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
   if (status === "authenticated" && isAdminLogin && !hasPermission(permissions.adminAccess)) {
     return (
       <main className="auth-shell">
@@ -87,21 +89,45 @@ export function AuthPage({ variant = "user", mode: requestedMode = "login" }: Au
           setError("This account does not have admin access.");
           return;
         }
+        navigate(from, { replace: true });
       } else {
         if (password !== confirmPassword) {
-          setError("Passwords do not match.");
-          return;
+            setError("Passwords do not match.");
+            setIsSubmitting(false);
+            return;
         }
 
         await registerUser({ email, userName, fullName: fullName || undefined, password, confirmPassword });
+        setRegistrationSuccess(true);
+        setPassword("");
+        setConfirmPassword("");
       }
-
-      navigate(from, { replace: true });
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Authentication failed.");
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (registrationSuccess) {
+    return (
+      <main className="auth-shell">
+        <section className="auth-panel auth-panel-compact" aria-label="Registration Success">
+          <div className="auth-copy">
+            <p className="eyebrow">CrawlScope Security</p>
+            <h1>Verify your email</h1>
+            <p>
+              We've sent a verification link to <strong>{email}</strong>. Please check your inbox and confirm your email to complete the registration.
+            </p>
+          </div>
+          <div className="auth-form auth-message-panel">
+            <Link className="primary-button auth-submit" to="/login" onClick={() => setRegistrationSuccess(false)}>
+              Back to Login
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
@@ -181,7 +207,14 @@ export function AuthPage({ variant = "user", mode: requestedMode = "login" }: Au
           )}
 
           <label>
-            Password
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span>Password</span>
+              {mode === "login" && (
+                <Link to="/forgot-password" style={{ fontSize: "0.85rem", color: "var(--primary-color)", textDecoration: "none" }}>
+                  Forgot password?
+                </Link>
+              )}
+            </div>
             <input
               type="password"
               value={password}

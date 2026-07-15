@@ -22,13 +22,9 @@ namespace CrawlScope.Api.Common.Http
                 && environment?.IsDevelopment() == true
                 && statusCode >= StatusCodes.Status500InternalServerError)
             {
-                response.Errors = new Dictionary<string, string[]>
-                {
-                    ["Exception"] = [exception.GetType().Name],
-                    ["Message"] = [exception.Message],
-                    ["Source"] = [exception.Source ?? string.Empty],
-                    ["Path"] = [context.Request.Path.ToString()]
-                };
+                // We'll append the exception message to the main Message instead of putting it in Errors
+                // so the frontend doesn't treat it as a field validation error.
+                response.Message = $"{response.Message} (Dev: {exception.GetType().Name} - {exception.Message})";
             }
 
             return response;

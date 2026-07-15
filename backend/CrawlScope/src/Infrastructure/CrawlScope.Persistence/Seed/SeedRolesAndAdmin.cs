@@ -33,20 +33,15 @@ namespace CrawlScope.Persistence.Seed
                     throw new InvalidOperationException($"Admin seed failed: {errors}");
                 }
             }
-
-            if (!await userManager.IsInRoleAsync(admin, "Admin"))
-            {
                 await userManager.AddToRoleAsync(admin, "Admin");
-            }
+                var adminClaims = await userManager.GetClaimsAsync(admin);
+                var hasSystemAdminClaim = adminClaims.Any(claim =>
+                    claim.Type == SystemClaims.SystemUser && claim.Value == SystemClaims.SeedAdmin);
 
-            var adminClaims = await userManager.GetClaimsAsync(admin);
-            var hasSystemAdminClaim = adminClaims.Any(claim =>
-                claim.Type == SystemClaims.SystemUser && claim.Value == SystemClaims.SeedAdmin);
-
-            if (!hasSystemAdminClaim)
-            {
-                await userManager.AddClaimAsync(admin, new Claim(SystemClaims.SystemUser, SystemClaims.SeedAdmin));
-            }
+                if (!hasSystemAdminClaim)
+                {
+                    await userManager.AddClaimAsync(admin, new Claim(SystemClaims.SystemUser, SystemClaims.SeedAdmin));
+                }
         }
 
         private static async Task EnsureRoleAsync(
