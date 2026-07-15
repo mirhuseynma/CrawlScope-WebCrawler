@@ -2,8 +2,8 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm (pin to v9 to avoid strict build script errors in CI)
+RUN npm install -g pnpm@9
 
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 RUN pnpm install
