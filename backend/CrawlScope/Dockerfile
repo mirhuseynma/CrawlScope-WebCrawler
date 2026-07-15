@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # Copy the solution file
@@ -21,7 +21,7 @@ WORKDIR /app/src/Presentation/CrawlScope.Api
 RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 # Use ASP.NET runtime image for the final stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
