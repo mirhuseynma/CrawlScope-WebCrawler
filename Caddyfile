@@ -1,0 +1,3 @@
+crawlscope.app, www.crawlscope.app, api.crawlscope.app {
+    reverse_proxy frontend:80
+}
