@@ -8,8 +8,9 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 RUN pnpm install
 
-# Pass API URL as build arg (empty string means it will use relative path and hit the proxy)
-ENV VITE_API_BASE_URL=""
+# Pass API URL as build arg
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 COPY . .
 RUN pnpm build
