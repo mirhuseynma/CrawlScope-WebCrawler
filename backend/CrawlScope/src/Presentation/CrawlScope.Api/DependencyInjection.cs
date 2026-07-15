@@ -40,7 +40,13 @@ public static class DependencyInjection
             options.AddPolicy(DashboardCorsPolicy, policy =>
             {
                 policy
-                    .AllowAnyOrigin()
+                    .WithOrigins(
+                        "http://localhost:5173", 
+                        "http://crawlscope.app", 
+                        "https://crawlscope.app",
+                        "http://www.crawlscope.app",
+                        "https://www.crawlscope.app"
+                    )
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });
