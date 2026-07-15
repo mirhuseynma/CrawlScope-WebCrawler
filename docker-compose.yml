@@ -5,9 +5,9 @@ services:
     image: postgres:15-alpine
     container_name: crawlscope-db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: CrawlScopeDb
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mysecretpassword}
+      POSTGRES_DB: ${DB_NAME:-CrawlScopeDb}
     ports:
       - "5432:5432"
     volumes:
@@ -24,7 +24,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       # Here you should override settings for Production
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=CrawlScopeDb;Username=postgres;Password=mysecretpassword
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${DB_NAME:-CrawlScopeDb};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-mysecretpassword}
     depends_on:
       - db
     restart: unless-stopped
