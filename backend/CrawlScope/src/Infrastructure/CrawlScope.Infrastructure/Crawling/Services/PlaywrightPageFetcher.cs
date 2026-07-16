@@ -43,15 +43,25 @@ namespace CrawlScope.Infrastructure.Crawling.Services
 
                 var page = await context.NewPageAsync();
 
-                // Go to the URL and wait for DOMContentLoaded, avoiding NetworkIdle which hangs on polling SPAs
+                // Go to the URL and wait for the 'load' event (base HTML and resources loaded)
                 var response = await page.GotoAsync(url, new PageGotoOptions
                 {
-                    WaitUntil = WaitUntilState.DOMContentLoaded,
+                    WaitUntil = WaitUntilState.Load,
                     Timeout = 30000 // 30 seconds
                 });
 
-                // Wait an additional 3 seconds to let React/Vue/Angular render the initial view
-                await page.WaitForTimeoutAsync(3000);
+                try
+                {
+                    // Try to wait for the network to become completely idle so JavaScript can finish rendering.
+                    // If it's a normal site, this finishes in milliseconds.
+                    // If it's an SPA with non-stop background polling (like your dashboard), it will hit the 7-second timeout.
+                    await page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 7000 });
+                }
+                catch (TimeoutException)
+                {
+                    // Ignore the timeout. The page has been rendering for 7 seconds already,
+                    // which is more than enough for 99% of React/Vue apps to show their content.
+                }
 
                 if (response == null)
                 {
