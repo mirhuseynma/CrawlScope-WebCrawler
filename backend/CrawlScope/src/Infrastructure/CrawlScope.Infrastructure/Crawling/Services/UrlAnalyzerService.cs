@@ -58,9 +58,9 @@ namespace CrawlScope.Infrastructure.Crawling.Services
             }
             catch
             {
-                // On exception (e.g. timeout, connection refused), fallback to Fast. 
-                // Playwright would likely fail too if the site is completely down.
-                return CrawlType.Fast;
+                // On exception (e.g. timeout, connection dropped by anti-bot firewall), fallback to Dynamic.
+                // Many modern firewalls simply stall basic HTTP requests indefinitely.
+                return CrawlType.Dynamic;
             }
         }
     }
