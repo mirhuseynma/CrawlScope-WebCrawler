@@ -413,7 +413,6 @@ export function JobsPage() {
               />
             </>
           )}
-          )}
         </div>
       </div>
 
