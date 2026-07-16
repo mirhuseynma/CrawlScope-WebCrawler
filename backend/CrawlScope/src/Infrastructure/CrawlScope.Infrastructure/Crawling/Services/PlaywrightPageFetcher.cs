@@ -14,16 +14,15 @@ namespace CrawlScope.Infrastructure.Crawling.Services
             {
                 using var playwright = await Playwright.CreateAsync();
                 
-                // Launch headless chromium
-                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                // Launch headless Firefox (Firefox often bypasses Cloudflare bot protection much better than Chromium)
+                await using var browser = await playwright.Firefox.LaunchAsync(new BrowserTypeLaunchOptions
                 {
                     Headless = true,
-                    Args = new[] { "--disable-gpu", "--disable-dev-shm-usage", "--no-sandbox" }
                 });
 
                 var context = await browser.NewContextAsync(new BrowserNewContextOptions
                 {
-                    UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
                     ViewportSize = new ViewportSize { Width = 1920, Height = 1080 },
                     JavaScriptEnabled = true,
                     BypassCSP = true,
