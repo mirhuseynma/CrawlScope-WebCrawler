@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { createCrawlJob, deleteCrawlJob, getCrawlJobs, startCrawlJob, toggleCrawlJobImportance } from "../api/crawlJobsApi";
+import { analyzeUrl, createCrawlJob, deleteCrawlJob, getCrawlJobs, startCrawlJob, toggleCrawlJobImportance } from "../api/crawlJobsApi";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
 import type { CrawlJob, CreateCrawlJobRequest, PagedResult } from "../types/crawlJob";
@@ -10,6 +10,7 @@ const initialFormState: CreateCrawlJobRequest = {
   maxDepth: 0,
   maxPages: 1,
   stayWithinDomain: true,
+  crawlType: "Fast",
 };
 
 const emptyJobsPage: PagedResult<CrawlJob> = {
@@ -32,6 +33,9 @@ export function JobsPage() {
   const [jobsPageSize, setJobsPageSize] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [analysisReason, setAnalysisReason] = useState("");
+  const [pendingJobRequest, setPendingJobRequest] = useState<CreateCrawlJobRequest | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
   const [updatingImportantJobId, setUpdatingImportantJobId] = useState<string | null>(null);
@@ -94,8 +98,40 @@ export function JobsPage() {
     setError(null);
 
     try {
+      const analysis = await analyzeUrl(form.targetUrl);
+      if (analysis.recommendedType === "Dynamic" && form.crawlType !== "Dynamic") {
+        setAnalysisReason(analysis.recommendationReason);
+        setPendingJobRequest(form);
+        setShowAnalysisModal(true);
+        setIsSubmitting(false);
+        return;
+      }
+      
       await createCrawlJob(form);
       setForm(initialFormState);
+      await loadJobs(1);
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Failed to analyze or create crawl job.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleConfirmDynamicCrawl(useDynamic: boolean) {
+    if (!pendingJobRequest) return;
+    
+    setShowAnalysisModal(false);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const requestToSubmit = {
+        ...pendingJobRequest,
+        crawlType: useDynamic ? "Dynamic" : "Fast"
+      };
+      await createCrawlJob(requestToSubmit);
+      setForm(initialFormState);
+      setPendingJobRequest(null);
       await loadJobs(1);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to create crawl job.");
@@ -377,8 +413,41 @@ export function JobsPage() {
               />
             </>
           )}
+          )}
         </div>
       </div>
+
+      {showAnalysisModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Smart Probe: Issue Detected</h2>
+              <button className="icon-button" onClick={() => setShowAnalysisModal(false)}>
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>
+                Our quick analysis detected an issue with the target URL:
+                <br />
+                <strong>{analysisReason}</strong>
+              </p>
+              <p>
+                It is highly recommended to use the <strong>Dynamic (Playwright)</strong> mode to bypass this protection and render the page properly. Note that Dynamic mode may be slower.
+              </p>
+              <p>Do you want to switch to Dynamic mode?</p>
+            </div>
+            <div className="modal-footer">
+              <button className="secondary-button" onClick={() => handleConfirmDynamicCrawl(false)}>
+                No, use Fast mode
+              </button>
+              <button className="primary-button" onClick={() => handleConfirmDynamicCrawl(true)}>
+                Yes, use Dynamic mode
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -1,9 +1,9 @@
-﻿using CrawlScope.Application.Abstractions.Crawling.Models;
+using CrawlScope.Application.Abstractions.Crawling.Models;
 using System.Diagnostics;
 
 namespace CrawlScope.Infrastructure.Crawling.Services
 {
-    public class PageFetcher(HttpClient httpClient) : IPageFetcher
+    public class StandardPageFetcher(HttpClient httpClient) : IPageFetcher
     {
         public async Task<PageFetchResult> FetchAsync(string url, CancellationToken cancellationToken = default)
         {

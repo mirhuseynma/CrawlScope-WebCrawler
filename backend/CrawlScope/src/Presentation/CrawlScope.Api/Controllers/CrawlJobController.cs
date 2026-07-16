@@ -26,6 +26,20 @@ namespace CrawlScope.Api.Controllers
             return Ok(id);
         }
 
+        [HttpGet("analyze")]
+        [Authorize(Policy = Permissions.CrawlJobs.Create)]
+        public async Task<IActionResult> AnalyzeUrl([FromQuery] string url, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return BadRequest("URL is required.");
+            }
+
+            var query = new CrawlScope.Application.Modules.Crawling.Queries.AnalyzeUrl.AnalyzeUrlQuery(url);
+            var result = await mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
         [HttpGet]
         [Authorize(Policy = Permissions.CrawlJobs.View)]
         public async Task<IActionResult> GetAll(

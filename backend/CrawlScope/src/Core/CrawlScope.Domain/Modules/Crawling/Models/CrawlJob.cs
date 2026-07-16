@@ -1,4 +1,4 @@
-﻿using CrawlScope.Domain.Modules.Export.Models;
+using CrawlScope.Domain.Modules.Export.Models;
 
 namespace CrawlScope.Domain.Modules.Crawling.Models
 {
@@ -8,6 +8,7 @@ namespace CrawlScope.Domain.Modules.Crawling.Models
         public int MaxDepth { get; set; }
         public int MaxPages { get; set; }
         public bool StayWithinDomain { get; set; }
+        public CrawlType Type { get; set; } = CrawlType.Fast;
         public CrawlJobStatus Status { get; set; } = CrawlJobStatus.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? StartedAt { get; set; }

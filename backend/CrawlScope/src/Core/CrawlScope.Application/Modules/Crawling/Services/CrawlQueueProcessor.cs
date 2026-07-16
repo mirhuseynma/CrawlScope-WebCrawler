@@ -4,7 +4,7 @@ namespace CrawlScope.Application.Modules.Crawling.Services
 {
     public class CrawlQueueProcessor(
         IAppDbContext context,
-        IPageFetcher pageFetcher,
+        CrawlScope.Application.Abstractions.Crawling.Services.IPageFetcherFactory pageFetcherFactory,
         IHtmlParser htmlParser) : ICrawlQueueProcessor
     {
         public async Task ProcessAsync(Guid crawlJobId, CancellationToken cancellationToken = default)
@@ -73,6 +73,7 @@ namespace CrawlScope.Application.Modules.Crawling.Services
 
             await AddLogAsync(crawlJob.Id, CrawlLogLevel.Info, $"Fetching {queueItem.Url}.", cancellationToken);
 
+            var pageFetcher = pageFetcherFactory.Create(crawlJob.Type);
             var fetchResult = await pageFetcher.FetchAsync(queueItem.Url, cancellationToken);
 
             if (!fetchResult.IsSuccess || string.IsNullOrWhiteSpace(fetchResult.Content))
