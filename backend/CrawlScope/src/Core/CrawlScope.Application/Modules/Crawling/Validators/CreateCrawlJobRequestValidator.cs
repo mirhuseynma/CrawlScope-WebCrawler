@@ -1,4 +1,4 @@
-﻿namespace CrawlScope.Application.Modules.Crawling.Validators
+namespace CrawlScope.Application.Modules.Crawling.Validators
 {
     public class CreateCrawlJobRequestValidator : AbstractValidator<CreateCrawlJobRequestDto>
     {
@@ -18,6 +18,10 @@
             RuleFor(x => x.MaxPages)
                 .InclusiveBetween(1, 500)
                 .WithMessage("Max pages must be between 1 and 500.");
+
+            RuleFor(x => x.CrawlType)
+                .IsInEnum()
+                .WithMessage("Invalid Crawl Type.");
         }
     }
 }

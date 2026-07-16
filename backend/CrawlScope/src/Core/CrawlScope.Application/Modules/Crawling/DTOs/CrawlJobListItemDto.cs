@@ -1,10 +1,11 @@
-﻿namespace CrawlScope.Application.Modules.Crawling.DTOs
+namespace CrawlScope.Application.Modules.Crawling.DTOs
 {
     public class CrawlJobListItemDto
     {
         public Guid Id { get; set; }
         public string TargetUrl { get; set; } = null!;
         public string Status { get; set; } = null!;
+        public string Type { get; set; } = null!;
         public int MaxDepth { get; set; }
         public int MaxPages { get; set; }
         public int PagesFound { get; set; }

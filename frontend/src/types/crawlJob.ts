@@ -14,6 +14,7 @@ export type CrawlJob = {
   id: string;
   targetUrl: string;
   status: CrawlJobStatus | string;
+  type: string;
   maxDepth: number;
   maxPages: number;
   pagesFound: number;
@@ -27,6 +28,7 @@ export type CrawlJobDetails = {
   id: string;
   targetUrl: string;
   status: CrawlJobStatus | string;
+  type: string;
   maxDepth: number;
   maxPages: number;
   pagesFound: number;
@@ -89,6 +91,12 @@ export type CreateCrawlJobRequest = {
   maxDepth: number;
   maxPages: number;
   stayWithinDomain: boolean;
+  crawlType: string;
+};
+
+export type AnalyzeUrlResult = {
+  recommendedType: "Fast" | "Dynamic" | string;
+  recommendationReason: string;
 };
 
 export type CrawlSchedule = {

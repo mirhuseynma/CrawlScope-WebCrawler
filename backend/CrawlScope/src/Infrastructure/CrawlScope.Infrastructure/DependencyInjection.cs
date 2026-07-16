@@ -10,7 +10,7 @@ namespace CrawlScope.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
-            services.AddHttpClient<IPageFetcher, PageFetcher>(client =>
+            services.AddHttpClient<StandardPageFetcher>(client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(20);
                 client.DefaultRequestHeaders.UserAgent.Add(
@@ -18,6 +18,15 @@ namespace CrawlScope.Infrastructure
                 client.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("text/html"));
             });
+
+            services.AddTransient<PlaywrightPageFetcher>();
+
+            services.AddHttpClient<CrawlScope.Application.Abstractions.Crawling.Services.IUrlAnalyzerService, UrlAnalyzerService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(10);
+            });
+
+            services.AddScoped<CrawlScope.Application.Abstractions.Crawling.Services.IPageFetcherFactory, PageFetcherFactory>();
 
             services.AddScoped<IHtmlParser, HtmlParser>();
             services.AddScoped<IExportFileStorage, LocalExportFileStorage>();

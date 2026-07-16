@@ -11,6 +11,7 @@ import type {
   CrawlLogsQuery,
   CreateCrawlJobRequest,
   PagedResult,
+  AnalyzeUrlResult,
 } from "../types/crawlJob";
 import { toQueryString } from "./queryUtils";
 
@@ -24,6 +25,10 @@ export function getCrawlJobs(query: CrawlJobsQuery) {
       pageSize: query.pageSize,
     })}`,
   );
+}
+
+export function analyzeUrl(url: string) {
+  return request<AnalyzeUrlResult>(`/api/CrawlJob/analyze?url=${encodeURIComponent(url)}`);
 }
 
 export function getCrawlJob(id: string) {
