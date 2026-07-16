@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createCrawlJob, startCrawlJob } from "../api/crawlJobsApi";
+import { analyzeUrl, createCrawlJob, startCrawlJob } from "../api/crawlJobsApi";
 import { useAuth } from "../auth/AuthContext";
 import { UserTopbar } from "../components/UserTopbar";
 import type { CreateCrawlJobRequest } from "../types/crawlJob";
@@ -10,6 +10,7 @@ const initialFormState: CreateCrawlJobRequest = {
   maxDepth: 1,
   maxPages: 5,
   stayWithinDomain: true,
+  crawlType: "Fast",
 };
 
 export function UserCrawlerPage() {
@@ -18,6 +19,9 @@ export function UserCrawlerPage() {
   const [form, setForm] = useState<CreateCrawlJobRequest>(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [analysisReason, setAnalysisReason] = useState("");
+  const [pendingJobRequest, setPendingJobRequest] = useState<CreateCrawlJobRequest | null>(null);
 
   const crawlScopeLabel = useMemo(() => (form.stayWithinDomain ? "Domain only" : "External links allowed"), [form.stayWithinDomain]);
   const isAuthenticated = status === "authenticated";
@@ -49,7 +53,37 @@ export function UserCrawlerPage() {
     setError(null);
 
     try {
+      const analysis = await analyzeUrl(form.targetUrl);
+      if (analysis.recommendedType === "Dynamic" && form.crawlType !== "Dynamic") {
+        setAnalysisReason(analysis.recommendationReason);
+        setPendingJobRequest(form);
+        setShowAnalysisModal(true);
+        setIsSubmitting(false);
+        return;
+      }
+      
       const jobId = await createCrawlJob(form);
+      await startCrawlJob(jobId);
+      navigate(`/reports/${jobId}`);
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Failed to analyze or start crawl.");
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleConfirmDynamicCrawl(useDynamic: boolean) {
+    if (!pendingJobRequest) return;
+    
+    setShowAnalysisModal(false);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const requestToSubmit = {
+        ...pendingJobRequest,
+        crawlType: useDynamic ? "Dynamic" : "Fast"
+      };
+      const jobId = await createCrawlJob(requestToSubmit);
       await startCrawlJob(jobId);
       navigate(`/reports/${jobId}`);
     } catch (exception) {
@@ -227,6 +261,39 @@ export function UserCrawlerPage() {
           </article>
         </div>
       </section>
+
+
+      {showAnalysisModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Smart Probe: Issue Detected</h2>
+              <button className="icon-button" onClick={() => setShowAnalysisModal(false)}>
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>
+                Our quick analysis detected an issue with the target URL:
+                <br />
+                <strong>{analysisReason}</strong>
+              </p>
+              <p>
+                It is highly recommended to use the <strong>Dynamic (Playwright)</strong> mode to bypass this protection and render the page properly. Note that Dynamic mode may be slower.
+              </p>
+              <p>Do you want to switch to Dynamic mode?</p>
+            </div>
+            <div className="modal-footer">
+              <button className="secondary-button" onClick={() => handleConfirmDynamicCrawl(false)}>
+                No, use Fast mode
+              </button>
+              <button className="primary-button" onClick={() => handleConfirmDynamicCrawl(true)}>
+                Yes, use Dynamic mode
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
