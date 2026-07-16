@@ -43,12 +43,15 @@ namespace CrawlScope.Infrastructure.Crawling.Services
 
                 var page = await context.NewPageAsync();
 
-                // Go to the URL and wait until there are no network connections for at least 500 ms.
+                // Go to the URL and wait for DOMContentLoaded, avoiding NetworkIdle which hangs on polling SPAs
                 var response = await page.GotoAsync(url, new PageGotoOptions
                 {
-                    WaitUntil = WaitUntilState.NetworkIdle,
+                    WaitUntil = WaitUntilState.DOMContentLoaded,
                     Timeout = 30000 // 30 seconds
                 });
+
+                // Wait an additional 3 seconds to let React/Vue/Angular render the initial view
+                await page.WaitForTimeoutAsync(3000);
 
                 if (response == null)
                 {
