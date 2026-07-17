@@ -27,6 +27,12 @@ namespace CrawlScope.Infrastructure
                     new StringWithQualityHeaderValue("en-US"));
                 client.DefaultRequestHeaders.AcceptLanguage.Add(
                     new StringWithQualityHeaderValue("en", 0.9));
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip
+                    | System.Net.DecompressionMethods.Deflate
+                    | System.Net.DecompressionMethods.Brotli
             });
 
             services.AddTransient<PlaywrightPageFetcher>();
