@@ -125,7 +125,7 @@ export function JobsPage() {
     setError(null);
 
     try {
-      const requestToSubmit = {
+      const requestToSubmit: CreateCrawlJobRequest = {
         ...pendingJobRequest,
         crawlType: useDynamic ? "Dynamic" : "Fast"
       };
@@ -265,6 +265,22 @@ export function JobsPage() {
               />
             </label>
           </div>
+
+          <label>
+            Crawl mode
+            <select
+              value={form.crawlType}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  crawlType: event.target.value as CreateCrawlJobRequest["crawlType"],
+                }))
+              }
+            >
+              <option value="Fast">Standard crawl</option>
+              <option value="Dynamic">Browser crawl</option>
+            </select>
+          </label>
 
           <div className="create-actions">
             <label className="checkbox-row">

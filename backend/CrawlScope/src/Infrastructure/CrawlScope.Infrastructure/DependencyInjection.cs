@@ -13,10 +13,20 @@ namespace CrawlScope.Infrastructure
             services.AddHttpClient<StandardPageFetcher>(client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(20);
-                client.DefaultRequestHeaders.UserAgent.Add(
-                    new ProductInfoHeaderValue("CrawlScope", "1.0"));
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36");
                 client.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("text/html"));
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/xhtml+xml"));
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/xml", 0.9));
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("*/*", 0.8));
+                client.DefaultRequestHeaders.AcceptLanguage.Add(
+                    new StringWithQualityHeaderValue("en-US"));
+                client.DefaultRequestHeaders.AcceptLanguage.Add(
+                    new StringWithQualityHeaderValue("en", 0.9));
             });
 
             services.AddTransient<PlaywrightPageFetcher>();

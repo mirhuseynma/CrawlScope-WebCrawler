@@ -4,7 +4,8 @@ namespace CrawlScope.Application.Modules.Crawling.Mappings
     {
         public CrawlingProfile()
         {
-            CreateMap<CreateCrawlJobRequestDto, CrawlJob>();
+            CreateMap<CreateCrawlJobRequestDto, CrawlJob>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.CrawlType));
             CreateMap<CrawlJob, CrawlJobListItemDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
