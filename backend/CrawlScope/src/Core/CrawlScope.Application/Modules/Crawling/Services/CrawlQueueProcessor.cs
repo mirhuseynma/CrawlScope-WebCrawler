@@ -75,12 +75,23 @@ namespace CrawlScope.Application.Modules.Crawling.Services
 
             var pageFetcher = pageFetcherFactory.Create(crawlJob.Type);
             var fetchResult = await pageFetcher.FetchAsync(queueItem.Url, cancellationToken);
+            if (crawlJob.Type == CrawlType.Fast && ShouldRetryWithBrowser(fetchResult))
+            {
+                await AddLogAsync(
+                    crawlJob.Id,
+                    CrawlLogLevel.Warning,
+                    $"Standard crawl was blocked for {queueItem.Url} with status code {fetchResult.StatusCode}. Retrying with Browser crawl.",
+                    cancellationToken);
+
+                pageFetcher = pageFetcherFactory.Create(CrawlType.Dynamic);
+                fetchResult = await pageFetcher.FetchAsync(queueItem.Url, cancellationToken);
+            }
 
             if (!fetchResult.IsSuccess || string.IsNullOrWhiteSpace(fetchResult.Content))
             {
                 queueItem.Status = CrawlQueueStatus.Failed;
                 queueItem.ProcessedAt = DateTime.UtcNow;
-                queueItem.ErrorMessage = fetchResult.ErrorMessage ?? $"HTTP request failed with status code {fetchResult.StatusCode}.";
+                queueItem.ErrorMessage = GetFetchErrorMessage(fetchResult);
                 queueItem.StatusCode = fetchResult.StatusCode;
                 queueItem.ResponseTimeMs = fetchResult.ResponseTimeMs;
                 crawlJob.PagesFailed++;
@@ -125,6 +136,27 @@ namespace CrawlScope.Application.Modules.Crawling.Services
 
             await EnqueueDiscoveredLinksAsync(crawlJob, queueItem, parsedPage.Links, cancellationToken);
             await AddLogAsync(crawlJob.Id, CrawlLogLevel.Info, $"Crawled {queueItem.Url}. Found {parsedPage.Links.Count} links.", cancellationToken);
+        }
+
+        private static bool ShouldRetryWithBrowser(PageFetchResult fetchResult)
+        {
+            return fetchResult.StatusCode is 401 or 403 or 429 or 503;
+        }
+
+        private static string GetFetchErrorMessage(PageFetchResult fetchResult)
+        {
+            if (!string.IsNullOrWhiteSpace(fetchResult.ErrorMessage))
+            {
+                return fetchResult.ErrorMessage;
+            }
+
+            return fetchResult.StatusCode switch
+            {
+                401 or 403 => "The origin server denied crawler access. Try Browser crawl; if it still fails, the site is blocking this server/IP or automated traffic.",
+                429 => "The origin server rate-limited the crawl request.",
+                503 => "The origin server returned service unavailable, often used by bot protection during challenge pages.",
+                _ => $"HTTP request failed with status code {fetchResult.StatusCode}."
+            };
         }
 
         private async Task EnqueueDiscoveredLinksAsync(
