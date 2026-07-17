@@ -91,7 +91,7 @@ export type CreateCrawlJobRequest = {
   maxDepth: number;
   maxPages: number;
   stayWithinDomain: boolean;
-  crawlType: string;
+  crawlType: "Fast" | "Dynamic";
 };
 
 export type AnalyzeUrlResult = {

@@ -79,7 +79,7 @@ export function UserCrawlerPage() {
     setError(null);
 
     try {
-      const requestToSubmit = {
+      const requestToSubmit: CreateCrawlJobRequest = {
         ...pendingJobRequest,
         crawlType: useDynamic ? "Dynamic" : "Fast"
       };
@@ -180,10 +180,27 @@ export function UserCrawlerPage() {
               Stay within domain
             </label>
 
+            <label>
+              Crawl mode
+              <select
+                value={form.crawlType}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    crawlType: event.target.value as CreateCrawlJobRequest["crawlType"],
+                  }))
+                }
+              >
+                <option value="Fast">Standard crawl</option>
+                <option value="Dynamic">Browser crawl</option>
+              </select>
+            </label>
+
             <div className="crawl-review">
               <span>{crawlScopeLabel}</span>
               <span>{form.maxDepth} depth</span>
               <span>{form.maxPages} pages</span>
+              <span>{form.crawlType === "Dynamic" ? "Browser" : "Standard"}</span>
             </div>
 
             <button className="primary-button user-submit-button" type="submit" disabled={isSubmitting || isCheckingSession}>
