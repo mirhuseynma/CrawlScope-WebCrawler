@@ -39,10 +39,8 @@ namespace CrawlScope.Persistence.Services
                 <p>Thank you for registering. Please click the link below to verify your email address:</p>
                 <p><a href='{confirmLink}'>Confirm Email</a></p>";
 
-            //await emailService.SendEmailAsync(user.Email!, "Confirm Email - CrawlScope", body);
-            user.EmailConfirmed = true;
+            await emailService.SendEmailAsync(user.Email!, "Confirm Email - CrawlScope", body);
 
-            // Return a dummy/empty token for registration, client won't log in immediately
             return Result<AuthResponseDto>.Success(new AuthResponseDto 
             { 
                 Token = "",
