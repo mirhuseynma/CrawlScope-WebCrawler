@@ -5515,6 +5515,7 @@ tbody tr:hover td {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 /* Mobile UI Fixes */
@@ -5590,76 +5591,75 @@ tbody tr:hover td {
   }
 }
 
-/* Professional Hamburger Menu */
-.topbar-brand-area {
+/* User Topbar Mobile Menu (Admin-like) */
+.topbar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.mobile-menu-toggle {
+.user-mobile-menu-button {
   display: none;
-  background: transparent;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  min-height: 44px;
-}
-
-.hamburger-line {
-  display: block;
-  width: 24px;
-  height: 2px;
-  background: #17202a;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-.mobile-menu-toggle.open .hamburger-line:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-
-.mobile-menu-toggle.open .hamburger-line:nth-child(2) {
-  opacity: 0;
-}
-
-.mobile-menu-toggle.open .hamburger-line:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
 }
 
 @media (max-width: 760px) {
-  .mobile-menu-toggle {
-    display: flex;
-  }
-  
   .user-topbar {
-    position: relative;
+    display: flex !important;
     flex-direction: column;
     align-items: stretch;
-    gap: 0;
+    padding: 10px 14px !important;
+    gap: 0 !important;
+    border-radius: 12px;
+  }
+  
+  .topbar-header {
+    width: 100%;
+  }
+
+  .user-mobile-menu-button {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgb(0 0 0 / 12%);
+    border-radius: 8px;
+    background: rgb(0 0 0 / 4%);
+    cursor: pointer;
+  }
+  
+  .user-mobile-menu-button span {
+    display: block;
+    width: 16px;
+    height: 2px;
+    margin: 4px auto;
+    border-radius: 999px;
+    background: #17202a;
+    transition: all 0.2s ease-out;
   }
 
   .user-account-menu {
     display: none;
     flex-direction: column;
-    padding: 16px 0;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid #e2e8f0;
-    margin-top: 16px;
-    animation: fadeIn 0.2s ease-out;
   }
 
-  .user-account-menu.mobile-open {
+  .user-topbar.is-open .user-account-menu {
     display: flex;
+    animation: fadeIn 0.2s ease-out;
   }
 
   .topbar-auth-actions {
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .topbar-auth-actions .secondary-link-button,
+  .topbar-auth-actions .primary-button {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
   }
 
   .user-menu {
