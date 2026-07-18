@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
@@ -63,6 +63,15 @@ namespace CrawlScope.Api.Controllers
         public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
         {
             var command = new StartCrawlJobCommand(id, CurrentUserId, CanAccessAllUsers);
+            await mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpPost("{id:guid}/cancel")]
+        [Authorize(Policy = Permissions.CrawlJobs.Start)]
+        public async Task<IActionResult> Cancel(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new CancelCrawlJobCommand(id, CurrentUserId, CanAccessAllUsers);
             await mediator.Send(command, cancellationToken);
             return NoContent();
         }

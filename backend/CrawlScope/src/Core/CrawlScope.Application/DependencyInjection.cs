@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Application
 {
     public static class DependencyInjection
@@ -11,6 +11,7 @@ namespace CrawlScope.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped<ICrawlQueueProcessor, CrawlQueueProcessor>();
             services.AddScoped<ICrawlScheduleRunner, CrawlScheduleRunner>();
+            services.AddSingleton<IActiveCrawlTracker, ActiveCrawlTracker>();
 
             var jwtSettingsSection = configuration.GetSection("JwtSettings");
             var jwtSettings = jwtSettingsSection.Get<JwtSettings>()

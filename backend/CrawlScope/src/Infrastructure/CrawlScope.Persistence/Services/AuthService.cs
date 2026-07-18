@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Persistence.Services
 {
     public class AuthService(
@@ -39,7 +39,8 @@ namespace CrawlScope.Persistence.Services
                 <p>Thank you for registering. Please click the link below to verify your email address:</p>
                 <p><a href='{confirmLink}'>Confirm Email</a></p>";
 
-            await emailService.SendEmailAsync(user.Email!, "Confirm Email - CrawlScope", body);
+            //await emailService.SendEmailAsync(user.Email!, "Confirm Email - CrawlScope", body);
+            user.EmailConfirmed = true;
 
             // Return a dummy/empty token for registration, client won't log in immediately
             return Result<AuthResponseDto>.Success(new AuthResponseDto 
@@ -59,7 +60,7 @@ namespace CrawlScope.Persistence.Services
             
             if (user is null)
             {
-                return Result<AuthResponseDto>.Failure("Invalid email/username or password.");
+                return Result<AuthResponseDto>.Failure("User not found.");
             }
 
             var isPasswordValid = await userManager.CheckPasswordAsync(user, request.Password);
