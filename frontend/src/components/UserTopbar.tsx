@@ -1,11 +1,13 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function UserTopbar() {
   const { logout, status, user } = useAuth();
   const isAuthenticated = status === "authenticated";
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -17,10 +19,20 @@ export function UserTopbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const closeMenu = () => {
     if (detailsRef.current) {
       detailsRef.current.open = false;
     }
+    setIsMobileMenuOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const displayName = user?.fullName || user?.userName || "User";
@@ -34,16 +46,28 @@ export function UserTopbar() {
 
   return (
     <header className="user-topbar">
-      <Link className="brand-link" to="/">
-        <span className="brand-copy">
-          <strong>CrawlScope</strong>
-          <small>Web crawler</small>
-        </span>
-      </Link>
+      <div className="topbar-brand-area">
+        <Link className="brand-link" to="/">
+          <span className="brand-copy">
+            <strong>CrawlScope</strong>
+            <small>Web crawler</small>
+          </span>
+        </Link>
+        <button 
+          className={`mobile-menu-toggle ${isMobileMenuOpen ? "open" : ""}`} 
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+          aria-expanded={isMobileMenuOpen}
+        >
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+        </button>
+      </div>
 
       <span className="topbar-spacer" aria-hidden="true" />
 
-      <div className="user-account-menu">
+      <div className={`user-account-menu ${isMobileMenuOpen ? "mobile-open" : ""}`}>
         {isAuthenticated ? (
           <details className="user-menu" ref={detailsRef}>
             <summary className="user-identity">
@@ -68,17 +92,17 @@ export function UserTopbar() {
                   My reports
                 </NavLink>
               </nav>
-              <button className="user-menu-action" type="button" onClick={logout}>
+              <button className="user-menu-action" type="button" onClick={() => { logout(); closeMenu(); }}>
                 Sign out
               </button>
             </div>
           </details>
         ) : (
           <div className="topbar-auth-actions">
-            <Link className="secondary-link-button topbar-action" to="/login">
+            <Link className="secondary-link-button topbar-action" to="/login" onClick={closeMenu}>
               Login
             </Link>
-            <Link className="primary-button topbar-action" to="/register">
+            <Link className="primary-button topbar-action" to="/register" onClick={closeMenu}>
               Create account
             </Link>
           </div>

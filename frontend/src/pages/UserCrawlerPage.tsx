@@ -171,30 +171,32 @@ export function UserCrawlerPage() {
               </label>
             </div>
 
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={form.stayWithinDomain}
-                onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
-              />
-              Stay within domain
-            </label>
+            <div className="form-row">
+              <label>
+                Crawl mode
+                <select
+                  value={form.crawlType}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      crawlType: event.target.value as CreateCrawlJobRequest["crawlType"],
+                    }))
+                  }
+                >
+                  <option value="Fast">Standard crawl</option>
+                  <option value="Dynamic">Browser crawl</option>
+                </select>
+              </label>
 
-            <label>
-              Crawl mode
-              <select
-                value={form.crawlType}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    crawlType: event.target.value as CreateCrawlJobRequest["crawlType"],
-                  }))
-                }
-              >
-                <option value="Fast">Standard crawl</option>
-                <option value="Dynamic">Browser crawl</option>
-              </select>
-            </label>
+              <label className="checkbox-row" style={{ marginTop: '22px' }}>
+                <input
+                  type="checkbox"
+                  checked={form.stayWithinDomain}
+                  onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
+                />
+                Stay within domain
+              </label>
+            </div>
 
             <div className="crawl-review">
               <span>{crawlScopeLabel}</span>

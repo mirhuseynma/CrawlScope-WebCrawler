@@ -206,6 +206,7 @@ button:disabled {
   color: #17202a;
   font-size: 16px;
   line-height: 1.35;
+  /* autoprefixer: ignore next */
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -401,6 +402,7 @@ justify-content: space-between;
   color: #17202a;
   font-size: 16px;
   line-height: 1.35;
+  /* autoprefixer: ignore next */
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -1479,6 +1481,7 @@ th {
   line-height: 1.5;
   overflow-wrap: anywhere;
   mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+  /* autoprefixer: ignore next */
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
@@ -1564,6 +1567,7 @@ th {
   color: #536174;
   font-size: 13px;
   line-height: 1.45;
+  /* autoprefixer: ignore next */
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -5584,5 +5588,100 @@ tbody tr:hover td {
   .button-group {
     grid-template-columns: 1fr;
   }
+}
+
+/* Professional Hamburger Menu */
+.topbar-brand-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+}
+
+.hamburger-line {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #17202a;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle.open .hamburger-line:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.mobile-menu-toggle.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.open .hamburger-line:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 760px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .user-topbar {
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .user-account-menu {
+    display: none;
+    flex-direction: column;
+    padding: 16px 0;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 16px;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .user-account-menu.mobile-open {
+    display: flex;
+  }
+
+  .topbar-auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .user-menu {
+    width: 100%;
+  }
+
+  .user-menu-panel {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+    margin-top: 8px;
+  }
+}
+
+/* Fix Presets layout (Pills) */
+.button-group, .create-actions > .button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.button-group > button {
+  flex: 0 1 auto;
 }
 
