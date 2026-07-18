@@ -1,5 +1,4 @@
-﻿using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
-
+﻿
 namespace CrawlScope.Application.Modules.Crawling.Validators
 {
     public class CreateCrawlScheduleCommandValidator : AbstractValidator<CreateCrawlScheduleCommand>

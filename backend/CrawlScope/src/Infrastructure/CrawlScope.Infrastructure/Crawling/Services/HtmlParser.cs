@@ -1,7 +1,4 @@
-﻿using CrawlScope.Application.Abstractions.Crawling.Models;
-using HtmlAgilityPack;
-using System.Text.RegularExpressions;
-
+﻿
 namespace CrawlScope.Infrastructure.Crawling.Services
 {
     public class HtmlParser : IHtmlParser

@@ -1,8 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using CrawlScope.Application.Common.Settings;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-
+﻿
 namespace CrawlScope.Persistence.Services
 {
     public class JwtService(

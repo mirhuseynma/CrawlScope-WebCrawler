@@ -1,5 +1,4 @@
-﻿using CrawlScope.Application.Common.Pagination;
-
+﻿
 namespace CrawlScope.Persistence.Services
 {
     public class UserManagementService(

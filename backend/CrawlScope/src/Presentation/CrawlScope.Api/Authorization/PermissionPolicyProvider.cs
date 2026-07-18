@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
+﻿
 namespace CrawlScope.Api.Authorization
 {
     public class PermissionPolicyProvider(IOptions<AuthorizationOptions> options)

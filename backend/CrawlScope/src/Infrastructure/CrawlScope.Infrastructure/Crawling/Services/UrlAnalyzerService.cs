@@ -1,6 +1,4 @@
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-
+﻿
 namespace CrawlScope.Infrastructure.Crawling.Services
 {
     public class UrlAnalyzerService(HttpClient httpClient) : IUrlAnalyzerService

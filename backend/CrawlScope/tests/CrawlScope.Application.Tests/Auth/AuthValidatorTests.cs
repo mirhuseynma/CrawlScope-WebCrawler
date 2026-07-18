@@ -1,6 +1,4 @@
-using CrawlScope.Application.Modules.Auth.DTOs;
-using CrawlScope.Application.Modules.Auth.Validators;
-
+﻿
 namespace CrawlScope.Application.Tests.Auth;
 
 public class AuthValidatorTests

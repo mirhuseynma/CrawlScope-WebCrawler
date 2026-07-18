@@ -1,0 +1,33 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.IdentityModel.Tokens;
+
+global using AutoMapper.QueryableExtensions;
+global using FluentValidation;
+global using MediatR;
+
+global using CrawlScope.Application.Abstractions.Crawling.Models;
+global using CrawlScope.Application.Abstractions.Crawling.Services;
+global using CrawlScope.Application.Abstractions.Export.Services;
+global using CrawlScope.Application.Abstractions.Persistence;
+global using CrawlScope.Application.Common.Behaviors;
+global using CrawlScope.Application.Common.Exceptions;
+global using CrawlScope.Application.Common.Settings;
+global using CrawlScope.Application.Modules.Auth.DTOs;
+global using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
+global using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
+global using CrawlScope.Application.Modules.Crawling.DTOs;
+global using CrawlScope.Application.Modules.Crawling.Services;
+global using CrawlScope.Application.Modules.Export.DTOs;
+global using CrawlScope.Domain.Modules.Crawling.Enums;
+global using CrawlScope.Domain.Modules.Export.Models;

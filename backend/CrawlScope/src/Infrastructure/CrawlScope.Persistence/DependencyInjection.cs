@@ -1,8 +1,4 @@
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Persistence.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
+﻿
 namespace CrawlScope.Persistence
 {
     public static class DependencyInjection

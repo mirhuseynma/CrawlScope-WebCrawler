@@ -1,12 +1,4 @@
-using CrawlScope.Api.Controllers;
-using CrawlScope.Application.Abstractions.Auth;
-using CrawlScope.Application.Common.Models;
-using CrawlScope.Application.Modules.Auth.DTOs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Xunit;
-
+﻿
 namespace CrawlScope.Application.Tests.Auth;
 
 public class AuthControllerTests

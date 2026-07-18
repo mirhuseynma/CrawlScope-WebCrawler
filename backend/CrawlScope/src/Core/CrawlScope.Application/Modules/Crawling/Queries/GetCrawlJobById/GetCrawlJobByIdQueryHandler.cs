@@ -1,5 +1,4 @@
-﻿using AutoMapper.QueryableExtensions;
-
+﻿
 namespace CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobById
 {
     public class GetCrawlJobByIdQueryHandler(IAppDbContext context, IMapper mapper)

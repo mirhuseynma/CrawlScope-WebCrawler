@@ -1,5 +1,4 @@
-using CrawlScope.Application.Common.Models;
-
+﻿
 namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]

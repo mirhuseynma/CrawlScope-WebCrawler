@@ -1,15 +1,15 @@
 <div align="center">
-  <img src="https://socialify.git.ci/mirhuseynma/CrawlScope-WebCrawler/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark" alt="CrawlScope Web Crawler" width="640" height="320" />
+  <img src="https://socialify.git.ci/mirhuseynma/CrawlScope-WebCrawler/image?description=A%20high-performance%2C%20dynamic%20Web%20Crawler%20%26%20Content%20Aggregator%20built%20with%20.NET%2010%20%26%20React%2019&font=Inter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark" alt="CrawlScope Web Crawler" width="720" height="360" />
 
   <br/>
   <br/>
 
-  **A highly scalable, modern web crawling and data extraction platform.**
+  **Enterprise-ready web crawling and structured metadata extraction platform.**
 
   [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
   [![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.0-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
   [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 </div>
@@ -18,84 +18,110 @@
 
 ## 📖 Overview
 
-**CrawlScope** is a robust and highly concurrent web crawler designed for modern data extraction needs. It allows users to efficiently scan websites, extract structural data, and manage the crawling processes through an intuitive, real-time dashboard. 
+**CrawlScope** is a modern, enterprise-grade Web Crawler & Content Aggregator designed to automate the collection, structured parsing, and storage of publicly available web content. Built to support robust high-throughput requirements, CrawlScope allows developers and researchers to schedule crawler jobs, monitor execution logs in real-time, inspect extracted page properties (titles, internal/external links, and text content), and download compiled datasets.
 
-Engineered with **Clean Architecture** and **Domain-Driven Design (DDD)** principles, CrawlScope ensures long-term maintainability, effortless scaling, and a seamless developer experience.
+Engineered using **Clean Architecture**, **Domain-Driven Design (DDD)**, and **CQRS**, CrawlScope offers clean code, 100% compliant specifications, and zero-downtime background execution.
 
 ---
 
-## 🚀 Enterprise-Grade Features
+## 📋 Project Specifications Compliance
 
-- **🔐 Advanced Authentication:** Secure JWT-based authentication system with Email Confirmation, Password Reset, and secure access policies.
-- **🕷️ High-Performance Crawler Engine:** Asynchronous, non-blocking crawling jobs capable of deep-scraping pages, extracting metadata, titles, and links.
-- **🛡️ Clean Architecture & CQRS:** Strictly decoupled layers utilizing `MediatR` for Command Query Responsibility Segregation.
-- **⚡ Reactive Dashboard:** A lightning-fast, visually stunning frontend built with **React 19 (Vite)** and **TypeScript**.
-- **📨 Integrated SMTP Service:** Powered by Brevo (Sendinblue) for reliable system alerts and user verification emails.
-- **🐳 Containerized Workloads:** Fully Dockerized ecosystem enabling one-click deployment for databases, backends, and frontends.
+CrawlScope is **100% compliant** with all mandatory Code Academy requirements for Project 10 (Web Crawler & Content Aggregator):
+
+| ID | Required Feature | CrawlScope Implementation Details | Status |
+|---|---|---|---|
+| **F1** | **Crawl Job Creation** | Interactive inputs for Target URL, Crawl Depth, Max Pages, and Domain restriction settings (Restricted vs. External scoping). | **Completed** |
+| **F2** | **HTTP Page Fetching & HTML Parsing** | Dual-mode crawling: standard HTTP Client fetcher + **Playwright-driven** headless browser crawler to bypass rate-limits/bot checks and extract titles, links, and text. | **Completed** |
+| **F3** | **Crawled Data Storage** | Persistent DB schemas saving the source URL, crawl timestamp, HTTP status codes, response times, and full text content snapshots. | **Completed** |
+| **F4** | **Crawl Scheduling** | Manual job invocation via UI/API + scheduled, periodic execution powered by a robust background worker. | **Completed** |
+| **F5** | **Dashboard & Filtration** | Real-time interactive UI to browse indexing jobs and scraped page snapshots, featuring fast server-side query search and status filtration. | **Completed** |
+| **F6** | **Duplicate URL Detection** | Intelligent database/memory hash checks verifying against both pending queue items and already scraped URLs to prevent cycle loops or duplicate processing. | **Completed** |
+| **F7** | **Crawl Log transparency** | Individual per-job status logs showing errors, warnings, informational messages, and current pages indexed. | **Completed** |
+| **F8** | **Data Export** | Built-in strategies to compile and export harvested datasets instantly to **CSV** or **JSON** formats. | **Completed** |
+
+---
+
+## ⚡ Premium Features
+
+> [!IMPORTANT]
+> **Hybrid Crawling Architecture (Fast vs. Dynamic)**
+> CrawlScope includes a standard, lightweight HTTP Client-based crawling engine (`Fast` mode) alongside a dynamic JavaScript-rendering engine powered by **Playwright** (`Dynamic` mode). It can crawl client-side rendered Single Page Applications (React, Angular, Vue) effortlessly.
+
+> [!TIP]
+> **Smart Fallback Mechanism**
+> If a `Fast` crawl receives bot-detection status codes (such as `401 Unauthorized`, `403 Forbidden`, `429 Too Many Requests`, or `503 Service Unavailable`), the system logs a warning and **automatically retries and fails over** to a headless browser (`Dynamic`) session for that URL.
+
+- **🔐 Advanced RBAC (Role-Based Access Control):** Dedicated screens for Admin overview, User profile management, and Role/Permission matrix configurations to secure crawler workloads.
+- **📈 Advanced Dashboard Analytics:** Stunning dashboard styling featuring emerald color schemes, glassmorphism, responsive sidebar layout, real-time status counts, and data-density grid layouts.
+- **🏗️ Background Queue & Channels:** Utilizing memory-efficient `System.Threading.Channels` for non-blocking asynchronous workload processing.
 
 ---
 
 ## 🏗️ System Architecture
 
-CrawlScope is structured using **Clean Architecture** to separate concerns and decouple the core business logic from UI and data access layers.
+CrawlScope is developed with strict adherence to **Clean Architecture** principles to separate core domain policies from infrastructural frameworks.
 
 ```mermaid
 graph TD
-    UI[🖥️ Presentation Layer / API] --> App[⚙️ Application Layer / CQRS]
-    App --> Domain[🎯 Domain Layer]
-    Infra[🔌 Infrastructure Layer / DB / Email] --> App
+    UI[Presentation Layer: ASP.NET Core Api / React UI] --> App[Application Layer: CQRS / MediatR / Interfaces]
+    App --> Domain[Domain Layer: Entities / Enums / Domain Models]
+    Infra[Infrastructure Layer: SMTP / Playwright] --> App
+    Persistence[Persistence Layer: EF Core / PostgreSQL] --> App
     
-    style Domain fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
-    style App fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff
-    style Infra fill:#e74c3c,stroke:#c0392b,stroke-width:2px,color:#fff
-    style UI fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff
+    style Domain fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    style App fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff
+    style Infra fill:#ef4444,stroke:#b91c1c,stroke-width:2px,color:#fff
+    style Persistence fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff
+    style UI fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff
 ```
 
-### 📂 Directory Structure
-
+### 📁 Directory Structure
 ```text
 CrawlScope/
 ├── 📁 backend/CrawlScope/
 │   ├── 📁 src/
 │   │   ├── 📁 Core/
-│   │   │   ├── CrawlScope.Domain/        # Entities, Enums, Exceptions
-│   │   │   └── CrawlScope.Application/   # CQRS, Interfaces, Validators
+│   │   │   ├── CrawlScope.Domain/        # Domain entities (CrawlJob, CrawledPage, AppUser)
+│   │   │   └── CrawlScope.Application/   # CQRS Handlers, DTOs, Business Rules
 │   │   ├── 📁 Infrastructure/
-│   │   │   ├── CrawlScope.Infrastructure/# External Services (SMTP, Identity)
-│   │   │   └── CrawlScope.Persistence/   # EF Core, PostgreSQL Context
+│   │   │   ├── CrawlScope.Infrastructure/# Page Fetchers, SMTP, Identity Services
+│   │   │   └── CrawlScope.Persistence/   # DBContext, Configurations, PostgreSQL Migrations
 │   │   └── 📁 Presentation/
-│   │       └── CrawlScope.Api/           # ASP.NET Core API, Controllers
-│   └── 📁 tests/                         # Unit & Integration Tests (xUnit, Moq)
+│   │       └── CrawlScope.Api/           # API endpoints, Swagger, Security Policies
+│   │
+│   └── 📁 tests/                         # Unit tests (xUnit, FluentAssertions, Mocking)
 │
-├── 📁 frontend/                          # React, Vite, Tailwind CSS, TypeScript
-└── 📄 docker-compose.yml                 # Multi-container orchestration
+├── 📁 frontend/                          # React 19, Vite, TypeScript, optimized CSS
+└── 📄 docker-compose.yml                 # Orchestration setup for PostgreSQL, Api, and UI
 ```
 
 ---
 
-## 🔌 API Endpoints (Core)
+## 🔌 Core API Endpoints
 
-The backend provides a rich RESTful API. Once running, explore the full interactive documentation via **Swagger UI** at `http://localhost:5000/swagger`.
+Once the application is running, the interactive Swagger documentation is available at `http://localhost:5000/swagger`.
 
-### 🕷️ Crawling Engine
+### 🕷️ Crawling & Job Management
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/crawljob` | `POST` | Create a new crawling job |
-| `/api/crawljob` | `GET` | List all crawling jobs with pagination & filters |
-| `/api/crawljob/{id}/start` | `POST` | Start an asynchronous crawling process |
-| `/api/crawljob/{id}/pages` | `GET` | Retrieve all successfully scraped pages |
-| `/api/crawljob/{id}/broken-links` | `GET` | Analyze and extract broken links |
-| `/api/crawljob/{id}/export` | `POST` | Export scraped data (CSV/JSON/Excel) |
-| `/api/crawlschedule` | `POST` | Schedule recurring crawling tasks |
+| `/api/crawljob` | `POST` | Create a new crawl job (URL, depth, domain restrictions) |
+| `/api/crawljob` | `GET` | List all crawl jobs (with pagination and filters) |
+| `/api/crawljob/{id}` | `GET` | Get details of a specific crawl job |
+| `/api/crawljob/{id}/start` | `POST` | Start the crawl job asynchronously |
+| `/api/crawljob/{id}/pages` | `GET` | List crawled pages for the job (search & filter enabled) |
+| `/api/crawljob/{id}/logs` | `GET` | Get crawl logs for execution auditing |
+| `/api/crawljob/{id}/broken-links` | `GET` | Fetch all discovered broken links for analysis |
+| `/api/crawljob/{id}/export` | `GET` | Download crawling data as CSV or JSON |
+| `/api/crawlschedule` | `POST` | Schedule recurring crawling tasks (manual/periodic) |
 
-### 🔐 Authentication
+### 🔐 Authentication & Identity
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/auth/register` | `POST` | Register a new user |
-| `/api/auth/login` | `POST` | Authenticate and retrieve JWT |
-| `/api/auth/me` | `GET` | Get current authenticated user profile |
-| `/api/auth/forgot-password`| `POST` | Request a password reset link |
-| `/api/auth/reset-password` | `POST` | Set a new password securely |
+| `/api/auth/register` | `POST` | Register a new system account |
+| `/api/auth/login` | `POST` | Authenticate and obtain JWT |
+| `/api/auth/me` | `GET` | Get profile details of the authenticated session |
+| `/api/auth/forgot-password` | `POST` | Request password reset token |
+| `/api/auth/reset-password` | `POST` | Set new password securely |
 
 ---
 
@@ -103,34 +129,32 @@ The backend provides a rich RESTful API. Once running, explore the full interact
 
 ### Prerequisites
 - [Docker & Docker Compose](https://www.docker.com/) (Recommended)
-- [.NET 10 SDK](https://dotnet.microsoft.com/) (For manual setup)
-- [Node.js 20+](https://nodejs.org/) (For manual setup)
+- [.NET 10 SDK](https://dotnet.microsoft.com/)
+- [Node.js 20+](https://nodejs.org/) & [pnpm](https://pnpm.io/)
 
-### 🐳 Quick Start with Docker (Zero-Config)
-
-1. **Clone the repository**
+### 🐳 Quick Start with Docker
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/mirhuseynma/CrawlScope-WebCrawler.git
    cd CrawlScope-WebCrawler
    ```
-
-2. **Setup Environment Variables**
-   - Navigate to `backend/CrawlScope/src/Presentation/CrawlScope.Api`.
+2. **Setup environment variables:**
+   - Go to `backend/CrawlScope/src/Presentation/CrawlScope.Api`.
    - Rename `appsettings.example.json` to `appsettings.Development.json`.
-   - Update `SmtpSettings` with your real Brevo credentials. (Database connection is pre-configured for Docker).
-
-3. **Spin up the stack**
+   - Add your Brevo (SMTP) API key and user verification credentials.
+3. **Run using docker-compose:**
    ```bash
    docker-compose up --build -d
    ```
-   *The API will be available at `http://localhost:5000` and the Dashboard at `http://localhost:5173`.*
+   - **Frontend UI:** `http://localhost:5173`
+   - **Backend API:** `http://localhost:5000`
+   - **Swagger Doc:** `http://localhost:5000/swagger`
 
 ---
 
 ## 🧪 Testing
 
-The project maintains a high standard of code quality with robust Unit Tests.
-To run the automated tests:
+The codebase keeps test coverage high. To run the automated backend test suite:
 ```bash
 cd backend/CrawlScope
 dotnet test
@@ -139,5 +163,5 @@ dotnet test
 ---
 
 <div align="center">
-  <i>Built with ❤️ for scalable data extraction.</i>
+  <i>Built with ❤️ for robust, scalable data extraction.</i>
 </div>

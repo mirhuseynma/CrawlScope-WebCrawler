@@ -1,10 +1,4 @@
-using CrawlScope.Application.Common.Models;
-using CrawlScope.Application.Common.Settings;
-using CrawlScope.Application.Abstractions.Email;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Text;
-
+﻿
 namespace CrawlScope.Persistence.Services
 {
     public class AuthService(

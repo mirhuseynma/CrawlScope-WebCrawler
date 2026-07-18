@@ -1,8 +1,4 @@
-using System.Security.Claims;
-using CrawlScope.Api.Authorization;
-using CrawlScope.Domain.Constants;
-using Microsoft.AspNetCore.Authorization;
-
+﻿
 namespace CrawlScope.Application.Tests.Auth;
 
 public class PermissionAuthorizationTests

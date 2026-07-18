@@ -1,7 +1,4 @@
-using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules;
-using CrawlScope.Application.Tests.Common;
-using CrawlScope.Domain.Modules.Crawling.Models;
-
+﻿
 namespace CrawlScope.Application.Tests.Crawling;
 
 public class GetCrawlSchedulesQueryHandlerTests

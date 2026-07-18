@@ -1,13 +1,4 @@
-using System.Text;
-using CrawlScope.Application.Common.Exceptions;
-using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
-using CrawlScope.Application.Modules.Export.Commands.ExportCrawledData;
-using CrawlScope.Application.Modules.Export.Queries.DownloadExportFile;
-using CrawlScope.Application.Tests.Common;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using CrawlScope.Domain.Modules.Crawling.Models;
-using CrawlScope.Domain.Modules.Export.Models;
-
+﻿
 namespace CrawlScope.Application.Tests.Export;
 
 public class ExportCommandHandlerTests
@@ -34,8 +25,8 @@ public class ExportCommandHandlerTests
             CrawlJobId = jobId,
             CrawlJob = job,
             Url = "https://example.com",
-            Title = "Azərbaycan səhifəsi",
-            Content = "Salam dünya",
+            Title = "AzÉ™rbaycan sÉ™hifÉ™si",
+            Content = "Salam dÃ¼nya",
             StatusCode = 200,
             DepthLevel = 0,
             CrawledAt = DateTime.UtcNow,
@@ -56,7 +47,7 @@ public class ExportCommandHandlerTests
         await context.SaveChangesAsync();
 
         var storage = new FakeExportFileStorage();
-        var strategies = new[] { new FakeExportStrategy(ExportFormat.Json, "Azərbaycan səhifəsi Salam dünya") };
+        var strategies = new[] { new FakeExportStrategy(ExportFormat.Json, "AzÉ™rbaycan sÉ™hifÉ™si Salam dÃ¼nya") };
         var handler = new ExportCrawledDataCommandHandler(context, storage, strategies);
         var command = new ExportCrawledDataCommand(jobId, ExportFormat.Json, "user-1", IncludeAllUsers: false);
 
@@ -70,8 +61,8 @@ public class ExportCommandHandlerTests
         Assert.Equal(exportFile.FileSizeBytes, storedContent.LongLength);
 
         var json = Encoding.UTF8.GetString(storedContent);
-        Assert.Contains("Azərbaycan səhifəsi", json);
-        Assert.Contains("Salam dünya", json);
+        Assert.Contains("AzÉ™rbaycan sÉ™hifÉ™si", json);
+        Assert.Contains("Salam dÃ¼nya", json);
     }
 
     [Fact]

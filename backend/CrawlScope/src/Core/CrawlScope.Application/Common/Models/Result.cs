@@ -1,5 +1,4 @@
-using System;
-
+﻿
 namespace CrawlScope.Application.Common.Models
 {
     public class Result<T>

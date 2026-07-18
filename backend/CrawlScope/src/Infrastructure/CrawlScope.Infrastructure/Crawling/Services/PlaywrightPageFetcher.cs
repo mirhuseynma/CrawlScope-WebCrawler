@@ -1,7 +1,4 @@
-using CrawlScope.Application.Abstractions.Crawling.Models;
-using Microsoft.Playwright;
-using System.Diagnostics;
-
+﻿
 namespace CrawlScope.Infrastructure.Crawling.Services
 {
     public class PlaywrightPageFetcher : IPageFetcher
