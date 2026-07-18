@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Application.Modules.Crawling.Services
 {
     public class CrawlQueueProcessor(
@@ -6,7 +6,11 @@ namespace CrawlScope.Application.Modules.Crawling.Services
         CrawlScope.Application.Abstractions.Crawling.Services.IPageFetcherFactory pageFetcherFactory,
         IHtmlParser htmlParser) : ICrawlQueueProcessor
     {
-        public async Task ProcessAsync(Guid crawlJobId, CancellationToken cancellationToken = default)
+        public async Task ProcessAsync(
+            Guid crawlJobId,
+            CancellationToken cancellationToken = default,
+            CancellationToken userCancellationToken = default,
+            CancellationToken timeoutCancellationToken = default)
         {
             var crawlJob = await context.CrawlJobs
                 .FirstOrDefaultAsync(x => x.Id == crawlJobId, cancellationToken);
@@ -14,6 +18,12 @@ namespace CrawlScope.Application.Modules.Crawling.Services
             if (crawlJob is null)
             {
                 throw new NotFoundException($"Crawl job with ID {crawlJobId} not found.");
+            }
+
+            // Already canceled while sitting in the queue — skip silently
+            if (crawlJob.Status == CrawlJobStatus.Canceled)
+            {
+                return;
             }
 
             try
@@ -42,7 +52,31 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 await AddLogAsync(crawlJob.Id, CrawlLogLevel.Info, "Crawl job completed.", cancellationToken);
                 await context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (OperationCanceledException)
+            {
+                if (userCancellationToken.IsCancellationRequested)
+                {
+                    // User clicked Cancel
+                    crawlJob.Status = CrawlJobStatus.Canceled;
+                    crawlJob.FinishedAt = DateTime.UtcNow;
+                    await AddLogAsync(crawlJob.Id, CrawlLogLevel.Warning, "Crawl job was canceled by user.", CancellationToken.None);
+                    await context.SaveChangesAsync(CancellationToken.None);
+                }
+                else if (timeoutCancellationToken.IsCancellationRequested)
+                {
+                    // 10-minute time limit exceeded — save partial results
+                    crawlJob.Status = CrawlJobStatus.Completed;
+                    crawlJob.FinishedAt = DateTime.UtcNow;
+                    await AddLogAsync(crawlJob.Id, CrawlLogLevel.Warning, "Crawl job stopped: 10-minute time limit exceeded. Partial results saved.", CancellationToken.None);
+                    await context.SaveChangesAsync(CancellationToken.None);
+                }
+                else
+                {
+                    // Service is shutting down — do not update status, Recovery will re-enqueue
+                    throw;
+                }
+            }
+            catch (Exception ex)
             {
                 crawlJob.Status = CrawlJobStatus.Failed;
                 crawlJob.FinishedAt = DateTime.UtcNow;

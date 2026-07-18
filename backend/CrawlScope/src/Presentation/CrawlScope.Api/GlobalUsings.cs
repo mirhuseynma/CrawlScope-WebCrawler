@@ -1,4 +1,4 @@
-﻿global using System.Security.Claims;
+global using System.Security.Claims;
 global using System.Text.Json.Serialization;
 
 global using Microsoft.AspNetCore.Authorization;
@@ -26,6 +26,7 @@ global using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlJob;
 global using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlSchedule;
 global using CrawlScope.Application.Modules.Crawling.Commands.SetCrawlScheduleStatus;
 global using CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob;
+global using CrawlScope.Application.Modules.Crawling.Commands.CancelCrawlJob;
 global using CrawlScope.Application.Modules.Crawling.Commands.ToggleCrawlJobImportance;
 global using CrawlScope.Application.Modules.Crawling.DTOs;
 global using CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks;
