@@ -1,5 +1,4 @@
-using CrawlScope.Domain.Modules.Export.Models;
-
+﻿
 namespace CrawlScope.Domain.Modules.Crawling.Models
 {
     public class CrawlJob : BaseEntity

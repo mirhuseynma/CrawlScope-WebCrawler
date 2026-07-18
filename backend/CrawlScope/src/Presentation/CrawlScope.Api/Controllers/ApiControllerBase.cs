@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-
+﻿
 namespace CrawlScope.Api.Controllers
 {
     public abstract class ApiControllerBase : ControllerBase

@@ -1,5 +1,4 @@
-using System;
-
+﻿
 namespace CrawlScope.Application.Modules.Export.DTOs
 {
     public class ExportLinkRow

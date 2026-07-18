@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-
+﻿
 namespace CrawlScope.Application.Modules.Export.DTOs
 {
     public class ExportPageRow

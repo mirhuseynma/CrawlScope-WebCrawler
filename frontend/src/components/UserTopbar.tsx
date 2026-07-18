@@ -1,26 +1,38 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function UserTopbar() {
   const { logout, status, user } = useAuth();
   const isAuthenticated = status === "authenticated";
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const topbarRef = useRef<HTMLElement>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (detailsRef.current && detailsRef.current.open && !detailsRef.current.contains(event.target as Node)) {
         detailsRef.current.open = false;
       }
+      if (isMenuOpen && topbarRef.current && !topbarRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isMenuOpen]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   const closeMenu = () => {
     if (detailsRef.current) {
       detailsRef.current.open = false;
     }
+    setIsMenuOpen(false);
   };
 
   const displayName = user?.fullName || user?.userName || "User";
@@ -33,13 +45,26 @@ export function UserTopbar() {
     .toUpperCase();
 
   return (
-    <header className="user-topbar">
-      <Link className="brand-link" to="/">
-        <span className="brand-copy">
-          <strong>CrawlScope</strong>
-          <small>Web crawler</small>
-        </span>
-      </Link>
+    <header className={`user-topbar ${isMenuOpen ? "is-open" : ""}`} ref={topbarRef}>
+      <div className="topbar-header">
+        <Link className="brand-link" to="/">
+          <span className="brand-copy">
+            <strong>CrawlScope</strong>
+            <small>Web crawler</small>
+          </span>
+        </Link>
+        <button
+          className="user-mobile-menu-button"
+          type="button"
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMenuOpen}
+          onClick={() => setIsMenuOpen((current) => !current)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+      </div>
 
       <span className="topbar-spacer" aria-hidden="true" />
 
@@ -68,17 +93,17 @@ export function UserTopbar() {
                   My reports
                 </NavLink>
               </nav>
-              <button className="user-menu-action" type="button" onClick={logout}>
+              <button className="user-menu-action" type="button" onClick={() => { logout(); closeMenu(); }}>
                 Sign out
               </button>
             </div>
           </details>
         ) : (
           <div className="topbar-auth-actions">
-            <Link className="secondary-link-button topbar-action" to="/login">
+            <Link className="secondary-link-button topbar-action" to="/login" onClick={closeMenu}>
               Login
             </Link>
-            <Link className="primary-button topbar-action" to="/register">
+            <Link className="primary-button topbar-action" to="/register" onClick={closeMenu}>
               Create account
             </Link>
           </div>

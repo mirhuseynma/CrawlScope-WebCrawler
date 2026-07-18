@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
+﻿
 namespace CrawlScope.Persistence.Seed
 {
     public static class SeedRolesAndAdmin

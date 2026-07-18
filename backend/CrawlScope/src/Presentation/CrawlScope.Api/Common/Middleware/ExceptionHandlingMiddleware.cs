@@ -1,7 +1,4 @@
-using CrawlScope.Api.Common.Http;
-using CrawlScope.Application.Common.Exceptions;
-using FluentValidation;
-
+﻿
 namespace CrawlScope.Api.Common.Middleware
 {
     public class ExceptionHandlingMiddleware(

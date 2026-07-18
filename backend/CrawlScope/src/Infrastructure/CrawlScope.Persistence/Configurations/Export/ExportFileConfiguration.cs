@@ -1,5 +1,4 @@
-﻿using CrawlScope.Domain.Modules.Export.Models;
-
+﻿
 namespace CrawlScope.Persistence.Configurations.Export
 {
     public class ExportFileConfiguration : IEntityTypeConfiguration<ExportFile>

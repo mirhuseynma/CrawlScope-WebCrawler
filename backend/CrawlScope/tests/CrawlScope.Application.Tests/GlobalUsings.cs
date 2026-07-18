@@ -1,1 +1,46 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Security.Claims;
+global using System.Text;
+global using System.Threading;
+global using System.Threading.Tasks;
+
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Logging.Abstractions;
+
+global using AutoMapper;
+global using Moq;
 global using Xunit;
+
+global using CrawlScope.Api.Authorization;
+global using CrawlScope.Api.Controllers;
+global using CrawlScope.Application.Abstractions.Auth;
+global using CrawlScope.Application.Abstractions.Export.Services;
+global using CrawlScope.Application.Common.Exceptions;
+global using CrawlScope.Application.Common.Models;
+global using CrawlScope.Application.Modules.Auth.DTOs;
+global using CrawlScope.Application.Modules.Auth.Validators;
+global using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule;
+global using CrawlScope.Application.Modules.Crawling.Commands.DeleteCrawlJob;
+global using CrawlScope.Application.Modules.Crawling.Commands.ToggleCrawlJobImportance;
+global using CrawlScope.Application.Modules.Crawling.DTOs;
+global using CrawlScope.Application.Modules.Crawling.Mappings;
+global using CrawlScope.Application.Modules.Crawling.Queries.GetBrokenLinks;
+global using CrawlScope.Application.Modules.Crawling.Queries.GetCrawledPages;
+global using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlJobs;
+global using CrawlScope.Application.Modules.Crawling.Queries.GetCrawlSchedules;
+global using CrawlScope.Application.Modules.Crawling.Validators;
+global using CrawlScope.Application.Modules.Export.Commands.DeleteExportFile;
+global using CrawlScope.Application.Modules.Export.Commands.ExportCrawledData;
+global using CrawlScope.Application.Modules.Export.DTOs;
+global using CrawlScope.Application.Modules.Export.Queries.DownloadExportFile;
+global using CrawlScope.Application.Tests.Common;
+global using CrawlScope.Domain.Constants;
+global using CrawlScope.Domain.Modules.Crawling.Enums;
+global using CrawlScope.Domain.Modules.Crawling.Models;
+global using CrawlScope.Domain.Modules.Export.Models;
+global using CrawlScope.Persistence.Context;

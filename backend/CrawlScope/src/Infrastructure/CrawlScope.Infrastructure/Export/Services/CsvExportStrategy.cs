@@ -1,15 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using CrawlScope.Application.Abstractions.Export.Services;
-using CrawlScope.Application.Modules.Export.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-
+﻿
 namespace CrawlScope.Infrastructure.Export.Services
 {
     public class CsvExportStrategy : IExportStrategy

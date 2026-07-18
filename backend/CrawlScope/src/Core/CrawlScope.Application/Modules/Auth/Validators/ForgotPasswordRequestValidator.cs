@@ -1,6 +1,4 @@
-using FluentValidation;
-using CrawlScope.Application.Modules.Auth.DTOs;
-
+﻿
 namespace CrawlScope.Application.Modules.Auth.Validators;
 
 public class ForgotPasswordRequestValidator : AbstractValidator<ForgotPasswordRequestDto>

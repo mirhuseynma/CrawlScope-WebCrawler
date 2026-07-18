@@ -1,14 +1,4 @@
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
+﻿
 namespace CrawlScope.Infrastructure.BackgroundJobs
 {
     public class CrawlJobRecoveryHostedService : BackgroundService

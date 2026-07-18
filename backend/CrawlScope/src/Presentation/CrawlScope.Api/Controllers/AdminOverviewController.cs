@@ -1,5 +1,4 @@
-﻿using CrawlScope.Application.Modules.Admin.Queries.GetAdminOverview;
-
+﻿
 namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]

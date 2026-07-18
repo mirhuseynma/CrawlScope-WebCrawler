@@ -171,15 +171,6 @@ export function UserCrawlerPage() {
               </label>
             </div>
 
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={form.stayWithinDomain}
-                onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
-              />
-              Stay within domain
-            </label>
-
             <label>
               Crawl mode
               <select
@@ -194,6 +185,15 @@ export function UserCrawlerPage() {
                 <option value="Fast">Standard crawl</option>
                 <option value="Dynamic">Browser crawl</option>
               </select>
+            </label>
+
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={form.stayWithinDomain}
+                onChange={(event) => setForm((current) => ({ ...current, stayWithinDomain: event.target.checked }))}
+              />
+              Stay within domain
             </label>
 
             <div className="crawl-review">

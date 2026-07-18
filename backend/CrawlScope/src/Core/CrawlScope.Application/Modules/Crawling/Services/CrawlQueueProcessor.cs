@@ -1,5 +1,4 @@
-using CrawlScope.Application.Abstractions.Crawling.Models;
-
+﻿
 namespace CrawlScope.Application.Modules.Crawling.Services
 {
     public class CrawlQueueProcessor(

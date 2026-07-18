@@ -1,7 +1,4 @@
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Application.Modules.Crawling.DTOs;
-using MediatR;
-
+﻿
 namespace CrawlScope.Application.Modules.Crawling.Queries.AnalyzeUrl
 {
     public class AnalyzeUrlQueryHandler(IUrlAnalyzerService analyzerService) : IRequestHandler<AnalyzeUrlQuery, AnalyzeUrlResultDto>

@@ -1,5 +1,4 @@
-﻿using CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob;
-
+﻿
 namespace CrawlScope.Application.Modules.Crawling.Validators
 {
     public class CreateCrawlJobCommandValidator : AbstractValidator<CreateCrawlJobCommand>

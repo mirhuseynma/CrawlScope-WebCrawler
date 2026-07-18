@@ -1,7 +1,4 @@
-﻿using CrawlScope.Application.Abstractions.Persistence;
-using CrawlScope.Domain.Modules.Export.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
+﻿
 namespace CrawlScope.Persistence.Context
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options)

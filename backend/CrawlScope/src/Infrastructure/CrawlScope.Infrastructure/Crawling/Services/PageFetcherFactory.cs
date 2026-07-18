@@ -1,7 +1,4 @@
-using CrawlScope.Application.Abstractions.Crawling.Services;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-using Microsoft.Extensions.DependencyInjection;
-
+﻿
 namespace CrawlScope.Infrastructure.Crawling.Services
 {
     public class PageFetcherFactory(IServiceProvider serviceProvider) : IPageFetcherFactory

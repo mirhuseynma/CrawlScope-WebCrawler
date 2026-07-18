@@ -1,13 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using CrawlScope.Application.Abstractions.Export.Services;
-using CrawlScope.Application.Modules.Export.DTOs;
-using CrawlScope.Domain.Modules.Crawling.Enums;
-
+﻿
 namespace CrawlScope.Application.Tests.Common
 {
     public class FakeExportStrategy(ExportFormat format, string content) : IExportStrategy
