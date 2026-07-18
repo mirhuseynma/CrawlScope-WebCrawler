@@ -5443,3 +5443,146 @@ tbody tr:hover td {
   }
 }
 
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.modal-body {
+  padding: 24px;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.modal-body strong {
+  color: #0f172a;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Mobile UI Fixes */
+@media (max-width: 760px) {
+  /* Header Fix */
+  .user-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .brand-link {
+    text-align: center;
+  }
+  .user-account-menu {
+    display: flex;
+    justify-content: center;
+  }
+  .topbar-auth-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* Job Actions Fix */
+  .jobs-actions {
+    grid-template-columns: 1fr;
+  }
+  .jobs-actions > button,
+  .jobs-actions > a {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  
+  /* Form Presets Fix */
+  .button-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .button-group > button {
+    width: 100%;
+  }
+  .create-options-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .create-options-row.two-cols {
+    grid-template-columns: 1fr;
+  }
+  .create-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .create-submit {
+    width: 100%;
+  }
+  
+  /* Typography / Report preview fix */
+  .section-header h2 {
+    font-size: 24px;
+  }
+  .page-title {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 480px) {
+  .button-group {
+    grid-template-columns: 1fr;
+  }
+}
+
