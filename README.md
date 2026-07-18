@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://socialify.git.ci/mirhuseynma/CrawlScope-WebCrawler/image?description=A%20high-performance%2C%20dynamic%20Web%20Crawler%20%26%20Content%20Aggregator%20built%20with%20.NET%2010%20%26%20React%2019&font=Inter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark" alt="CrawlScope Web Crawler" width="720" height="360" />
+  <a href = "https://crawlscope.app">CrawlScope - Web Crawler</a>
 
   <br/>
   <br/>
