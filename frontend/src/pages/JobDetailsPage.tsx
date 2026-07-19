@@ -1,6 +1,6 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { exportCrawlJob, getBrokenLinks, getCrawledPages, getCrawlJob, getCrawlLogs } from "../api/crawlJobsApi";
+import { cancelCrawlJob, exportCrawlJob, getBrokenLinks, getCrawledPages, getCrawlJob, getCrawlLogs } from "../api/crawlJobsApi";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
 import type { BrokenLink, CrawledPage, CrawlJobDetails, CrawlLog, PagedResult } from "../types/crawlJob";
@@ -84,6 +84,24 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
   const [exportingFormat, setExportingFormat] = useState<"Csv" | "Json" | null>(null);
   const [expandedPageIds, setExpandedPageIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [isCanceling, setIsCanceling] = useState(false);
+
+  async function handleCancel() {
+    if (!id) return;
+    if (!window.confirm("Are you sure you want to cancel this crawl job?")) {
+      return;
+    }
+    setIsCanceling(true);
+    setError(null);
+    try {
+      await cancelCrawlJob(id);
+      void loadDetails(pagesPageNumber, logsPageNumber, brokenPageNumber, false);
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Failed to cancel crawl job.");
+    } finally {
+      setIsCanceling(false);
+    }
+  }
 
   async function loadDetails(pageNumber = pagesPageNumber, logPageNumber = logsPageNumber, brokenPage = brokenPageNumber, isBackground = false) {
     if (!id) {
@@ -314,6 +332,16 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
             <h3>Pages</h3>
           </div>
           <div className="detail-actions">
+            {(job?.status === "Pending" || job?.status === "InProgress") && (
+              <button
+                className="danger-button"
+                type="button"
+                onClick={() => void handleCancel()}
+                disabled={isCanceling}
+              >
+                {isCanceling ? "Canceling..." : "Cancel Job"}
+              </button>
+            )}
             <button className="secondary-button" type="button" onClick={() => void loadDetails()}>
               Refresh
             </button>
@@ -368,61 +396,234 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
           <div className="empty-state">No crawled pages match the current filters.</div>
         ) : (
           <>
-            <div className="table-scroll">
-              <table>
+            {/* ── Desktop Table ── */}
+            <div className="table-scroll pages-desktop-table">
+              <table className="pages-table">
                 <thead>
                   <tr>
-                    <th>URL</th>
+                    <th>URL & Title</th>
                     <th>Status</th>
                     <th>Depth</th>
                     <th>Links</th>
                     <th>Response</th>
+                    <th className="actions-header">Snapshot</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pagesPage.items.map((page) => {
                     const isExpanded = expandedPageIds.has(page.id);
-                    const hasExpandableContent = Boolean(page.contentPreview && page.contentPreview.length > 160);
+                    const hasContent = Boolean(page.contentPreview && page.contentPreview.trim().length > 0);
 
                     return (
-                      <tr key={page.id}>
-                        <td data-label="URL">
-                          <div className="page-title">{page.title || "Untitled page"}</div>
-                          <div className="url-cell">{page.url}</div>
-                          <p
-                            className={`content-preview${page.contentPreview ? "" : " is-empty"}${
-                              isExpanded ? " is-expanded" : ""
-                            }`}
-                          >
-                            {page.contentPreview || "No content snapshot captured."}
-                          </p>
-                          {hasExpandableContent && (
-                            <button
-                              className="text-button"
-                              type="button"
-                              onClick={() => toggleContentPreview(page.id)}
-                              aria-expanded={isExpanded}
-                            >
-                              {isExpanded ? "Less" : "More"}
-                            </button>
-                          )}
-                        </td>
-                        <td data-label="Status">{page.statusCode ?? "-"}</td>
-                        <td data-label="Depth">{page.depthLevel}</td>
-                        <td data-label="Links">
-                          {page.internalLinksCount} internal / {page.externalLinksCount} external
-                        </td>
-                        <td data-label="Response">{page.responseTimeMs === null ? "-" : `${page.responseTimeMs} ms`}</td>
-                      </tr>
+                      <Fragment key={page.id}>
+                        <tr className={`page-table-row${isExpanded ? " is-expanded-parent" : ""}`}>
+                          <td data-label="URL & Title">
+                            <div className="page-title">{page.title || "Untitled page"}</div>
+                            <a href={page.url} target="_blank" rel="noreferrer" className="page-url-link">
+                              {page.url}
+                            </a>
+                            {hasContent && !isExpanded && (
+                              <p className="content-preview-snippet">
+                                {page.contentPreview}
+                              </p>
+                            )}
+                          </td>
+                          <td data-label="Status">
+                            <span className={`status-code-pill status-${page.statusCode && page.statusCode >= 200 && page.statusCode < 300 ? "success" : page.statusCode && page.statusCode >= 400 ? "error" : "default"}`}>
+                              {page.statusCode ?? "-"}
+                            </span>
+                          </td>
+                          <td data-label="Depth">
+                            <span className="depth-badge">{page.depthLevel}</span>
+                          </td>
+                          <td data-label="Links">
+                            <div className="links-pill-group">
+                              <span className="links-pill int">{page.internalLinksCount} int</span>
+                              <span className="links-pill ext">{page.externalLinksCount} ext</span>
+                            </div>
+                          </td>
+                          <td data-label="Response">
+                            <span className="response-time-cell">{page.responseTimeMs === null ? "-" : `${page.responseTimeMs} ms`}</span>
+                          </td>
+                          <td data-label="Snapshot">
+                            {hasContent ? (
+                              <button
+                                className={`snapshot-toggle-btn${isExpanded ? " is-active" : ""}`}
+                                type="button"
+                                onClick={() => toggleContentPreview(page.id)}
+                                aria-expanded={isExpanded}
+                              >
+                                <span>{isExpanded ? "Close" : "View"}</span>
+                                <svg
+                                  className={`chevron-icon${isExpanded ? " is-rotated" : ""}`}
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                >
+                                  <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                              </button>
+                            ) : (
+                              <span className="no-content-label">No preview</span>
+                            )}
+                          </td>
+                        </tr>
+                        {isExpanded && page.contentPreview && (
+                          <tr className="page-detail-expand-row">
+                            <td colSpan={6} data-label="Content Preview" className="page-detail-expand-cell">
+                              <div className="page-snapshot-card">
+                                <div className="snapshot-card-header">
+                                  <div className="snapshot-title">
+                                    <svg className="snapshot-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                      <polyline points="14 2 14 8 20 8" />
+                                      <line x1="16" y1="13" x2="8" y2="13" />
+                                      <line x1="16" y1="17" x2="8" y2="17" />
+                                      <polyline points="10 9 9 9 8 9" />
+                                    </svg>
+                                    <span>Extracted Content Snapshot</span>
+                                    <span className="snapshot-badge">{page.contentPreview.length} characters</span>
+                                  </div>
+                                  <button
+                                    className="copy-snapshot-btn"
+                                    type="button"
+                                    onClick={() => void navigator.clipboard.writeText(page.contentPreview || "")}
+                                  >
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                    </svg>
+                                    <span>Copy Text</span>
+                                  </button>
+                                </div>
+                                <div className="snapshot-body">
+                                  <pre className="snapshot-text">{page.contentPreview}</pre>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     );
                   })}
                 </tbody>
               </table>
             </div>
+
+            {/* ── Mobile Crawled Pages Card List ── */}
+            <div className="pages-mobile-list">
+              {pagesPage.items.map((page) => {
+                const isExpanded = expandedPageIds.has(page.id);
+                const hasContent = Boolean(page.contentPreview && page.contentPreview.trim().length > 0);
+
+                return (
+                  <div className="page-mob-card" key={page.id}>
+                    {/* Header: Title & Link */}
+                    <div className="page-mob-header">
+                      <div className="page-title">{page.title || "Untitled page"}</div>
+                      <a href={page.url} target="_blank" rel="noreferrer" className="page-url-link">
+                        {page.url}
+                      </a>
+                      {hasContent && !isExpanded && (
+                        <p className="content-preview-snippet">{page.contentPreview}</p>
+                      )}
+                    </div>
+
+                    {/* Stats Grid: Status | Depth | Links | Response */}
+                    <div className="page-mob-stats">
+                      <div className="page-mob-stat">
+                        <span className="stat-label">Status</span>
+                        <span className={`status-code-pill status-${page.statusCode && page.statusCode >= 200 && page.statusCode < 300 ? "success" : page.statusCode && page.statusCode >= 400 ? "error" : "default"}`}>
+                          {page.statusCode ?? "-"}
+                        </span>
+                      </div>
+                      <div className="page-mob-stat">
+                        <span className="stat-label">Depth</span>
+                        <span className="depth-badge">{page.depthLevel}</span>
+                      </div>
+                      <div className="page-mob-stat">
+                        <span className="stat-label">Links</span>
+                        <div className="links-pill-group">
+                          <span className="links-pill int">{page.internalLinksCount}</span>
+                          <span className="links-pill ext">{page.externalLinksCount}</span>
+                        </div>
+                      </div>
+                      <div className="page-mob-stat">
+                        <span className="stat-label">Response</span>
+                        <span className="response-time-cell">{page.responseTimeMs === null ? "-" : `${page.responseTimeMs}ms`}</span>
+                      </div>
+                    </div>
+
+                    {/* Snapshot Action */}
+                    {hasContent && (
+                      <div className="page-mob-action">
+                        <button
+                          className={`snapshot-toggle-btn${isExpanded ? " is-active" : ""}`}
+                          type="button"
+                          onClick={() => toggleContentPreview(page.id)}
+                          aria-expanded={isExpanded}
+                        >
+                          <span>{isExpanded ? "Close Snapshot" : "View Snapshot"}</span>
+                          <svg
+                            className={`chevron-icon${isExpanded ? " is-rotated" : ""}`}
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Expanded Snapshot Drawer in Mobile Card */}
+                    {isExpanded && page.contentPreview && (
+                      <div className="page-mob-snapshot">
+                        <div className="page-snapshot-card">
+                          <div className="snapshot-card-header">
+                            <div className="snapshot-title">
+                              <svg className="snapshot-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
+                              </svg>
+                              <span>Extracted Snapshot</span>
+                              <span className="snapshot-badge">{page.contentPreview.length} chars</span>
+                            </div>
+                            <button
+                              className="copy-snapshot-btn"
+                              type="button"
+                              onClick={() => void navigator.clipboard.writeText(page.contentPreview || "")}
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                              </svg>
+                              <span>Copy</span>
+                            </button>
+                          </div>
+                          <div className="snapshot-body">
+                            <pre className="snapshot-text">{page.contentPreview}</pre>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
             <PaginationControls
               label="Pages"
               page={pagesPage}
-                onPageChange={(pageNumber) => void loadDetails(pageNumber, logsPageNumber)}
+              onPageChange={(pageNumber) => void loadDetails(pageNumber, logsPageNumber)}
             />
           </>
         )}
