@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Infrastructure.Crawling.Services
 {
     public class HtmlParser : IHtmlParser
@@ -160,12 +160,7 @@ namespace CrawlScope.Infrastructure.Crawling.Services
 
         private static string NormalizeUrl(Uri uri)
         {
-            var builder = new UriBuilder(uri)
-            {
-                Fragment = string.Empty
-            };
-
-            return builder.Uri.ToString();
+            return CrawlScope.Application.Common.Helpers.UrlNormalizer.Normalize(uri);
         }
 
         private static string? NormalizeWhitespace(string? value)

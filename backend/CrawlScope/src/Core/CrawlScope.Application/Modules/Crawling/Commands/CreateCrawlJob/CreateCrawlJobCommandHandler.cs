@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob
 {
     public class CreateCrawlJobCommandHandler(IMapper mapper, IAppDbContext dbContext) : IRequestHandler<CreateCrawlJobCommand, Guid>
@@ -7,6 +7,7 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlJob
         {
             var crawlJob = mapper.Map<CrawlJob>(request.Dto);
             crawlJob.Id = Guid.NewGuid();
+            crawlJob.TargetUrl = CrawlScope.Application.Common.Helpers.UrlNormalizer.Normalize(crawlJob.TargetUrl);
             crawlJob.CreatedBy = request.CreatedByUserId;
             crawlJob.CreatedAt = DateTime.UtcNow;
             crawlJob.Status = CrawlJobStatus.Pending;
