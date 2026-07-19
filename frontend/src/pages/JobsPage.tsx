@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { analyzeUrl, createCrawlJob, deleteCrawlJob, getCrawlJobs, startCrawlJob, toggleCrawlJobImportance } from "../api/crawlJobsApi";
+import { analyzeUrl, cancelCrawlJob, createCrawlJob, deleteCrawlJob, getCrawlJobs, startCrawlJob, toggleCrawlJobImportance } from "../api/crawlJobsApi";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
 import type { CrawlJob, CreateCrawlJobRequest, PagedResult } from "../types/crawlJob";
@@ -39,6 +39,7 @@ export function JobsPage() {
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
   const [updatingImportantJobId, setUpdatingImportantJobId] = useState<string | null>(null);
+  const [cancelingJobId, setCancelingJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const totals = useMemo(
@@ -171,6 +172,26 @@ export function JobsPage() {
       setError(exception instanceof Error ? exception.message : "Failed to delete crawl job.");
     } finally {
       setDeletingJobId(null);
+    }
+  }
+
+  async function handleCancelJob(job: CrawlJob) {
+    const confirmed = window.confirm(`Cancel crawl job for ${job.targetUrl}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setCancelingJobId(job.id);
+    setError(null);
+
+    try {
+      await cancelCrawlJob(job.id);
+      await loadJobs(jobsPageNumber);
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Failed to cancel crawl job.");
+    } finally {
+      setCancelingJobId(null);
     }
   }
 
@@ -352,7 +373,8 @@ export function JobsPage() {
             <div className="empty-state">No crawl jobs match the current filters.</div>
           ) : (
             <>
-              <div className="table-scroll">
+              {/* ── Desktop Table ── */}
+              <div className="table-scroll jobs-desktop-table">
                 <table className="jobs-table">
                   <thead>
                     <tr>
@@ -368,12 +390,12 @@ export function JobsPage() {
                   <tbody>
                     {jobsPage.items.map((job) => (
                       <tr key={job.id}>
-                        <td data-label="Target">
+                        <td>
                           <div className="url-cell" title={job.targetUrl}>
                             {job.targetUrl}
                           </div>
                         </td>
-                        <td data-label="Watch">
+                        <td>
                           <button
                             className={`watch-button${job.isImportant ? " is-active" : ""}`}
                             type="button"
@@ -384,21 +406,15 @@ export function JobsPage() {
                             {job.isImportant ? "Important" : "Watch"}
                           </button>
                         </td>
-                        <td data-label="Status">
-                          <StatusBadge status={job.status} />
-                        </td>
-                        <td data-label="Depth">{job.maxDepth}</td>
-                        <td data-label="Pages">
-                          {job.pagesCrawled}/{job.maxPages}
-                        </td>
-                        <td data-label="Created">
+                        <td><StatusBadge status={job.status} /></td>
+                        <td>{job.maxDepth}</td>
+                        <td>{job.pagesCrawled}/{job.maxPages}</td>
+                        <td>
                           <span className="date-cell">{new Date(job.createdAt).toLocaleString()}</span>
                         </td>
-                        <td data-label="Actions">
+                        <td>
                           <div className="button-group jobs-actions">
-                            <Link className="secondary-link-button" to={`/admin/jobs/${job.id}`}>
-                              View
-                            </Link>
+                            <Link className="secondary-link-button" to={`/admin/jobs/${job.id}`}>View</Link>
                             <button
                               className="secondary-button"
                               type="button"
@@ -407,6 +423,16 @@ export function JobsPage() {
                             >
                               {activeJobId === job.id ? "Starting..." : "Start"}
                             </button>
+                            {(job.status === "Pending" || job.status === "InProgress") && (
+                              <button
+                                className="danger-button"
+                                type="button"
+                                onClick={() => void handleCancelJob(job)}
+                                disabled={cancelingJobId === job.id}
+                              >
+                                {cancelingJobId === job.id ? "Canceling..." : "Cancel"}
+                              </button>
+                            )}
                             <button
                               className="danger-button"
                               type="button"
@@ -422,6 +448,82 @@ export function JobsPage() {
                   </tbody>
                 </table>
               </div>
+
+              {/* ── Mobile Cards ── */}
+              <div className="jobs-mobile-list">
+                {jobsPage.items.map((job) => (
+                  <div className="job-mob-card" key={job.id}>
+                    {/* Header: URL + Watch */}
+                    <div className="job-mob-header">
+                      <span className="job-mob-url" title={job.targetUrl}>{job.targetUrl}</span>
+                      <button
+                        className={`watch-button${job.isImportant ? " is-active" : ""}`}
+                        type="button"
+                        onClick={() => void handleToggleImportance(job)}
+                        disabled={updatingImportantJobId === job.id}
+                        title={job.isImportant ? "Remove from important jobs" : "Mark as important"}
+                      >
+                        {job.isImportant ? "★ Important" : "☆ Watch"}
+                      </button>
+                    </div>
+
+                    {/* Stats row: Status / Depth / Pages */}
+                    <div className="job-mob-stats">
+                      <div className="job-mob-stat">
+                        <StatusBadge status={job.status} />
+                      </div>
+                      <div className="job-mob-stat">
+                        <span className="stat-label">Depth</span>
+                        <span className="stat-value">{job.maxDepth}</span>
+                      </div>
+                      <div className="job-mob-stat">
+                        <span className="stat-label">Pages</span>
+                        <span className="stat-value">{job.pagesCrawled}/{job.maxPages}</span>
+                      </div>
+                    </div>
+
+                    {/* Date */}
+                    <div className="job-mob-meta">
+                      <span className="meta-icon">🕐</span>
+                      {new Date(job.createdAt).toLocaleString()}
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="job-mob-actions">
+                      <Link className="secondary-link-button" to={`/admin/jobs/${job.id}`}>
+                        View
+                      </Link>
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() => void handleStartJob(job.id)}
+                        disabled={job.status !== "Pending" || activeJobId === job.id}
+                      >
+                        {activeJobId === job.id ? "Starting..." : "Start"}
+                      </button>
+                      {(job.status === "Pending" || job.status === "InProgress") && (
+                        <button
+                          className="danger-button"
+                          type="button"
+                          onClick={() => void handleCancelJob(job)}
+                          disabled={cancelingJobId === job.id}
+                        >
+                          {cancelingJobId === job.id ? "Canceling..." : "Cancel"}
+                        </button>
+                      )}
+                      <button
+                        className="danger-button"
+                        type="button"
+                        onClick={() => void handleDeleteJob(job)}
+                        disabled={job.status === "InProgress" || deletingJobId === job.id}
+                      >
+                        {deletingJobId === job.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <PaginationControls
                 label="Jobs"
                 page={jobsPage}

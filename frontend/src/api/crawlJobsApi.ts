@@ -117,3 +117,10 @@ export function deleteExportFile(id: string) {
     method: "DELETE",
   });
 }
+
+export function cancelCrawlJob(id: string) {
+  return request<void>(`/api/CrawlJob/${id}/cancel`, {
+    method: "POST",
+  });
+}
+
