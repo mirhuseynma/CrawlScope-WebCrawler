@@ -133,12 +133,13 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 return;
             }
 
-            var parsedPage = htmlParser.Parse(fetchResult.Url, fetchResult.Content);
+            var normalizedFetchUrl = CrawlScope.Application.Common.Helpers.UrlNormalizer.Normalize(fetchResult.Url);
+            var parsedPage = htmlParser.Parse(normalizedFetchUrl, fetchResult.Content);
             var crawledPage = new CrawledPage
             {
                 Id = Guid.NewGuid(),
                 CrawlJobId = crawlJob.Id,
-                Url = fetchResult.Url,
+                Url = normalizedFetchUrl,
                 Title = parsedPage.Title,
                 Content = parsedPage.TextContent,
                 StatusCode = fetchResult.StatusCode,

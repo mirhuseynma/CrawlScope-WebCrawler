@@ -22,8 +22,11 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob
             crawlJob.Status = CrawlJobStatus.Queued;
             crawlJob.PagesFound = 1;
 
+            var normalizedTargetUrl = CrawlScope.Application.Common.Helpers.UrlNormalizer.Normalize(crawlJob.TargetUrl);
+            crawlJob.TargetUrl = normalizedTargetUrl;
+
             var queueItemExists = await context.CrawlQueueItems
-                .AnyAsync(x => x.CrawlJobId == crawlJob.Id && x.Url == crawlJob.TargetUrl, cancellationToken);
+                .AnyAsync(x => x.CrawlJobId == crawlJob.Id && x.Url == normalizedTargetUrl, cancellationToken);
 
             if (!queueItemExists)
             {
@@ -31,7 +34,7 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.StartCrawlJob
                 {
                     Id = Guid.NewGuid(),
                     CrawlJobId = crawlJob.Id,
-                    Url = crawlJob.TargetUrl,
+                    Url = normalizedTargetUrl,
                     DepthLevel = 0,
                     Status = CrawlQueueStatus.Pending,
                     CreatedAt = DateTime.UtcNow
