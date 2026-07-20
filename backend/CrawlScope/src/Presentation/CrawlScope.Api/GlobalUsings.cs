@@ -45,3 +45,28 @@ global using CrawlScope.Infrastructure;
 global using CrawlScope.Persistence;
 global using CrawlScope.Persistence.Context;
 global using CrawlScope.Persistence.Seed;
+global using CrawlScope.Application.Modules.Admin.DTOs;
+
+// CQRS Auth
+global using CrawlScope.Application.Modules.Auth.Commands.Register;
+global using CrawlScope.Application.Modules.Auth.Commands.Login;
+global using CrawlScope.Application.Modules.Auth.Commands.ForgotPassword;
+global using CrawlScope.Application.Modules.Auth.Commands.ResetPassword;
+global using CrawlScope.Application.Modules.Auth.Commands.ConfirmEmail;
+global using CrawlScope.Application.Modules.Auth.Queries.GetCurrentUser;
+
+// CQRS Admin Roles
+global using CrawlScope.Application.Modules.Admin.Commands.Roles.CreateRole;
+global using CrawlScope.Application.Modules.Admin.Commands.Roles.UpdateRole;
+global using CrawlScope.Application.Modules.Admin.Commands.Roles.UpdateRolePermissions;
+global using CrawlScope.Application.Modules.Admin.Commands.Roles.DeleteRole;
+global using CrawlScope.Application.Modules.Admin.Queries.Roles.GetPermissions;
+global using CrawlScope.Application.Modules.Admin.Queries.Roles.GetRoles;
+global using CrawlScope.Application.Modules.Admin.Queries.Roles.GetRoleById;
+
+// CQRS Admin Users
+global using CrawlScope.Application.Modules.Admin.Commands.Users.UpdateUser;
+global using CrawlScope.Application.Modules.Admin.Commands.Users.UpdateUserRoles;
+global using CrawlScope.Application.Modules.Admin.Commands.Users.DeleteUser;
+global using CrawlScope.Application.Modules.Admin.Queries.Users.GetUsers;
+global using CrawlScope.Application.Modules.Admin.Queries.Users.GetUserById;

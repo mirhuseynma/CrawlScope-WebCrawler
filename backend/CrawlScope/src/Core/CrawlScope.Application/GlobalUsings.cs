@@ -41,3 +41,14 @@ global using CrawlScope.Domain.Modules.Crawling.Models;
 global using System.Linq.Expressions;
 global using System.Text;
 global using CrawlScope.Application.Common.Models;
+
+global using CrawlScope.Application.Common.Helpers;
+
+// Missing using directives for CQRS Auth/Admin refactor
+global using Microsoft.AspNetCore.Identity;
+global using CrawlScope.Application.Abstractions.Email;
+global using CrawlScope.Domain.Constants;
+global using Microsoft.AspNetCore.WebUtilities;
+global using System.Security.Claims;
+global using CrawlScope.Application.Abstractions.Auth;
+global using Microsoft.Extensions.Options;

@@ -1,9 +1,9 @@
-﻿namespace CrawlScope.Api.Controllers
+namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Policy = Permissions.Admin.Access)]
-    public class AdminUsersController(IUserManagementService userManagementService) : ControllerBase
+    public class AdminUsersController(IMediator mediator) : ControllerBase
     {
         [HttpGet]
         [Authorize(Policy = Permissions.Users.View)]
@@ -12,7 +12,8 @@
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
-            var users = await userManagementService.GetUsersAsync(search, pageNumber, pageSize);
+            var query = new GetUsersQuery { Search = search, PageNumber = pageNumber, PageSize = pageSize };
+            var users = await mediator.Send(query);
             return Ok(users);
         }
 
@@ -20,7 +21,8 @@
         [Authorize(Policy = Permissions.Users.View)]
         public async Task<IActionResult> GetById(string id)
         {
-            var user = await userManagementService.GetUserByIdAsync(id);
+            var query = new GetUserByIdQuery { UserId = id };
+            var user = await mediator.Send(query);
             return Ok(user);
         }
 
@@ -28,7 +30,8 @@
         [Authorize(Policy = Permissions.Users.Manage)]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateUserRequestDto request)
         {
-            var user = await userManagementService.UpdateUserAsync(id, request);
+            var command = new UpdateUserCommand { UserId = id, Dto = request };
+            var user = await mediator.Send(command);
             return Ok(user);
         }
 
@@ -36,7 +39,8 @@
         [Authorize(Policy = Permissions.Users.Manage)]
         public async Task<IActionResult> UpdateRoles(string id, [FromBody] UpdateUserRolesRequestDto request)
         {
-            var user = await userManagementService.UpdateUserRolesAsync(id, request);
+            var command = new UpdateUserRolesCommand { UserId = id, Dto = request };
+            var user = await mediator.Send(command);
             return Ok(user);
         }
 
@@ -44,7 +48,8 @@
         [Authorize(Policy = Permissions.Users.Manage)]
         public async Task<IActionResult> Delete(string id)
         {
-            await userManagementService.DeleteUserAsync(id);
+            var command = new DeleteUserCommand { UserId = id };
+            await mediator.Send(command);
             return NoContent();
         }
     }

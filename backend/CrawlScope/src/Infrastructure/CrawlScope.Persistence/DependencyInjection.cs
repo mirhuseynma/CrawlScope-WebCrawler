@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Persistence
 {
     public static class DependencyInjection
@@ -26,9 +26,6 @@ namespace CrawlScope.Persistence
 
             services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddScoped<IJwtService, JwtService>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IRoleManagementService, RoleManagementService>();
-            services.AddScoped<IUserManagementService, UserManagementService>();
 
             return services;
         }
