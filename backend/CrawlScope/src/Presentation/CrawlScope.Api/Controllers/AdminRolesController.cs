@@ -1,15 +1,16 @@
-﻿namespace CrawlScope.Api.Controllers
+namespace CrawlScope.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Policy = Permissions.Admin.Access)]
-    public class AdminRolesController(IRoleManagementService roleManagementService) : ControllerBase
+    public class AdminRolesController(IMediator mediator) : ControllerBase
     {
         [HttpGet("permissions")]
         [Authorize(Policy = Permissions.Roles.View)]
         public async Task<IActionResult> GetPermissions()
         {
-            var permissions = await roleManagementService.GetPermissionsAsync();
+            var query = new GetPermissionsQuery();
+            var permissions = await mediator.Send(query);
             return Ok(permissions);
         }
 
@@ -17,7 +18,8 @@
         [Authorize(Policy = Permissions.Roles.View)]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await roleManagementService.GetRolesAsync();
+            var query = new GetRolesQuery();
+            var roles = await mediator.Send(query);
             return Ok(roles);
         }
 
@@ -25,7 +27,8 @@
         [Authorize(Policy = Permissions.Roles.View)]
         public async Task<IActionResult> GetById(string id)
         {
-            var role = await roleManagementService.GetRoleByIdAsync(id);
+            var query = new GetRoleByIdQuery { RoleId = id };
+            var role = await mediator.Send(query);
             return Ok(role);
         }
 
@@ -33,7 +36,8 @@
         [Authorize(Policy = Permissions.Roles.Manage)]
         public async Task<IActionResult> Create([FromBody] CreateRoleRequestDto request)
         {
-            var role = await roleManagementService.CreateRoleAsync(request);
+            var command = new CreateRoleCommand { Dto = request };
+            var role = await mediator.Send(command);
             return Ok(role);
         }
 
@@ -41,7 +45,8 @@
         [Authorize(Policy = Permissions.Roles.Manage)]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateRoleRequestDto request)
         {
-            var role = await roleManagementService.UpdateRoleAsync(id, request);
+            var command = new UpdateRoleCommand { RoleId = id, Dto = request };
+            var role = await mediator.Send(command);
             return Ok(role);
         }
 
@@ -49,7 +54,8 @@
         [Authorize(Policy = Permissions.Roles.Manage)]
         public async Task<IActionResult> UpdatePermissions(string id, [FromBody] UpdateRolePermissionsRequestDto request)
         {
-            var role = await roleManagementService.UpdateRolePermissionsAsync(id, request);
+            var command = new UpdateRolePermissionsCommand { RoleId = id, Dto = request };
+            var role = await mediator.Send(command);
             return Ok(role);
         }
 
@@ -57,7 +63,8 @@
         [Authorize(Policy = Permissions.Roles.Manage)]
         public async Task<IActionResult> Delete(string id)
         {
-            await roleManagementService.DeleteRoleAsync(id);
+            var command = new DeleteRoleCommand { RoleId = id };
+            await mediator.Send(command);
             return NoContent();
         }
     }

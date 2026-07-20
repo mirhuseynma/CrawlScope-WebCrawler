@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,12 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Identity\**" />
+    <EmbeddedResource Remove="Identity\**" />
+    <None Remove="Identity\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Core\CrawlScope.Application\CrawlScope.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Configurations\Auth\" />
-    <Folder Include="Identity\" />
     <Folder Include="Seed\" />
   </ItemGroup>
 

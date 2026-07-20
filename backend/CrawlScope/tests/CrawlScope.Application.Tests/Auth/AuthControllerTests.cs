@@ -1,15 +1,29 @@
-﻿
+
 namespace CrawlScope.Application.Tests.Auth;
+
+using CrawlScope.Api.Controllers;
+using CrawlScope.Application.Modules.Auth.Commands.ForgotPassword;
+using CrawlScope.Application.Modules.Auth.Commands.ResetPassword;
+using CrawlScope.Application.Modules.Auth.Commands.ConfirmEmail;
+using CrawlScope.Application.Modules.Auth.DTOs;
+using CrawlScope.Application.Common.Models;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using System.Threading.Tasks;
+using Xunit;
+using System.Threading;
 
 public class AuthControllerTests
 {
-    private readonly Mock<IAuthService> _authServiceMock;
+    private readonly Mock<IMediator> _mediatorMock;
     private readonly AuthController _controller;
 
     public AuthControllerTests()
     {
-        _authServiceMock = new Mock<IAuthService>();
-        _controller = new AuthController(_authServiceMock.Object);
+        _mediatorMock = new Mock<IMediator>();
+        _controller = new AuthController(_mediatorMock.Object);
 
         // Setup a mock HttpContext to avoid null references when accessing Request.Headers
         var httpContext = new DefaultHttpContext();
@@ -25,7 +39,7 @@ public class AuthControllerTests
     {
         // Arrange
         var request = new ForgotPasswordRequestDto { Email = "test@example.com" };
-        _authServiceMock.Setup(s => s.ForgotPasswordAsync(request, It.IsAny<string>()))
+        _mediatorMock.Setup(m => m.Send(It.IsAny<ForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<bool>.Success(true));
 
         // Act
@@ -41,7 +55,7 @@ public class AuthControllerTests
     {
         // Arrange
         var request = new ForgotPasswordRequestDto { Email = "notfound@example.com" };
-        _authServiceMock.Setup(s => s.ForgotPasswordAsync(request, It.IsAny<string>()))
+        _mediatorMock.Setup(m => m.Send(It.IsAny<ForgotPasswordCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<bool>.Failure("User not found."));
 
         // Act
@@ -57,7 +71,7 @@ public class AuthControllerTests
     {
         // Arrange
         var request = new ResetPasswordRequestDto { Email = "test@example.com", Token = "tok", NewPassword = "Password123!" };
-        _authServiceMock.Setup(s => s.ResetPasswordAsync(request))
+        _mediatorMock.Setup(m => m.Send(It.IsAny<ResetPasswordCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<bool>.Success(true));
 
         // Act
@@ -74,7 +88,7 @@ public class AuthControllerTests
         // Arrange
         var userId = "user-123";
         var token = "valid-token";
-        _authServiceMock.Setup(s => s.ConfirmEmailAsync(userId, token))
+        _mediatorMock.Setup(m => m.Send(It.IsAny<ConfirmEmailCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<bool>.Success(true));
 
         // Act
