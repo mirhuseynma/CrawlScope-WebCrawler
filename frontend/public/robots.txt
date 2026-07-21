@@ -1,0 +1,26 @@
+# ==========================================
+# CrawlScope - robots.txt
+# ==========================================
+
+# Qlobal qadağalar və icazələr (Bütün botlar üçün)
+User-agent: *
+Allow: /
+Disallow: /api/           # API yollarını gizlədirik (botların daxil olmasına ehtiyac yoxdur)
+Disallow: /admin/         # Təhlükəsizlik və məxfilik üçün admin paneli (əgər varsa) axtarışdan çıxarırıq
+Disallow: /*?*            # Saytdaxili axtarış (search query) və parametrli URL-ləri qadağan edirik ki, eyni məzmun (duplicate content) fərqli linklərdə indekslənməsin
+
+# Zərərli və ya çox yüklənmə edə biləcək bəzi məşhur regional botları məhdudlaşdırırıq
+# (Məsələn, Çin və Rusiya mənşəli bəzi botlar tez-tez serveri yorur)
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+# Google botlarına isə saytı daha sürətli gəzmək üçün xüsusi tam icazə veririk
+User-agent: Googlebot
+Allow: /
+
+# Sitemap ünvanı (Axtarış sistemlərinin saytın xəritəsini tapıb daha sürətli indeksləməsi üçün)
+# Saytını canlıya (production) çıxaranda "yourdomain.com" hissəsini öz domen adınla əvəzləməlisən.
+Sitemap: https://yourdomain.com/sitemap.xml
