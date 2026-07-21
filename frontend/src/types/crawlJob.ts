@@ -105,6 +105,7 @@ export type CrawlSchedule = {
   maxDepth: number;
   maxPages: number;
   stayWithinDomain: boolean;
+  type: string;
   intervalMinutes: number;
   isEnabled: boolean;
   createdAt: string;
@@ -125,6 +126,7 @@ export type CreateCrawlScheduleRequest = {
   maxDepth: number;
   maxPages: number;
   stayWithinDomain: boolean;
+  crawlType: "Fast" | "Dynamic";
   intervalMinutes: number;
 };
 
