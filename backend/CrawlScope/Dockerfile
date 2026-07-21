@@ -26,7 +26,8 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-COPY --from=build /app/publish .
+# Optimallaşdırma: Əvvəlcə YALNIZ Playwright fayllarını kopyalayırıq ki, brauzer yüklənməsi keşlənsin!
+COPY --from=build /app/publish/.playwright /app/.playwright
 
 # Install Playwright dependencies and browsers
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
@@ -34,5 +35,8 @@ RUN apt-get update && apt-get install -y curl wget && \
     chmod +x /app/.playwright/node/linux-x64/node && \
     /app/.playwright/node/linux-x64/node /app/.playwright/package/cli.js install-deps && \
     /app/.playwright/node/linux-x64/node /app/.playwright/package/cli.js install chromium firefox
+
+# İndi isə layihənin qalan fayllarını (kodları) kopyalayırıq
+COPY --from=build /app/publish .
 
 ENTRYPOINT ["dotnet", "CrawlScope.Api.dll"]
