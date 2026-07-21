@@ -4897,7 +4897,7 @@ tbody tr:hover td {
   }
   
   .mobile-logout-item {
-    display: flex;
+    display: flex !important;
     color: #fca5a5;
     border-top: 1px solid rgb(255 255 255 / 10%);
     margin-top: 8px;

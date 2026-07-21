@@ -1,5 +1,4 @@
 
-
 namespace CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule
 {
     public class CreateCrawlScheduleCommandHandler(IAppDbContext context)
@@ -14,6 +13,7 @@ namespace CrawlScope.Application.Modules.Crawling.Commands.CreateCrawlSchedule
                 MaxDepth = request.Dto.MaxDepth,
                 MaxPages = request.Dto.MaxPages,
                 StayWithinDomain = request.Dto.StayWithinDomain,
+                Type = request.Dto.CrawlType,
                 IntervalMinutes = request.Dto.IntervalMinutes,
                 IsEnabled = true,
                 CreatedAt = DateTime.UtcNow,
