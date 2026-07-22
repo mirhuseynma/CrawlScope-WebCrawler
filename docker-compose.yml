@@ -24,6 +24,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${DB_NAME:-CrawlScopeDb};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-mysecretpassword}
+      - SeedSettings__AdminPassword=${ADMIN_PASSWORD}
     depends_on:
       - db
     restart: unless-stopped
