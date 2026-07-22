@@ -139,9 +139,11 @@ Once the application is running, the interactive Swagger documentation is availa
    cd CrawlScope-WebCrawler
    ```
 2. **Setup environment variables:**
-   - Go to `backend/CrawlScope/src/Presentation/CrawlScope.Api`.
-   - Rename `appsettings.example.json` to `appsettings.Development.json`.
-   - Add your Brevo (SMTP) API key and user verification credentials.
+   - Create a `.env` file in the root directory (where `docker-compose.yml` is located) and define the default admin password:
+     ```bash
+     ADMIN_PASSWORD=YourSecurePassword123!
+     ```
+   - (Optional for Local Dev) Go to `backend/CrawlScope/src/Presentation/CrawlScope.Api`, rename `appsettings.example.json` to `appsettings.Development.json` and add your Brevo (SMTP) credentials.
 3. **Run using docker-compose:**
    ```bash
    docker-compose up --build -d
