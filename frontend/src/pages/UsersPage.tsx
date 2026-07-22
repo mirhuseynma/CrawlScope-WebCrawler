@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { deleteUser, getRoles, getUsers, updateUser, updateUserRoles } from "../api/adminAccessApi";
 import { PaginationControls } from "../components/PaginationControls";
+import { ModalNotification } from "../components/ModalNotification";
 import type { RoleListItem, UserListItem, UsersPageResult } from "../types/adminAccess";
 
 const emptyUsersPage: UsersPageResult = {
@@ -236,7 +237,7 @@ export function UsersPage() {
         </button>
       </div>
 
-      {error && <div className="alert">{error}</div>}
+      <ModalNotification message={error} type="error" onClose={() => setError(null)} />
 
       <div className="users-layout">
         <div className="users-list-panel">

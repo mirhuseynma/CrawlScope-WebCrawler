@@ -2265,14 +2265,13 @@ body {
 }
 
 .sidebar-footnote {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: auto;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 8px;
-  padding: 14px;
-  color: #d5dde7;
-  background: rgb(255 255 255 / 6%);
+  padding-top: 16px;
+  border-top: 1px solid rgb(255 255 255 / 10%);
 }
 
 .sidebar-footnote span {
@@ -3538,9 +3537,8 @@ select:hover {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  flex: 1;
+  min-width: 0;
 }
 
 .sidebar-user-avatar {
@@ -3978,22 +3976,25 @@ tbody tr:hover td {
 }
 
 .logout-button {
-  width: 100%;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
   color: #9fb1c5;
   background: transparent;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .logout-button:hover {
-  background: rgb(255 255 255 / 8%);
-  color: #f8fafc;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Public crawler studio redesign */
@@ -4569,10 +4570,6 @@ tbody tr:hover td {
   background: linear-gradient(135deg, #0d5d45, #187957);
 }
 
-.mobile-logout-item {
-  display: none !important;
-}
-
 /* =========================================================================
    DEFINITIVE MOBILE REFACTOR (max-width: 1024px)
    Overrides all conflicting legacy desktop classes for small screens.
@@ -4755,6 +4752,13 @@ tbody tr:hover td {
   .sidebar-footnote {
     display: none;
   }
+  
+  .sidebar.is-open .sidebar-footnote {
+    display: flex;
+    margin-top: 12px;
+    padding: 16px 0 4px 0;
+    border-top: 1px solid rgb(255 255 255 / 10%);
+  }
 
 .app-shell {
     display: block;
@@ -4896,17 +4900,7 @@ tbody tr:hover td {
     min-height: 48px;
   }
   
-  .mobile-logout-item {
-    display: flex;
-    color: #fca5a5;
-    border-top: 1px solid rgb(255 255 255 / 10%);
-    margin-top: 8px;
-    padding-top: 16px;
-  }
-  
-  .mobile-logout-item:hover {
-    color: #ef4444;
-  }
+
 
   .url-cell,
   .compact-url-cell,

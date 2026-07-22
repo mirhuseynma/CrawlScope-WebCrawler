@@ -5,7 +5,7 @@ namespace CrawlScope.Application.Modules.Admin.Commands.Roles.UpdateRolePermissi
         UserManager<AppUser> userManager) : IRequestHandler<UpdateRolePermissionsCommand, RoleDetailsDto>
     {
         private const string PermissionClaimType = "Permission";
-        private static readonly HashSet<string> ProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "User" };
+        private static readonly HashSet<string> ProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin" };
 
         public async Task<RoleDetailsDto> Handle(UpdateRolePermissionsCommand request, CancellationToken cancellationToken)
         {

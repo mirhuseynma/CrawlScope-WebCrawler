@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { createRole, deleteRole, getPermissions, getRoles, updateRole } from "../api/adminAccessApi";
+import { ModalNotification } from "../components/ModalNotification";
 import type { Permission, RoleListItem } from "../types/adminAccess";
 
 const rolesPageSize = 8;
@@ -38,6 +39,7 @@ export function RolesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const selectedRole = roles.find((role) => role.id === selectedRoleId) ?? null;
   const isSelectedRoleSystemManaged = selectedRole?.isSystemManaged ?? false;
@@ -108,6 +110,7 @@ export function RolesPage() {
     setEditRoleName(role.name);
     setRoleName("");
     setError(null);
+    setSuccess(null);
   }
 
   function togglePermission(permission: string) {
@@ -140,7 +143,9 @@ export function RolesPage() {
       await loadData();
       setSelectedRoleId(role.id);
       setSelectedPermissions(role.permissions);
+      setEditRoleName(role.name);
       setRoleName("");
+      setSuccess(`Role '${role.name}' created successfully.`);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to create role.");
     } finally {
@@ -164,6 +169,7 @@ export function RolesPage() {
       setRoles((current) => current.map((item) => (item.id === role.id ? role : item)));
       setEditRoleName(role.name);
       setSelectedPermissions(role.permissions);
+      setSuccess(`Role '${role.name}' updated successfully.`);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to update role.");
     } finally {
@@ -187,6 +193,7 @@ export function RolesPage() {
       setEditRoleName("");
       setSelectedPermissions([]);
       await loadData();
+      setSuccess(`Role '${role.name}' deleted successfully.`);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Failed to delete role.");
     } finally {
@@ -211,7 +218,7 @@ export function RolesPage() {
         </button>
       </div>
 
-      {error && <div className="alert">{error}</div>}
+      <ModalNotification message={error || success} type={error ? "error" : "success"} onClose={() => { setError(null); setSuccess(null); }} />
 
       <div className="users-layout">
         <div className="users-list-panel">

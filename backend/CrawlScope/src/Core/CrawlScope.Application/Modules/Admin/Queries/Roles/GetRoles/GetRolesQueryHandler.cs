@@ -5,7 +5,7 @@ namespace CrawlScope.Application.Modules.Admin.Queries.Roles.GetRoles
         UserManager<AppUser> userManager) : IRequestHandler<GetRolesQuery, IReadOnlyCollection<RoleListItemDto>>
     {
         private const string PermissionClaimType = "Permission";
-        private static readonly HashSet<string> ProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "User" };
+        private static readonly HashSet<string> ProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin" };
 
         public async Task<IReadOnlyCollection<RoleListItemDto>> Handle(GetRolesQuery request, CancellationToken cancellationToken)
         {

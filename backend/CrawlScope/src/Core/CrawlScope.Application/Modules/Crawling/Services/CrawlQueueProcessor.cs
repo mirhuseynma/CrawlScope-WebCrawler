@@ -3,7 +3,7 @@ namespace CrawlScope.Application.Modules.Crawling.Services
 {
     public class CrawlQueueProcessor(
         IAppDbContext context,
-        CrawlScope.Application.Abstractions.Crawling.Services.IPageFetcherFactory pageFetcherFactory,
+        IPageFetcherFactory pageFetcherFactory,
         IHtmlParser htmlParser) : ICrawlQueueProcessor
     {
         public async Task ProcessAsync(
@@ -133,7 +133,7 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 return;
             }
 
-            var normalizedFetchUrl = CrawlScope.Application.Common.Helpers.UrlNormalizer.Normalize(fetchResult.Url);
+            var normalizedFetchUrl = UrlNormalizer.Normalize(fetchResult.Url);
             var parsedPage = htmlParser.Parse(normalizedFetchUrl, fetchResult.Content);
             var crawledPage = new CrawledPage
             {

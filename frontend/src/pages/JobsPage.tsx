@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { analyzeUrl, cancelCrawlJob, createCrawlJob, deleteCrawlJob, getCrawlJobs, startCrawlJob, toggleCrawlJobImportance } from "../api/crawlJobsApi";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
+import { ModalNotification } from "../components/ModalNotification";
 import type { CrawlJob, CreateCrawlJobRequest, PagedResult } from "../types/crawlJob";
 
 const initialFormState: CreateCrawlJobRequest = {
@@ -365,7 +366,7 @@ export function JobsPage() {
             </button>
           </form>
 
-          {error && <div className="alert">{error}</div>}
+          <ModalNotification message={error} type="error" onClose={() => setError(null)} />
 
           {isLoading ? (
             <div className="empty-state">Loading jobs...</div>

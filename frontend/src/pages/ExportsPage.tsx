@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { deleteExportFileRecord, downloadExportFile, getExportFiles } from "../api/exportFilesApi";
 import { PaginationControls } from "../components/PaginationControls";
+import { ModalNotification } from "../components/ModalNotification";
 import type { ExportFile, PagedResult } from "../types/crawlJob";
 
 const emptyExportsPage: PagedResult<ExportFile> = {
@@ -184,7 +185,7 @@ export function ExportsPage() {
           </button>
         </form>
 
-        {error && <div className="alert">{error}</div>}
+        <ModalNotification message={error} type="error" onClose={() => setError(null)} />
 
         {isLoading ? (
           <div className="empty-state">Loading exports...</div>

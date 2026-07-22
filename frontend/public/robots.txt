@@ -23,4 +23,4 @@ Allow: /
 
 # Sitemap ünvanı (Axtarış sistemlərinin saytın xəritəsini tapıb daha sürətli indeksləməsi üçün)
 # Saytını canlıya (production) çıxaranda "yourdomain.com" hissəsini öz domen adınla əvəzləməlisən.
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://crawlscope.app/sitemap.xml
