@@ -16,6 +16,7 @@ const initialFormState: CreateCrawlScheduleRequest = {
   maxDepth: 0,
   maxPages: 5,
   stayWithinDomain: true,
+  crawlType: "Fast",
   intervalMinutes: 60,
 };
 
@@ -215,6 +216,20 @@ export function SchedulesPage() {
             </label>
           </div>
 
+          <div className="create-options-row two-cols">
+            <label>
+              Mode
+              <select
+                value={form.crawlType}
+                onChange={(event) => setForm((current) => ({ ...current, crawlType: event.target.value as "Fast" | "Dynamic" }))}
+                required
+              >
+                <option value="Fast">Standard (Static HTML)</option>
+                <option value="Dynamic">Dynamic (Headless Browser)</option>
+              </select>
+            </label>
+          </div>
+
           <div className="create-actions">
             <label className="checkbox-row">
               <input
@@ -290,6 +305,7 @@ export function SchedulesPage() {
 
                     <div className="schedule-chip-row">
                       <span>{schedule.intervalMinutes} min interval</span>
+                      <span>{schedule.type === "Fast" ? "Standard mode" : "Dynamic mode"}</span>
                       <span>depth {schedule.maxDepth}</span>
                       <span>{schedule.maxPages} pages max</span>
                       <span>{schedule.stayWithinDomain ? "domain only" : "any domain"}</span>

@@ -24,6 +24,7 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                     MaxDepth = schedule.MaxDepth,
                     MaxPages = schedule.MaxPages,
                     StayWithinDomain = schedule.StayWithinDomain,
+                    Type = schedule.Type,
                     Status = CrawlJobStatus.InProgress,
                     CreatedAt = DateTime.UtcNow,
                     StartedAt = DateTime.UtcNow,
