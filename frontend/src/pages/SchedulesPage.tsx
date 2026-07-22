@@ -8,6 +8,7 @@ import {
   getCrawlSchedules,
 } from "../api/crawlSchedulesApi";
 import { PaginationControls } from "../components/PaginationControls";
+import { ModalNotification } from "../components/ModalNotification";
 import type { CrawlSchedule, CreateCrawlScheduleRequest, PagedResult } from "../types/crawlJob";
 
 const initialFormState: CreateCrawlScheduleRequest = {
@@ -253,7 +254,7 @@ export function SchedulesPage() {
             </div>
           </div>
 
-          {error && <div className="alert">{error}</div>}
+          <ModalNotification message={error} type="error" onClose={() => setError(null)} />
 
           <form className="filter-bar" onSubmit={applyFilters}>
             <input

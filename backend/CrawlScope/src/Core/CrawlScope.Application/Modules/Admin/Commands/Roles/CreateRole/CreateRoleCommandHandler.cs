@@ -5,7 +5,7 @@ namespace CrawlScope.Application.Modules.Admin.Commands.Roles.CreateRole
         UserManager<AppUser> userManager) : IRequestHandler<CreateRoleCommand, RoleDetailsDto>
     {
         private const string PermissionClaimType = "Permission";
-        private static readonly HashSet<string> ProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "User" };
+        private static readonly HashSet<string> ProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin" };
 
         public async Task<RoleDetailsDto> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
         {

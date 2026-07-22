@@ -43,6 +43,7 @@ export function UserTopbar() {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+  const displayRole = user?.roles?.join(", ") || "User";
 
   return (
     <header className={`user-topbar ${isMenuOpen ? "is-open" : ""}`} ref={topbarRef}>
@@ -77,13 +78,13 @@ export function UserTopbar() {
               </span>
               <span className="user-menu-copy">
                 <strong>{displayName}</strong>
-                <small>Account</small>
+                <small>{displayRole}</small>
               </span>
             </summary>
             <div className="user-menu-panel">
               <div className="user-menu-summary">
                 <strong>{displayName}</strong>
-                <span>Signed in</span>
+                <span>{displayRole}</span>
               </div>
               <nav className="user-menu-nav" aria-label="Workspace navigation">
                 <NavLink className={({ isActive }) => (isActive ? "user-menu-action active" : "user-menu-action")} to="/" end onClick={closeMenu}>

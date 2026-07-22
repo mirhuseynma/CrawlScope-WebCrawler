@@ -114,20 +114,6 @@ export function AppShell({ children }: AppShellProps) {
                 ))}
               </div>
             ))}
-            
-          <button 
-            className="nav-item mobile-logout-item" 
-            type="button" 
-            onClick={() => {
-              logout();
-              closeMenu();
-            }}
-          >
-            <span className="nav-icon" aria-hidden="true">
-              <Icons.LogOut />
-            </span>
-            Logout
-          </button>
         </nav>
 
         <div className="sidebar-footnote">
@@ -138,8 +124,8 @@ export function AppShell({ children }: AppShellProps) {
               <small>{user?.roles.join(", ")}</small>
             </div>
           </div>
-          <button className="logout-button" type="button" onClick={logout}>
-            Logout
+          <button className="logout-button" type="button" onClick={logout} aria-label="Logout" title="Logout">
+            <Icons.LogOut />
           </button>
         </div>
       </aside>

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseAppHost>false</UseAppHost>
+    <UserSecretsId>12682d01-1f75-42b8-b914-1f9226f506b5</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

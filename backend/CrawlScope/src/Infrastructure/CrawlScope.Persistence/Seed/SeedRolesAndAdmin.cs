@@ -1,4 +1,4 @@
-﻿
+
 namespace CrawlScope.Persistence.Seed
 {
     public static class SeedRolesAndAdmin
@@ -7,6 +7,7 @@ namespace CrawlScope.Persistence.Seed
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
             await EnsureRoleAsync(roleManager, "Admin", Permissions.All());
             await EnsureRoleAsync(roleManager, "User", Permissions.UserDefaults());
@@ -24,7 +25,13 @@ namespace CrawlScope.Persistence.Seed
                     EmailConfirmed = true
                 };
 
-                var result = await userManager.CreateAsync(admin, "Admin123!");
+                var adminPassword = configuration["SeedSettings:AdminPassword"];
+                if (string.IsNullOrWhiteSpace(adminPassword))
+                {
+                    throw new InvalidOperationException("SeedSettings:AdminPassword is not configured. Please set it in appsettings.json, User Secrets, or Environment Variables.");
+                }
+
+                var result = await userManager.CreateAsync(admin, adminPassword);
 
                 if (!result.Succeeded)
                 {

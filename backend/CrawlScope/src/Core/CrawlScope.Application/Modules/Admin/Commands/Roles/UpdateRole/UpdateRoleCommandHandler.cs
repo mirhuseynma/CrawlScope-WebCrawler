@@ -5,7 +5,8 @@ namespace CrawlScope.Application.Modules.Admin.Commands.Roles.UpdateRole
         UserManager<AppUser> userManager) : IRequestHandler<UpdateRoleCommand, RoleDetailsDto>
     {
         private const string PermissionClaimType = "Permission";
-        private static readonly HashSet<string> ProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "User" };
+        private static readonly HashSet<string> RenameProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "User" };
+        private static readonly HashSet<string> PermissionProtectedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin" };
 
         public async Task<RoleDetailsDto> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
         {
@@ -15,7 +16,7 @@ namespace CrawlScope.Application.Modules.Admin.Commands.Roles.UpdateRole
 
             if (!string.Equals(currentRoleName, nextRoleName, StringComparison.OrdinalIgnoreCase))
             {
-                if (IsProtectedRole(currentRoleName))
+                if (IsRenameProtectedRole(currentRoleName))
                 {
                     throw new BadRequestException($"System role '{currentRoleName}' cannot be renamed.");
                 }
@@ -57,7 +58,7 @@ namespace CrawlScope.Application.Modules.Admin.Commands.Roles.UpdateRole
                 Name = role.Name ?? string.Empty,
                 Permissions = await GetRolePermissionsAsync(role),
                 UserCount = await CountUsersInRoleAsync(role.Name),
-                IsSystemManaged = IsProtectedRole(role.Name)
+                IsSystemManaged = IsPermissionProtectedRole(role.Name)
             };
         }
 
@@ -130,9 +131,14 @@ namespace CrawlScope.Application.Modules.Admin.Commands.Roles.UpdateRole
             return users.Count;
         }
 
-        private static bool IsProtectedRole(string? roleName)
+        private static bool IsRenameProtectedRole(string? roleName)
         {
-            return !string.IsNullOrWhiteSpace(roleName) && ProtectedRoles.Contains(roleName);
+            return !string.IsNullOrWhiteSpace(roleName) && RenameProtectedRoles.Contains(roleName);
+        }
+
+        private static bool IsPermissionProtectedRole(string? roleName)
+        {
+            return !string.IsNullOrWhiteSpace(roleName) && PermissionProtectedRoles.Contains(roleName);
         }
 
         private static string NormalizeRoleName(string name)

@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { cancelCrawlJob, exportCrawlJob, getBrokenLinks, getCrawledPages, getCrawlJob, getCrawlLogs } from "../api/crawlJobsApi";
 import { PaginationControls } from "../components/PaginationControls";
 import { StatusBadge } from "../components/StatusBadge";
+import { ModalNotification } from "../components/ModalNotification";
 import type { BrokenLink, CrawledPage, CrawlJobDetails, CrawlLog, PagedResult } from "../types/crawlJob";
 
 const emptyPagesPage: PagedResult<CrawledPage> = {
@@ -225,7 +226,7 @@ export function JobDetailsPage({ variant = "admin" }: JobDetailsPageProps) {
         </Link>
       </div>
 
-      {error && <div className="alert">{error}</div>}
+      <ModalNotification message={error} type="error" onClose={() => setError(null)} />
 
       {job && (
         <div className="metric-grid">
