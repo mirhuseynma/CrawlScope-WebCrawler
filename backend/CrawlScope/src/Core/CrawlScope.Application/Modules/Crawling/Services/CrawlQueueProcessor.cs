@@ -1,10 +1,13 @@
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace CrawlScope.Application.Modules.Crawling.Services
 {
     public class CrawlQueueProcessor(
         IAppDbContext context,
         IPageFetcherFactory pageFetcherFactory,
-        IHtmlParser htmlParser) : ICrawlQueueProcessor
+        IHtmlParser htmlParser,
+        ILogger<CrawlQueueProcessor> logger) : ICrawlQueueProcessor
     {
         public async Task ProcessAsync(
             Guid crawlJobId,
@@ -32,58 +35,91 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 {
                     crawlJob.Status = CrawlJobStatus.InProgress;
                     crawlJob.StartedAt = DateTime.UtcNow;
-                    await context.SaveChangesAsync(cancellationToken);
+                    await ExecuteWithDiagnosticSaveAsync(cancellationToken);
                 }
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    logger.LogInformation("--- START MAIN LOOP ITERATION ---");
+                    
+                    var pendingCount = await context.CrawlQueueItems.CountAsync(x => x.CrawlJobId == crawlJobId && x.Status == CrawlQueueStatus.Pending, cancellationToken);
+                    var inProgressCount = await context.CrawlQueueItems.CountAsync(x => x.CrawlJobId == crawlJobId && x.Status == CrawlQueueStatus.InProgress, cancellationToken);
+                    var completedCount = await context.CrawlQueueItems.CountAsync(x => x.CrawlJobId == crawlJobId && x.Status == CrawlQueueStatus.Completed, cancellationToken);
+                    var failedCount = await context.CrawlQueueItems.CountAsync(x => x.CrawlJobId == crawlJobId && x.Status == CrawlQueueStatus.Failed, cancellationToken);
+                    
+                    logger.LogInformation("Queue counts - Pending: {Pending}, InProgress: {InProgress}, Completed: {Completed}, Failed: {Failed}", pendingCount, inProgressCount, completedCount, failedCount);
+                    logger.LogInformation("Calling GetNextPendingQueueItemAsync");
+
                     var queueItem = await GetNextPendingQueueItemAsync(crawlJobId, cancellationToken);
+                    
+                    if (queueItem == null)
+                    {
+                        logger.LogInformation("GetNextPendingQueueItemAsync returned null. Checking if there are really zero pending items.");
+                        if (pendingCount > 0) 
+                        {
+                            logger.LogWarning("WARNING: GetNextPendingQueueItemAsync returned null BUT there are {Count} pending items! Query might be failing or locked.", pendingCount);
+                        }
+                    }
+                    else
+                    {
+                        logger.LogInformation("GetNextPendingQueueItemAsync returned Item Id: {Id}, Url: {Url}, Status: {Status}, Job PagesCrawled: {PagesCrawled}", queueItem.Id, queueItem.Url, queueItem.Status, crawlJob.PagesCrawled);
+                    }
+
                     if (queueItem is null || crawlJob.PagesCrawled >= crawlJob.MaxPages)
                     {
+                        logger.LogInformation("Breaking loop. QueueItem is null? {IsNull}. PagesCrawled: {Crawled}/{MaxPages}", queueItem is null, crawlJob.PagesCrawled, crawlJob.MaxPages);
                         break;
                     }
 
+                    logger.LogInformation("Calling ProcessQueueItemAsync");
                     await ProcessQueueItemAsync(crawlJob, queueItem, cancellationToken);
-                    await context.SaveChangesAsync(cancellationToken);
+                    logger.LogInformation("ProcessQueueItemAsync returned. Calling SaveChanges");
+                    await ExecuteWithDiagnosticSaveAsync(cancellationToken);
+                    logger.LogInformation("--- END MAIN LOOP ITERATION ---");
                 }
 
                 crawlJob.Status = CrawlJobStatus.Completed;
                 crawlJob.FinishedAt = DateTime.UtcNow;
 
                 await AddLogAsync(crawlJob.Id, CrawlLogLevel.Info, "Crawl job completed.", cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await ExecuteWithDiagnosticSaveAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
+                logger.LogInformation("OperationCanceledException caught.");
                 if (userCancellationToken.IsCancellationRequested)
                 {
                     // User clicked Cancel
+                    logger.LogInformation("Canceled by user.");
                     crawlJob.Status = CrawlJobStatus.Canceled;
                     crawlJob.FinishedAt = DateTime.UtcNow;
                     await AddLogAsync(crawlJob.Id, CrawlLogLevel.Warning, "Crawl job was canceled by user.", CancellationToken.None);
-                    await context.SaveChangesAsync(CancellationToken.None);
+                    await ExecuteWithDiagnosticSaveAsync(CancellationToken.None);
                 }
                 else if (timeoutCancellationToken.IsCancellationRequested)
                 {
                     // 10-minute time limit exceeded — save partial results
+                    logger.LogInformation("Timeout cancellation requested.");
                     crawlJob.Status = CrawlJobStatus.Completed;
                     crawlJob.FinishedAt = DateTime.UtcNow;
                     await AddLogAsync(crawlJob.Id, CrawlLogLevel.Warning, "Crawl job stopped: 10-minute time limit exceeded. Partial results saved.", CancellationToken.None);
-                    await context.SaveChangesAsync(CancellationToken.None);
+                    await ExecuteWithDiagnosticSaveAsync(CancellationToken.None);
                 }
                 else
                 {
                     // Service is shutting down — do not update status, Recovery will re-enqueue
+                    logger.LogInformation("Service shutting down cancellation.");
                     throw;
                 }
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Generic exception caught in ProcessAsync");
                 crawlJob.Status = CrawlJobStatus.Failed;
                 crawlJob.FinishedAt = DateTime.UtcNow;
                 crawlJob.ErrorMessage = ex.Message;
 
                 await AddLogAsync(crawlJob.Id, CrawlLogLevel.Error, $"Crawl job failed: {ex.Message}", cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await ExecuteWithDiagnosticSaveAsync(cancellationToken);
             }
         }
 
@@ -101,13 +137,17 @@ namespace CrawlScope.Application.Modules.Crawling.Services
             CrawlQueueItem queueItem,
             CancellationToken cancellationToken)
         {
+            logger.LogInformation("START ProcessQueueItem for URL: {Url}", queueItem.Url);
             queueItem.Status = CrawlQueueStatus.InProgress;
             queueItem.AttemptCount++;
 
             await AddLogAsync(crawlJob.Id, CrawlLogLevel.Info, $"Fetching {queueItem.Url}.", cancellationToken);
 
+            logger.LogInformation("FetchAsync started for URL: {Url}", queueItem.Url);
             var pageFetcher = pageFetcherFactory.Create(crawlJob.Type);
             var fetchResult = await pageFetcher.FetchAsync(queueItem.Url, cancellationToken);
+            logger.LogInformation("FetchAsync completed for URL: {Url}. Success: {IsSuccess}, Status: {Status}", queueItem.Url, fetchResult.IsSuccess, fetchResult.StatusCode);
+
             if (crawlJob.Type == CrawlType.Fast && ShouldRetryWithBrowser(fetchResult))
             {
                 await AddLogAsync(
@@ -116,8 +156,10 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                     $"Standard crawl was blocked for {queueItem.Url} with status code {fetchResult.StatusCode}. Retrying with Browser crawl.",
                     cancellationToken);
 
+                logger.LogInformation("Retrying FetchAsync with Browser for URL: {Url}", queueItem.Url);
                 pageFetcher = pageFetcherFactory.Create(CrawlType.Dynamic);
                 fetchResult = await pageFetcher.FetchAsync(queueItem.Url, cancellationToken);
+                logger.LogInformation("Browser FetchAsync completed for URL: {Url}. Success: {IsSuccess}", queueItem.Url, fetchResult.IsSuccess);
             }
 
             if (!fetchResult.IsSuccess || string.IsNullOrWhiteSpace(fetchResult.Content))
@@ -130,11 +172,16 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 crawlJob.PagesFailed++;
 
                 await AddLogAsync(crawlJob.Id, CrawlLogLevel.Warning, $"Failed to fetch {queueItem.Url}: {queueItem.ErrorMessage}", cancellationToken);
+                logger.LogInformation("ProcessQueueItem completed (Failed) for URL: {Url}", queueItem.Url);
                 return;
             }
 
             var normalizedFetchUrl = UrlNormalizer.Normalize(fetchResult.Url);
+            logger.LogInformation("Parse started for URL: {Url}", normalizedFetchUrl);
             var parsedPage = htmlParser.Parse(normalizedFetchUrl, fetchResult.Content);
+            logger.LogInformation("Parse completed for URL: {Url}. Found {Count} links.", normalizedFetchUrl, parsedPage.Links.Count);
+
+            logger.LogInformation("Saving CrawledPage for URL: {Url}", normalizedFetchUrl);
             var crawledPage = new CrawledPage
             {
                 Id = Guid.NewGuid(),
@@ -168,8 +215,12 @@ namespace CrawlScope.Application.Modules.Crawling.Services
             queueItem.ProcessedAt = DateTime.UtcNow;
             crawlJob.PagesCrawled++;
 
+            logger.LogInformation("Enqueue started for URL: {Url}", queueItem.Url);
             await EnqueueDiscoveredLinksAsync(crawlJob, queueItem, parsedPage.Links, cancellationToken);
+            logger.LogInformation("Enqueue completed for URL: {Url}", queueItem.Url);
             await AddLogAsync(crawlJob.Id, CrawlLogLevel.Info, $"Crawled {queueItem.Url}. Found {parsedPage.Links.Count} links.", cancellationToken);
+            
+            logger.LogInformation("ProcessQueueItem completed for URL: {Url}", queueItem.Url);
         }
 
         private static bool ShouldRetryWithBrowser(PageFetchResult fetchResult)
@@ -263,6 +314,29 @@ namespace CrawlScope.Application.Modules.Crawling.Services
                 Message = message,
                 CreatedAt = DateTime.UtcNow
             }, cancellationToken);
+        }
+
+        private async Task ExecuteWithDiagnosticSaveAsync(CancellationToken cancellationToken)
+        {
+            var trackedCount = 0;
+            if (context is Microsoft.EntityFrameworkCore.DbContext dbContext)
+            {
+                trackedCount = dbContext.ChangeTracker.Entries().Count();
+            }
+            logger.LogInformation("entering SaveChanges. Tracked entities: {Count}", trackedCount);
+            
+            var sw = Stopwatch.StartNew();
+            await context.SaveChangesAsync(cancellationToken);
+            sw.Stop();
+            
+            if (sw.ElapsedMilliseconds > 3000)
+            {
+                logger.LogWarning("leaving SaveChanges (SLOW). elapsed milliseconds: {Elapsed}", sw.ElapsedMilliseconds);
+            }
+            else
+            {
+                logger.LogInformation("leaving SaveChanges. elapsed milliseconds: {Elapsed}", sw.ElapsedMilliseconds);
+            }
         }
     }
 }

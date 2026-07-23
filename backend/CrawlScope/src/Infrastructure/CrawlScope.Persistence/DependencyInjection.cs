@@ -1,3 +1,4 @@
+using CrawlScope.Persistence.Interceptors;
 
 namespace CrawlScope.Persistence
 {
@@ -5,9 +6,14 @@ namespace CrawlScope.Persistence
     {
         public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<AppDbContext>(options =>
+            services.AddSingleton<DiagnosticDbCommandInterceptor>();
+
+            services.AddDbContext<AppDbContext>((sp, options) =>
             {
+                var interceptor = sp.GetRequiredService<DiagnosticDbCommandInterceptor>();
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+                options.AddInterceptors(interceptor);
+                options.EnableSensitiveDataLogging(); // useful for diagnosis
             });
 
             services

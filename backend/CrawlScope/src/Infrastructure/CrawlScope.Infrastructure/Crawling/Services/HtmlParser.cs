@@ -1,7 +1,12 @@
+using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
+using HtmlAgilityPack;
+using CrawlScope.Application.Common.Models;
+using CrawlScope.Application.Abstractions.Crawling.Services;
 
 namespace CrawlScope.Infrastructure.Crawling.Services
 {
-    public class HtmlParser : IHtmlParser
+    public class HtmlParser(ILogger<HtmlParser> logger) : IHtmlParser
     {
         private const int MaxContentSnapshotLength = 5000;
 
@@ -14,7 +19,12 @@ namespace CrawlScope.Infrastructure.Crawling.Services
             var title = NormalizeWhitespace(
                 titleNode is null ? null : HtmlEntity.DeEntitize(titleNode.InnerText));
 
-            var links = ExtractLinks(sourceUrl, document);
+            if (title != null && title.Length > 450)
+            {
+                title = title[..450];
+            }
+
+            var links = ExtractLinks(sourceUrl, document, logger);
             var textContent = ExtractBodyText(document);
 
             return new ParsedPage(sourceUrl, title, textContent, links);
@@ -113,7 +123,7 @@ namespace CrawlScope.Infrastructure.Crawling.Services
                     || ancestor.Name.Equals("h6", StringComparison.OrdinalIgnoreCase));
         }
 
-        private static IReadOnlyCollection<ParsedLink> ExtractLinks(string sourceUrl, HtmlDocument document)
+        private static IReadOnlyCollection<ParsedLink> ExtractLinks(string sourceUrl, HtmlDocument document, ILogger logger)
         {
             if (!Uri.TryCreate(sourceUrl, UriKind.Absolute, out var sourceUri))
             {
@@ -130,14 +140,25 @@ namespace CrawlScope.Infrastructure.Crawling.Services
 
             foreach (var anchor in anchorNodes)
             {
-                var href = anchor.GetAttributeValue("href", string.Empty).Trim();
-                if (ShouldSkipHref(href) || !Uri.TryCreate(sourceUri, href, out var targetUri))
+                var rawHref = anchor.GetAttributeValue("href", string.Empty).Trim();
+                var decodedHref = HtmlEntity.DeEntitize(rawHref);
+
+                if (ShouldSkipHref(decodedHref) || !Uri.TryCreate(sourceUri, decodedHref, out var targetUri))
                 {
                     continue;
                 }
 
                 var normalizedTargetUrl = NormalizeUrl(targetUri);
+                
+                logger.LogInformation("URL Transform - Raw: {Raw}, Decoded: {Decoded}, Normalized: {Normalized}", rawHref, decodedHref, normalizedTargetUrl);
+
                 var anchorText = NormalizeWhitespace(HtmlEntity.DeEntitize(anchor.InnerText));
+                
+                if (anchorText != null && anchorText.Length > 450)
+                {
+                    anchorText = anchorText[..450];
+                }
+
                 var isExternal = !string.Equals(sourceUri.Host, targetUri.Host, StringComparison.OrdinalIgnoreCase);
 
                 links.Add(new ParsedLink(sourceUrl, normalizedTargetUrl, anchorText, isExternal));
